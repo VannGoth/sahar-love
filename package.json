@@ -1,0 +1,20 @@
+{
+  "name": "sahar",
+  "version": "1.0.0",
+  "description": "Sahar — un toque para decirle que la piensas",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.3.0",
+    "web-push": "^3.6.7"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

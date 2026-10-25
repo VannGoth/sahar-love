@@ -1,0 +1,4 @@
+node_modules
+vapid-keys.json
+data.json
+data.json.tmp

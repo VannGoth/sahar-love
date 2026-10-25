@@ -1,0 +1,17 @@
+# Despliegue en Render (plan gratis). Render pedirá los valores de Upstash al crear el servicio.
+services:
+  - type: web
+    name: sahar-love
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: UPSTASH_REDIS_REST_URL
+        sync: false
+      - key: UPSTASH_REDIS_REST_TOKEN
+        sync: false
