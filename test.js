@@ -61,6 +61,7 @@ const { app, ready, streakInfo, recordDay, prevDay, runReminders, flush } = requ
   const I = require('./public/i18n.js');
   const DEFAULT_TEXTS = I.MESSAGES;
   // Todas las claves de cada idioma existen
+  for (const l of I.LANGS) assert.strictEqual(I.QUESTIONS[l].length, 20, `preguntas ${l}`);
   const keys = (o, pre = '') => Object.entries(o).flatMap(([k, v]) => (v && typeof v === 'object' && k !== 'days' ? keys(v, pre + k + '.') : [pre + k]));
   const enKeys = keys(I.STRINGS.en).sort();
   for (const l of I.LANGS) {
@@ -228,6 +229,37 @@ const { app, ready, streakInfo, recordDay, prevDay, runReminders, flush } = requ
     global.fetch = realFetch;
     assert.strictEqual((await c2('GET', '/api/state?userId=p1')).json.trans['دوستت دارم عزیزم'], undefined);
     console.log('✓ traducción automática');
+
+    // Tipos de toque
+    dbb.users.p2.pushLog = [];
+    const kiss = (await c2('POST', '/api/send', { userId: 'p1', type: 'kiss' })).json;
+    assert.strictEqual(kiss.body, '#kiss');
+    await new Promise((r) => setTimeout(r, 100));
+    const lastPush = pushes[pushes.length - 1].payload;
+    assert.strictEqual(lastPush.title, 'Carlos 💋');
+    assert.strictEqual(lastPush.body, I.t('fa', 'kissBody'));
+    const recvK = (await c2('GET', '/api/state?userId=p2')).json.received[0];
+    assert.strictEqual(recvK.type, 'kiss');
+    console.log('✓ tipos de toque');
+
+    // Pregunta del día
+    let q1 = (await c2('GET', '/api/state?userId=p1')).json.question;
+    assert.ok(q1.q >= 0 && q1.q < 20 && q1.mine === null);
+    await c2('POST', '/api/answer', { userId: 'p2', text: 'سفر به شیراز' });
+    q1 = (await c2('GET', '/api/state?userId=p1')).json.question;
+    assert.strictEqual(q1.partnerAnswered, true); assert.strictEqual(q1.partner, null, 'oculta hasta que respondas');
+    q1 = (await c2('POST', '/api/answer', { userId: 'p1', text: 'Ir a Isfahán contigo' })).json.question;
+    assert.strictEqual(q1.mine, 'Ir a Isfahán contigo'); assert.strictEqual(q1.partner, 'سفر به شیراز');
+    assert.notStrictEqual(S.questionIndex('2026-10-26'), S.questionIndex('2026-10-27'));
+    console.log('✓ pregunta del día');
+
+    // Ánimo y álbum
+    assert.strictEqual((await c2('POST', '/api/mood', { userId: 'p2', emoji: '🥰' })).json.myMood, '🥰');
+    assert.strictEqual((await c2('GET', '/api/state?userId=p1')).json.partnerMood, '🥰');
+    assert.strictEqual((await c2('POST', '/api/mood', { userId: 'p2', emoji: 'x' })).status, 400);
+    const alb = (await c2('GET', '/api/state?userId=p2')).json.album;
+    assert.ok(alb.length >= 1 && alb[0].id && alb[0].mine === false);
+    console.log('✓ ánimo y álbum');
 
     // Desvincular: el último en salir borra la pareja
     assert.strictEqual((await c2('POST', '/api/couple/leave', { userId: 'p1' })).json.code, null);
