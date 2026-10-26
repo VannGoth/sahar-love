@@ -1,5 +1,5 @@
 // Sahar Love — service worker: notificaciones push y apertura rápida
-const CACHE = 'sahar-v2';
+const CACHE = 'sahar-v3';
 const SHELL = ['/', '/index.html', '/i18n.js', '/manifest.webmanifest', '/icon-192.png', '/icon-180.png'];
 
 self.addEventListener('install', (e) => {
@@ -16,16 +16,18 @@ self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET' || url.origin !== location.origin || url.pathname.startsWith('/api/')) return;
   e.respondWith((async () => {
     const cache = await caches.open(CACHE);
-    try {
-      const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 4000);
-      const res = await fetch(e.request, { signal: ctrl.signal });
-      clearTimeout(timer);
-      if (res.ok) cache.put(e.request, res.clone());
+    const network = fetch(e.request).then((res) => {
+      if (res.ok) cache.put(e.request, res.clone()).catch(() => {});
       return res;
-    } catch (_) {
-      return (await cache.match(e.request)) || (await cache.match('/')) || Response.error();
-    }
+    });
+    // Si la red tarda (servidor gratis despertando), usar la copia guardada;
+    // si no hay copia, esperar a la red el tiempo que haga falta.
+    const timeout = new Promise((r) => setTimeout(r, 3000, 'timeout'));
+    const first = await Promise.race([network.catch(() => 'error'), timeout]);
+    if (first !== 'timeout' && first !== 'error') return first;
+    const cached = (await cache.match(e.request)) || (e.request.mode === 'navigate' ? await cache.match('/') : null);
+    if (cached) return cached;
+    return network;
   })());
 });
 

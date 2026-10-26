@@ -181,6 +181,10 @@
   html[dir="rtl"] .level-txt { font-size:22px; }
   .level-txt.pop { animation:numpop .45s cubic-bezier(.2,.9,.3,1.5); }
   .hint small { display:block; margin-top:4px; font-size:12.5px; letter-spacing:0; }
+  .loading { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px; min-height:60vh; text-align:center; }
+  .loading .big { font-size:84px; animation:beat 1.6s ease-in-out infinite; filter:drop-shadow(0 10px 30px rgba(225,29,72,.6)); }
+  .loading p { color:var(--gold-1); font-family:var(--font-display); font-size:22px; margin:0; }
+  .loading .btn { width:auto; padding:12px 26px; }
   #hapticLbl { position:fixed; left:-200px; top:0; opacity:0; pointer-events:none; }
   .hint { margin-top:22px; color:var(--muted-2); font-size:14px; letter-spacing:.04em; animation:fade 2.4s ease-in-out infinite; }
   @keyframes fade { 0%,100%{opacity:.45} 50%{opacity:1} }
@@ -281,6 +285,13 @@
       <select id="langSelect"></select>
     </label>
   </header>
+
+  <!-- Cargando (el servidor gratis puede tardar en despertar) -->
+  <section id="loadingView" class="view loading">
+    <div class="big">💗</div>
+    <p data-i18n="waking"></p>
+    <button class="btn ghost hidden" id="retryBtn" data-i18n="retry"></button>
+  </section>
 
   <!-- Instalar en iPhone -->
   <section id="installView" class="view hidden">
@@ -454,7 +465,12 @@ async function api(path, method = 'GET', body) {
   if (method === 'GET') path += (path.includes('?') ? '&' : '?') + 'userId=' + encodeURIComponent(userId);
   else opts.body = JSON.stringify({ userId, ...body });
   let res;
-  try { res = await fetch(path, opts); } catch (_) { const e = new Error('network'); e.code = 'network'; throw e; }
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 75000);
+    res = await fetch(path, { ...opts, signal: ctrl.signal });
+    clearTimeout(timer);
+  } catch (_) { const e = new Error('network'); e.code = 'network'; throw e; }
   const data = await res.json().catch(() => ({}));
   if (res.ok && data && 'streak' in data && 'name' in data) store.set('sahar_state', JSON.stringify(data));
   if (!res.ok) { const e = new Error(data.code || 'network'); e.code = data.code || 'network'; e.partner = data.partner; throw e; }
@@ -469,7 +485,7 @@ let pollTimer = null;
 let shownStreak = null;
 const isStandalone = window.navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-const VIEWS = ['installView', 'nameView', 'coupleView', 'homeView', 'msgsView'];
+const VIEWS = ['loadingView', 'installView', 'nameView', 'coupleView', 'homeView', 'msgsView'];
 
 function show(name) {
   VIEWS.forEach((v) => {
@@ -870,8 +886,22 @@ const FX = (() => {
   if (isIOS && !isStandalone && !params.has('preview')) return show('installView');
   // Mostrar al instante lo último conocido (el servidor gratis puede tardar en despertar)
   try { const cached = JSON.parse(store.get('sahar_state') || 'null'); if (cached && cached.name) { state = cached; render(false); } } catch (_) {}
-  try { state = await api('/api/state'); }
-  catch (e) { if (e.code === 'unknown_user') state = null; }
+  if (!state) show('loadingView');
+  // Reintenta hasta que el servidor despierte (hasta ~2 minutos)
+  let ok = false;
+  for (let i = 0; i < 8 && !ok; i++) {
+    try { state = await api('/api/state'); ok = true; }
+    catch (e) {
+      if (e.code === 'unknown_user') { state = null; ok = true; }
+      else if (state && state.name) break; // ya mostramos lo guardado; se actualizará solo
+      else await new Promise((r) => setTimeout(r, 4000));
+    }
+  }
+  if (!ok && !(state && state.name)) {
+    $('retryBtn').classList.remove('hidden');
+    $('retryBtn').onclick = () => location.reload();
+    return;
+  }
   if (state && state.lang && state.lang !== lang && !store.get('sahar_lang')) { lang = state.lang; sel.value = lang; applyLang(); }
   render();
 })();
