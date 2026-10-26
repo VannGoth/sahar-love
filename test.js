@@ -62,6 +62,7 @@ const { app, ready, streakInfo, recordDay, prevDay, runReminders, flush } = requ
   const DEFAULT_TEXTS = I.MESSAGES;
   // Todas las claves de cada idioma existen
   for (const l of I.LANGS) assert.strictEqual(I.QUESTIONS[l].length, 20, `preguntas ${l}`);
+  for (const v of I.HAFEZ) for (const l of I.LANGS) assert.ok(v[l] && v[l].length > 10, `hafez ${l}`);
   const keys = (o, pre = '') => Object.entries(o).flatMap(([k, v]) => (v && typeof v === 'object' && k !== 'days' ? keys(v, pre + k + '.') : [pre + k]));
   const enKeys = keys(I.STRINGS.en).sort();
   for (const l of I.LANGS) {
@@ -260,6 +261,22 @@ const { app, ready, streakInfo, recordDay, prevDay, runReminders, flush } = requ
     const alb = (await c2('GET', '/api/state?userId=p2')).json.album;
     assert.ok(alb.length >= 1 && alb[0].id && alb[0].mine === false);
     console.log('✓ ánimo y álbum');
+
+    // Fechas persas (valores conocidos)
+    assert.deepStrictEqual(S.persianHolidays(2025), { nowruz: '2025-03-21', sizdah: '2025-04-02', yalda: '2025-12-21', suri: '2025-03-18' });
+    assert.strictEqual(S.persianHolidays(2024).nowruz, '2024-03-20');
+    const upP = S.upcomingPersian('2026-10-26');
+    assert.deepStrictEqual(upP.map((x) => x.id), ['suri', 'nowruz', 'sizdah', 'yalda']);
+    assert.ok(upP.find((x) => x.id === 'yalda').date.startsWith('2026-12-2'));
+    let pst = (await c2('GET', '/api/state?userId=p1')).json;
+    assert.strictEqual(pst.persianOn, true); assert.strictEqual(pst.persian.length, 4);
+    pst = (await c2('POST', '/api/persian', { userId: 'p1', on: false })).json;
+    assert.strictEqual(pst.persianOn, false); assert.strictEqual(pst.persian.length, 0);
+    await c2('POST', '/api/persian', { userId: 'p1', on: true });
+    const pb2 = pushes.length;
+    await S.runReminders(new Date(S.persianHolidays(2026).yalda + 'T08:30:00Z'));
+    assert.ok(pushes.slice(pb2).some((x) => x.payload.body.includes(I.t('fa', 'yalda'))), 'aviso de Yalda en persa');
+    console.log('✓ fechas persas');
 
     // Desvincular: el último en salir borra la pareja
     assert.strictEqual((await c2('POST', '/api/couple/leave', { userId: 'p1' })).json.code, null);

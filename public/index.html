@@ -13,7 +13,7 @@
 <link rel="icon" href="/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Vazirmatn:wght@400;500;700&family=Noto+Nastaliq+Urdu:wght@500&display=swap" rel="stylesheet">
 <title>Sahar Love</title>
 <style>
   :root {
@@ -37,6 +37,13 @@
   html[data-theme="sunset"] { --bg-1:#1c0a14; --bg-2:#5b1a3a; --bg-3:#3a0f1c; --red:#f97316; --red-2:#ea580c; --red-3:#9a3412; --rose:#fdba74;
     --gold-1:#fff7d6; --gold-2:#fcd34d; --gold-3:#f59e0b; --gold-4:#b45309; --card:rgba(80,25,30,.55); --card-line:rgba(252,211,77,.28);
     --glow:249,115,22; --glowg:252,211,77; --orb-hi:#ffd2a8; --orb-lo:#5a1a0a; }
+  html[data-theme="isfahan"] { --bg-1:#04161c; --bg-2:#0b4152; --bg-3:#062730; --red:#14b8a6; --red-2:#0e7490; --red-3:#164e63; --rose:#5eead4;
+    --gold-1:#fff3c4; --gold-2:#f3d27a; --gold-3:#d4af37; --gold-4:#9a7420; --card:rgba(6,48,60,.6); --card-line:rgba(243,210,122,.3);
+    --muted:#bfe3e0; --muted-2:#7fb0ad; --glow:20,184,166; --glowg:243,210,122; --orb-hi:#a7f3e8; --orb-lo:#062f3a; }
+  /* Patrón geométrico persa (girih) del tema Isfahán */
+  html[data-theme="isfahan"] body::before { content:""; position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.09;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%23f3d27a' stroke-width='1.2'%3E%3Cpath d='M42 12l8.5 21.5L72 42l-21.5 8.5L42 72l-8.5-21.5L12 42l21.5-8.5z'/%3E%3Cpath d='M21 21h42v42H21z' transform='rotate(45 42 42)'/%3E%3Cpath d='M21 21h42v42H21z'/%3E%3Ccircle cx='42' cy='42' r='7'/%3E%3Cpath d='M0 0l12 12M84 0L72 12M0 84l12-12M84 84L72 72'/%3E%3C/g%3E%3C/svg%3E");
+    background-size:84px 84px; }
   /* Tipos de toque: color del corazón */
   .orb-wrap[data-touch="kiss"]  { --red:#ec4899; --red-2:#be185d; --orb-hi:#ffb8dc; --orb-lo:#500724; --glow:236,72,153; }
   .orb-wrap[data-touch="hug"]   { --red:#f59e0b; --red-2:#c2410c; --orb-hi:#ffe2a8; --orb-lo:#5c2508; --glow:245,158,11; }
@@ -277,6 +284,29 @@
   .lightbox { position:fixed; inset:0; z-index:70; background:rgba(5,0,2,.92); display:grid; place-items:center; padding:20px; animation:fadein .25s both; }
   .lightbox img { max-width:100%; max-height:86vh; border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,.6); }
   .card + .card { margin-top:12px; }
+  /* Fal-e Hafez */
+  .hafez { text-align:center; position:relative; overflow:hidden; }
+  .hafez h3 { justify-content:center; }
+  .hafez .intro { color:var(--muted); font-size:15px; margin:4px 0 14px; line-height:1.45; }
+  .hafez .book { display:inline-flex; align-items:center; gap:8px; font-size:16px; }
+  .verse { font-family:"Noto Nastaliq Urdu","Vazirmatn",serif; direction:rtl; font-size:clamp(14px,4.3vw,19px); line-height:2.2; color:var(--gold-1); white-space:pre-line;
+    padding:14px 8px 6px; margin:4px 0 8px; border-top:1px solid rgba(var(--glowg),.25); border-bottom:1px solid rgba(var(--glowg),.25);
+    text-shadow:0 0 18px rgba(var(--glowg),.35); animation:openBook .9s cubic-bezier(.2,.9,.3,1.1) both; }
+  .verse-tr { font-family:var(--font-display); font-style:italic; font-size:18px; line-height:1.45; color:var(--cream); margin:8px 4px 2px; animation:rise .8s .25s both; }
+  html[dir="rtl"] .verse-tr { font-style:normal; font-size:16px; }
+  .hafez small.who { display:block; color:var(--muted-2); font-size:12px; margin-top:8px; }
+  @keyframes openBook { from { opacity:0; transform:perspective(600px) rotateX(-70deg) scale(.9); } to { opacity:1; transform:none; } }
+  /* Pizarra de dibujo */
+  .draw { position:fixed; inset:0; height:100dvh; z-index:65; background:rgba(8,2,5,.94); display:flex; flex-direction:column; padding:calc(env(safe-area-inset-top) + 10px) 12px calc(env(safe-area-inset-bottom) + 12px); gap:10px; }
+  .draw canvas { flex:1 1 0; min-height:0; width:100%; border-radius:18px; background:#fbf6ee; touch-action:none; box-shadow:0 10px 40px rgba(0,0,0,.5); }
+  .draw .bar { display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:center; }
+  .draw .sw { width:30px; height:30px; border-radius:50%; border:2px solid rgba(255,255,255,.25); }
+  .draw .sw.on { border-color:#fff; transform:scale(1.15); }
+  .draw .sz { width:34px; height:34px; border-radius:50%; border:1px solid var(--card-line); background:transparent; display:grid; place-items:center; }
+  .draw .sz i { background:var(--cream); border-radius:50%; display:block; }
+  .draw .sz.on { background:rgba(255,255,255,.12); }
+  .draw .acts { display:flex; gap:8px; }
+  .draw .acts .btn { margin:0; padding:13px; }
   #hapticLbl { position:fixed; left:-200px; top:0; opacity:0; pointer-events:none; }
   .hint { margin-top:22px; color:var(--muted-2); font-size:14px; letter-spacing:.04em; animation:fade 2.4s ease-in-out infinite; }
   @keyframes fade { 0%,100%{opacity:.45} 50%{opacity:1} }
@@ -451,6 +481,7 @@
       <div class="attach-row" id="attachRow">
         <button class="chip-btn" id="photoBtn">📷 <span data-i18n="photo"></span></button>
         <button class="chip-btn" id="audioBtn">🎤 <span data-i18n="audio"></span></button>
+        <button class="chip-btn" id="drawBtn">✏️ <span data-i18n="drawBtn"></span></button>
       </div>
       <input type="file" id="photoInput" accept="image/*" hidden>
     </div>
@@ -479,6 +510,10 @@
       <h3>🌤 <span data-i18n="moodTitle"></span></h3>
       <p class="partner-mood hidden" id="partnerMoodTxt"></p>
       <div class="moods" id="moodRow"></div>
+    </div>
+    <div class="card hafez" id="hafezCard">
+      <h3>🌹 <span data-i18n="hafezTitle"></span></h3>
+      <div id="hafezBody"></div>
     </div>
     <div class="notif" id="notifBox"></div>
   </section>
@@ -555,6 +590,12 @@
       <button class="btn gold" id="dateAdd" data-i18n="dateAdd" style="margin:6px 0 0"></button>
       <div class="err" id="dateErr"></div>
     </div>
+    <div class="card" style="margin-top:12px;padding:6px 18px">
+      <div class="set-row">
+        <label for="persianChk">🌸 <span data-i18n="persianDates"></span></label>
+        <span class="switch"><input type="checkbox" id="persianChk" checked><i></i></span>
+      </div>
+    </div>
     <ul class="list" id="dateList" style="margin-top:16px"></ul>
   </section>
 </main>
@@ -588,10 +629,23 @@
 </div>
 
 <div class="lightbox hidden" id="lightbox"><img alt="📷"></div>
+<div class="draw hidden" id="drawPad">
+  <div class="bar" id="drawColors"></div>
+  <canvas id="drawCanvas"></canvas>
+  <div class="bar">
+    <span id="drawSizes" style="display:flex;gap:8px"></span>
+    <button class="chip-btn" id="drawUndo" data-i18n="drawUndo"></button>
+    <button class="chip-btn" id="drawClear" data-i18n="drawClear"></button>
+  </div>
+  <div class="acts">
+    <button class="btn ghost" id="drawCancel" data-i18n="cancel"></button>
+    <button class="btn" id="drawDone" data-i18n="drawDone"></button>
+  </div>
+</div>
 <label id="hapticLbl" aria-hidden="true"><input type="checkbox" switch tabindex="-1"></label>
 <script src="/i18n.js"></script>
 <script>
-const APP_VERSION = '2026-10-26-5';
+const APP_VERSION = '2026-10-26-6';
 let currentTheme = 'red';
 try { currentTheme = localStorage.getItem('sahar_theme') || 'red'; } catch (_) {}
 const I = window.SaharI18n;
@@ -702,6 +756,7 @@ function render(fresh = true) {
   renderTypes();
   renderQuestion();
   renderMood();
+  renderHafez(false);
   checkNewLove();
 }
 
@@ -1056,7 +1111,9 @@ function renderDates() {
     ts.value = cur || 'birthday'; ts.dataset.lang = lang;
   }
   const today = todayKey();
-  const items = (state.dates || []).map((d) => ({ ...d, occ: nextOcc(d, today) })).map((d) => ({ ...d, left: daysBetween(today, d.occ) }))
+  $('persianChk').checked = state.persianOn !== false;
+  const persian = (state.persian || []).map((p) => ({ id: 'p-' + p.id, persian: p.id, name: t(p.id), date: p.date, type: 'other', yearly: false }));
+  const items = [...(state.dates || []), ...persian].map((d) => ({ ...d, occ: nextOcc(d, today) })).map((d) => ({ ...d, left: daysBetween(today, d.occ) }))
     .filter((d) => d.left >= 0 || d.left > -2).sort((a, b) => a.left - b.left);
   const list = $('dateList'); list.innerHTML = '';
   if (!items.length) { const li = document.createElement('li'); li.className = 'empty'; li.textContent = t('datesEmpty'); list.append(li); }
@@ -1064,12 +1121,12 @@ function renderDates() {
     const li = document.createElement('li'); li.style.animationDelay = `${Math.min(i, 12) * 35}ms`;
     const wrap = document.createElement('div'); wrap.style.flex = '1';
     const row = document.createElement('div'); row.className = 'date-item';
-    const ic = document.createElement('div'); ic.className = 'date-ico'; ic.textContent = DATE_ICONS[d.type] || '⭐';
+    const ic = document.createElement('div'); ic.className = 'date-ico'; ic.textContent = d.persian ? PERSIAN_ICONS[d.persian] : (DATE_ICONS[d.type] || '⭐');
     const main = document.createElement('div'); main.className = 'date-main';
     const b = document.createElement('b'); b.textContent = d.name;
     const sm = document.createElement('small');
     let ds; try { ds = new Intl.DateTimeFormat(I.LOCALES[lang], { day: 'numeric', month: 'long', ...(d.yearly ? {} : { year: 'numeric' }) }).format(new Date(d.occ + 'T12:00:00')); } catch (_) { ds = d.occ; }
-    sm.textContent = `${t(DATE_LABEL[d.type] || 'dtOther')} · ${ds}${d.yearly ? ' · 🔁' : ''}`;
+    sm.textContent = d.persian ? `${ds} · ${jalali(d.occ)}` : `${t(DATE_LABEL[d.type] || 'dtOther')} · ${ds}${d.yearly ? ' · 🔁' : ''} · ${jalali(d.occ)}`;
     main.append(b, sm);
     const left = document.createElement('div'); left.className = 'date-left';
     if (d.left <= 0) { left.classList.add('today'); left.innerHTML = ''; const bb = document.createElement('b'); bb.textContent = t('todayIs'); left.append(bb); }
@@ -1081,7 +1138,7 @@ function renderDates() {
     const del = document.createElement('button'); del.textContent = '🗑';
     del.onclick = async () => { try { state = await api('/api/dates', 'DELETE', { id: d.id }); renderDates(); } catch (e) { $('dateErr').textContent = errText(e); } };
     acts.append(cal, del);
-    wrap.append(row, acts); li.append(wrap); list.append(li);
+    wrap.append(row); if (!d.persian) wrap.append(acts); li.append(wrap); list.append(li);
   });
   const soon = items.some((d) => d.left <= 1);
   $('dateBadge').classList.toggle('hidden', !soon || tab === 'dates');
@@ -1126,8 +1183,8 @@ function renderTypes() {
 }
 
 /* ----- Temas de color ----- */
-const THEMES = { red: 'themeRed', rose: 'themeRose', night: 'themeNight', sunset: 'themeSunset' };
-const THEME_BG = { red: '#14040a', rose: '#1f0b16', night: '#070b1d', sunset: '#1c0a14' };
+const THEMES = { red: 'themeRed', rose: 'themeRose', night: 'themeNight', sunset: 'themeSunset', isfahan: 'themeIsfahan' };
+const THEME_BG = { red: '#14040a', rose: '#1f0b16', night: '#070b1d', sunset: '#1c0a14', isfahan: '#04161c' };
 function applyTheme(th) {
   currentTheme = THEMES[th] ? th : 'red';
   if (currentTheme === 'red') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = currentTheme;
@@ -1203,6 +1260,82 @@ function renderAlbum() {
   });
 }
 $('lightbox').onclick = () => $('lightbox').classList.add('hidden');
+
+/* ----- Fal-e Hafez: un verso al día ----- */
+function hafezIndex(day) { let h = 0; for (const ch of userId + day) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h % I.HAFEZ.length; }
+function renderHafez(animate) {
+  const day = todayKey();
+  const opened = store.get('sahar_hafez') === day;
+  const body = $('hafezBody'); body.innerHTML = '';
+  if (!opened) {
+    const p = document.createElement('p'); p.className = 'intro'; p.textContent = t('hafezIntro');
+    const b = document.createElement('button'); b.className = 'btn gold book'; b.innerHTML = '📖 <span></span>'; b.querySelector('span').textContent = t('hafezOpen');
+    b.onclick = () => { store.set('sahar_hafez', day); renderHafez(true); FX.shower(1600, { colors: ['#e11d48', '#fb7185', '#be123c'], emoji: '🌹' }); };
+    body.append(p, b);
+    return;
+  }
+  const v = I.HAFEZ[hafezIndex(day)];
+  const lbl = document.createElement('p'); lbl.className = 'intro'; lbl.style.marginBottom = '4px'; lbl.textContent = t('hafezToday');
+  const fa = document.createElement('div'); fa.className = 'verse'; fa.textContent = v.fa;
+  if (!animate) fa.style.animation = 'none';
+  body.append(lbl, fa);
+  if (lang !== 'fa') { const tr = document.createElement('p'); tr.className = 'verse-tr'; tr.textContent = v[lang] || v.en; if (!animate) tr.style.animation = 'none'; body.append(tr); }
+  const who = document.createElement('small'); who.className = 'who'; who.textContent = lang === 'fa' || lang === 'ar' ? '— حافظ شیرازی' : '— Hafez de Shiraz · حافظ'; body.append(who);
+}
+
+/* ----- Pizarra para dibujar ----- */
+const DRAW_COLORS = ['#1f2937', '#e11d48', '#d4af37', '#0e7490', '#7c3aed', '#16a34a', '#f97316', '#ffffff'];
+const DRAW_SIZES = [3, 7, 14];
+const pad = { color: DRAW_COLORS[0], size: DRAW_SIZES[1], strokes: [], cur: null };
+function drawSetup() {
+  const cs = $('drawColors'); cs.innerHTML = '';
+  DRAW_COLORS.forEach((c) => { const b = document.createElement('button'); b.className = 'sw' + (c === pad.color ? ' on' : ''); b.style.background = c; b.onclick = () => { pad.color = c; drawSetup(); }; cs.append(b); });
+  const ss = $('drawSizes'); ss.innerHTML = '';
+  DRAW_SIZES.forEach((s) => { const b = document.createElement('button'); b.className = 'sz' + (s === pad.size ? ' on' : ''); const i = document.createElement('i'); i.style.width = i.style.height = (s + 2) + 'px'; b.append(i); b.onclick = () => { pad.size = s; drawSetup(); }; ss.append(b); });
+}
+function drawRedraw() {
+  const c = $('drawCanvas'), ctx = c.getContext('2d');
+  ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = '#fbf6ee'; ctx.fillRect(0, 0, c.width, c.height); ctx.restore();
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  for (const s of pad.strokes) {
+    ctx.strokeStyle = s.color; ctx.lineWidth = s.size; ctx.beginPath();
+    s.pts.forEach((p, i) => { if (i === 0) ctx.moveTo(p[0], p[1]); else { const q = s.pts[i - 1]; ctx.quadraticCurveTo(q[0], q[1], (q[0] + p[0]) / 2, (q[1] + p[1]) / 2); } });
+    if (s.pts.length === 1) ctx.lineTo(s.pts[0][0] + 0.1, s.pts[0][1]);
+    ctx.stroke();
+  }
+}
+function drawOpen() {
+  $('drawPad').classList.remove('hidden');
+  const c = $('drawCanvas'); const r = c.getBoundingClientRect(); const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  c.width = Math.round(r.width * dpr); c.height = Math.round(r.height * dpr);
+  c.getContext('2d').setTransform(dpr, 0, 0, dpr, 0, 0);
+  pad.strokes = []; drawSetup(); drawRedraw();
+}
+(() => {
+  const c = $('drawCanvas');
+  const pos = (e) => { const r = c.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  c.addEventListener('pointerdown', (e) => { e.preventDefault(); c.setPointerCapture(e.pointerId); pad.cur = { color: pad.color, size: pad.size, pts: [pos(e)] }; pad.strokes.push(pad.cur); drawRedraw(); });
+  c.addEventListener('pointermove', (e) => { if (!pad.cur) return; pad.cur.pts.push(pos(e)); drawRedraw(); });
+  const end = () => { pad.cur = null; };
+  c.addEventListener('pointerup', end); c.addEventListener('pointercancel', end);
+})();
+$('drawBtn').onclick = drawOpen;
+$('drawUndo').onclick = () => { pad.strokes.pop(); drawRedraw(); };
+$('drawClear').onclick = () => { pad.strokes = []; drawRedraw(); };
+$('drawCancel').onclick = () => $('drawPad').classList.add('hidden');
+$('drawDone').onclick = async () => {
+  if (!pad.strokes.length) return $('drawPad').classList.add('hidden');
+  const blob = await new Promise((r) => $('drawCanvas').toBlob(r, 'image/jpeg', 0.85));
+  $('drawPad').classList.add('hidden');
+  attach = { kind: 'photo', mime: 'image/jpeg', data: await blobToB64(blob), url: URL.createObjectURL(blob) };
+  renderAttach();
+  uploadAttach().catch(() => {});
+};
+
+/* ----- Fechas persas ----- */
+const PERSIAN_ICONS = { suri: '🔥', nowruz: '🌸', sizdah: '🌿', yalda: '🍉' };
+const jalali = (iso) => { try { return new Intl.DateTimeFormat('fa-IR-u-ca-persian', { day: 'numeric', month: 'long' }).format(new Date(iso + 'T12:00:00')); } catch (_) { return ''; } };
+$('persianChk').onchange = async () => { try { state = await api('/api/persian', 'POST', { on: $('persianChk').checked }); renderDates(); } catch (e) { $('dateErr').textContent = errText(e); } };
 
 /* ----- Corazón: toca o mantén presionado (más tiempo = más fuerza) ----- */
 let sending = false;

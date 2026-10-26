@@ -37,6 +37,166 @@
     ro: ["Care a fost momentul tău preferat cu mine săptămâna aceasta?", "Care a fost prima ta impresie despre mine?", "Unde ți-ar plăcea să călătorim împreună?", "Ce cântec îți amintește de noi?", "Ce mic detaliu de-al meu te face să zâmbești?", "Cum ar arăta ziua noastră perfectă?", "Ce vis ți-ar plăcea să împlinești cu mine?", "Ce ar trebui să gătim împreună?", "Ce îți lipsește cel mai mult când nu suntem împreună?", "Ce amintire de-a noastră nu vei uita niciodată?", "Ce ți-ar plăcea să facem în weekendul acesta?", "Ce gest de-al meu te face să simți cel mai mult iubire?", "Ce film am vedea în seara asta?", "Ce te-a făcut să te îndrăgostești de mine?", "Cum ne vezi peste cinci ani?", "Ce lucru nou ai descoperit datorită mie?", "Care e felul tău preferat de a petrece timpul împreună?", "Dacă mi-ai putea face un cadou acum, care ar fi?", "Ce ai vrea să-mi spui azi?", "Ce la mine te face să râzi cel mai mult?"],
   };
 
+  // Versos de Hafez (siglo XIV, dominio público) con traducción
+  const HAFEZ = [
+  {
+  "fa": "اگر آن ترک شیرازی به دست آرد دل ما را\nبه خال هندویش بخشم سمرقند و بخارا را",
+  "es": "Si aquella belleza de Shiraz tomara mi corazón en su mano, por su lunar daría Samarcanda y Bujará.",
+  "de": "Wenn jene Schöne aus Schiras mein Herz in ihre Hand nähme, gäbe ich für ihr Muttermal Samarkand und Buchara.",
+  "en": "If that beauty of Shiraz would take my heart in hand, for her dark mole I'd give Samarkand and Bukhara.",
+  "tr": "O Şirazlı güzel gönlümü eline alırsa, onun bir benine Semerkant'ı ve Buhara'yı bağışlarım.",
+  "ru": "Если та ширазская красавица возьмёт моё сердце в руки, за её родинку я отдам Самарканд и Бухару.",
+  "uk": "Якщо та ширазька красуня візьме моє серце в руки, за її родимку я віддам Самарканд і Бухару.",
+  "pl": "Jeśli ta piękność z Szirazu weźmie moje serce w dłonie, za jej pieprzyk oddam Samarkandę i Bucharę.",
+  "ar": "إن أخذت تلك الحسناء الشيرازية قلبي بيدها، لوهبتُ لخالها سمرقند وبخارى.",
+  "it": "Se quella bella di Shiraz prendesse in mano il mio cuore, per il suo neo darei Samarcanda e Bukhara.",
+  "ro": "Dacă acea frumusețe din Shiraz mi-ar lua inima în mâini, pentru alunița ei aș da Samarkandul și Buhara."
+  },
+  {
+  "fa": "صبا به لطف بگو آن غزال رعنا را\nکه سر به کوه و بیابان تو داده‌ای ما را",
+  "es": "Brisa, dile con dulzura a esa gacela grácil: eres tú quien me ha hecho vagar por montes y desiertos.",
+  "de": "Wind, sag jener anmutigen Gazelle sanft: Du bist es, die mich in Berge und Wüsten trieb.",
+  "en": "Breeze, tell that graceful gazelle gently: it is you who sent me wandering through mountains and deserts.",
+  "tr": "Saba rüzgârı, o zarif ceylana nazikçe söyle: beni dağlara, çöllere düşüren sensin.",
+  "ru": "Ветерок, скажи нежно той стройной газели: это ты отправила меня скитаться по горам и пустыням.",
+  "uk": "Вітерцю, скажи ніжно тій стрункій газелі: це ти змусила мене блукати горами й пустелями.",
+  "pl": "Wietrze, powiedz czule tej smukłej gazeli: to ty posłałaś mnie na tułaczkę po górach i pustyniach.",
+  "ar": "يا نسيم الصبا، قل بلطف لذلك الغزال الرشيق: أنت من جعلني أهيم في الجبال والصحارى.",
+  "it": "Brezza, di' con dolcezza a quella gazzella aggraziata: sei tu che mi hai fatto vagare per monti e deserti.",
+  "ro": "Adiere, spune-i cu blândețe acelei gazele grațioase: tu m-ai trimis să rătăcesc prin munți și deșerturi."
+  },
+  {
+  "fa": "الا یا ایها الساقی ادر کأسا و ناولها\nکه عشق آسان نمود اول ولی افتاد مشکل‌ها",
+  "es": "¡Oh copero, haz circular la copa! El amor parecía fácil al principio, pero luego llegaron las dificultades.",
+  "de": "O Schenke, lass den Becher kreisen! Die Liebe schien zuerst leicht, doch dann kamen die Schwierigkeiten.",
+  "en": "O cupbearer, pass the cup around! Love seemed easy at first, but then came the hardships.",
+  "tr": "Ey saki, kadehi dolaştır ve sun! Aşk önce kolay göründü, ama sonra zorluklar başladı.",
+  "ru": "О виночерпий, пусти чашу по кругу! Любовь казалась лёгкой вначале, но потом пришли трудности.",
+  "uk": "О чашнику, пусти чашу по колу! Кохання здавалося легким спершу, але потім прийшли труднощі.",
+  "pl": "O podczaszy, puść kielich w obieg! Miłość wydawała się łatwa na początku, lecz potem przyszły trudności.",
+  "ar": "ألا يا أيها الساقي أدر كأسًا وناولها، فقد بدا العشق سهلًا أولًا ثم وقعت المشكلات.",
+  "it": "O coppiere, fai girare la coppa! L'amore sembrava facile all'inizio, poi sono arrivate le difficoltà.",
+  "ro": "O, paharnice, dă cupa din mână în mână! Iubirea părea ușoară la început, dar apoi au venit greutățile."
+  },
+  {
+  "fa": "یوسف گم‌گشته بازآید به کنعان غم مخور\nکلبه احزان شود روزی گلستان غم مخور",
+  "es": "José perdido volverá a Canaán, no estés triste; la choza del dolor un día será un jardín de rosas, no estés triste.",
+  "de": "Der verlorene Josef kehrt nach Kanaan zurück, sei nicht traurig; die Hütte des Kummers wird einst ein Rosengarten, sei nicht traurig.",
+  "en": "Lost Joseph will return to Canaan, do not grieve; this hut of sorrow will one day be a rose garden, do not grieve.",
+  "tr": "Kayıp Yusuf Kenan'a dönecek, gam yeme; hüzün kulübesi bir gün gül bahçesi olacak, gam yeme.",
+  "ru": "Потерянный Юсуф вернётся в Ханаан, не печалься; хижина скорби однажды станет садом роз, не печалься.",
+  "uk": "Загублений Юсуф повернеться до Ханаану, не сумуй; хатина смутку колись стане трояндовим садом, не сумуй.",
+  "pl": "Zaginiony Józef wróci do Kanaanu, nie smuć się; chata smutku stanie się kiedyś ogrodem róż, nie smuć się.",
+  "ar": "يوسف الضائع سيعود إلى كنعان فلا تحزن، وكوخ الأحزان سيصبح يومًا روضة ورد فلا تحزن.",
+  "it": "Giuseppe perduto tornerà a Canaan, non essere triste; la capanna del dolore un giorno sarà un roseto, non essere triste.",
+  "ro": "Iosif cel pierdut se va întoarce în Canaan, nu fi trist; coliba durerii va fi într-o zi grădină de trandafiri, nu fi trist."
+  },
+  {
+  "fa": "هرگز نمیرد آن که دلش زنده شد به عشق\nثبت است بر جریده عالم دوام ما",
+  "es": "Nunca muere aquel cuyo corazón vive por el amor; nuestra eternidad está escrita en el libro del mundo.",
+  "de": "Wessen Herz durch die Liebe lebendig wurde, der stirbt nie; unsere Ewigkeit steht im Buch der Welt geschrieben.",
+  "en": "One whose heart is brought to life by love never dies; our eternity is written in the record of the world.",
+  "tr": "Gönlü aşkla dirilen asla ölmez; bizim sonsuzluğumuz dünyanın defterine yazılmıştır.",
+  "ru": "Никогда не умрёт тот, чьё сердце ожило любовью; наша вечность записана в книге мира.",
+  "uk": "Ніколи не помре той, чиє серце ожило коханням; наша вічність записана в книзі світу.",
+  "pl": "Nigdy nie umrze ten, czyje serce ożyło miłością; nasza wieczność zapisana jest w księdze świata.",
+  "ar": "لا يموت أبدًا من أحيا العشق قلبه؛ دوامنا مكتوب في سجل العالم.",
+  "it": "Non muore mai chi ha il cuore reso vivo dall'amore; la nostra eternità è scritta nel libro del mondo.",
+  "ro": "Nu moare niciodată cel a cărui inimă a fost trezită la viață de iubire; veșnicia noastră e scrisă în cartea lumii."
+  },
+  {
+  "fa": "در ازل پرتو حسنت ز تجلی دم زد\nعشق پیدا شد و آتش به همه عالم زد",
+  "es": "En el principio resplandeció el rayo de tu belleza; nació el amor y prendió fuego al mundo entero.",
+  "de": "Am Anfang leuchtete der Strahl deiner Schönheit auf; die Liebe entstand und setzte die ganze Welt in Brand.",
+  "en": "In the beginning the ray of your beauty shone forth; love was born and set the whole world on fire.",
+  "tr": "Ezelde güzelliğinin ışığı parladı; aşk doğdu ve bütün âlemi ateşe verdi.",
+  "ru": "В начале времён вспыхнул луч твоей красоты; родилась любовь и зажгла весь мир.",
+  "uk": "На початку часів спалахнув промінь твоєї краси; народилося кохання й запалило весь світ.",
+  "pl": "Na początku zajaśniał promień twojego piękna; narodziła się miłość i podpaliła cały świat.",
+  "ar": "في الأزل تجلّى شعاع حسنك، فوُلد العشق وأشعل النار في العالم كله.",
+  "it": "All'origine risplendette il raggio della tua bellezza; nacque l'amore e diede fuoco al mondo intero.",
+  "ro": "La început a strălucit raza frumuseții tale; s-a născut iubirea și a aprins lumea întreagă."
+  },
+  {
+  "fa": "دل می‌رود ز دستم صاحب‌دلان خدا را\nدردا که راز پنهان خواهد شد آشکارا",
+  "es": "Mi corazón se me escapa; ¡por Dios, almas sensibles! Ay, el secreto escondido saldrá a la luz.",
+  "de": "Mein Herz entgleitet mir – um Gottes willen, ihr Herzenskundigen! Ach, das verborgene Geheimnis wird offenbar.",
+  "en": "My heart is slipping from my hands — for God's sake, you who have hearts! Alas, the hidden secret will be revealed.",
+  "tr": "Gönlüm elimden gidiyor, ey gönül ehli, Allah aşkına! Eyvah, gizli sır açığa çıkacak.",
+  "ru": "Сердце уходит из моих рук — ради Бога, люди с сердцем! Увы, тайное станет явным.",
+  "uk": "Серце вислизає з моїх рук — заради Бога, люди з серцем! На жаль, таємне стане явним.",
+  "pl": "Serce wymyka mi się z rąk — na Boga, ludzie o czułych sercach! Niestety, ukryta tajemnica wyjdzie na jaw.",
+  "ar": "قلبي يفلت من يدي، فبالله يا أصحاب القلوب! وا أسفاه، سينكشف السر المكتوم.",
+  "it": "Il cuore mi sfugge di mano, per Dio, voi che avete un cuore! Ahimè, il segreto nascosto verrà svelato.",
+  "ro": "Inima îmi scapă din mâini, pentru Dumnezeu, voi cei cu inimă! Vai, taina ascunsă va ieși la iveală."
+  },
+  {
+  "fa": "روز وصل دوستداران یاد باد\nیاد باد آن روزگاران یاد باد",
+  "es": "Que se recuerde el día del encuentro de los amantes; que se recuerden aquellos tiempos.",
+  "de": "Gedenke des Tages, an dem die Liebenden sich fanden; gedenke jener Zeiten.",
+  "en": "Remember the day the lovers were united; remember those days.",
+  "tr": "Sevenlerin kavuştuğu gün anılsın; o günler anılsın.",
+  "ru": "Пусть помнится день встречи влюблённых; пусть помнятся те времена.",
+  "uk": "Хай пам'ятається день зустрічі закоханих; хай пам'ятаються ті часи.",
+  "pl": "Niech będzie wspominany dzień spotkania zakochanych; niech będą wspominane tamte czasy.",
+  "ar": "ليُذكر يوم وصال المحبين؛ ليُذكر ذلك الزمان.",
+  "it": "Si ricordi il giorno in cui gli amanti si unirono; si ricordino quei tempi.",
+  "ro": "Să fie amintită ziua în care îndrăgostiții s-au regăsit; să fie amintite acele vremuri."
+  },
+  {
+  "fa": "سال‌ها دل طلب جام جم از ما می‌کرد\nآن چه خود داشت ز بیگانه تمنا می‌کرد",
+  "es": "Durante años mi corazón buscó en otros la copa de Jamshid; lo que ya tenía, lo pedía a extraños.",
+  "de": "Jahrelang suchte mein Herz bei anderen den Becher Dschamschids; was es selbst besaß, erbat es von Fremden.",
+  "en": "For years my heart sought Jamshid's cup from others; what it already had, it begged from strangers.",
+  "tr": "Yıllarca gönlüm Cem'in kadehini başkalarından istedi; kendinde olanı yabancıdan diledi.",
+  "ru": "Годами сердце искало у других чашу Джамшида; то, что имело само, оно просило у чужих.",
+  "uk": "Роками серце шукало в інших чашу Джамшида; те, що мало саме, воно просило в чужих.",
+  "pl": "Latami serce szukało u innych pucharu Dżamszida; to, co samo miało, wypraszało od obcych.",
+  "ar": "سنين طويلة طلب قلبي كأس جمشيد من غيره؛ وما كان يملكه طلبه من الغرباء.",
+  "it": "Per anni il mio cuore ha cercato presso altri la coppa di Jamshid; ciò che già possedeva, lo chiedeva agli estranei.",
+  "ro": "Ani de zile inima a căutat la alții cupa lui Jamshid; ceea ce avea deja, cerea de la străini."
+  },
+  {
+  "fa": "دوش دیدم که ملایک در میخانه زدند\nگل آدم بسرشتند و به پیمانه زدند",
+  "es": "Anoche vi a los ángeles llamar a la puerta de la taberna; amasaron el barro de Adán y lo vertieron en la copa.",
+  "de": "Letzte Nacht sah ich Engel an die Tür der Schenke klopfen; sie kneteten Adams Lehm und gossen ihn in den Becher.",
+  "en": "Last night I saw angels knocking at the tavern door; they kneaded Adam's clay and poured it into the cup.",
+  "tr": "Dün gece meleklerin meyhanenin kapısını çaldığını gördüm; Âdem'in çamurunu yoğurup kadehe döktüler.",
+  "ru": "Прошлой ночью я видел, как ангелы стучали в дверь кабачка; они замесили глину Адама и влили её в чашу.",
+  "uk": "Минулої ночі я бачив, як ангели стукали у двері шинку; вони замісили глину Адама й налили її в чашу.",
+  "pl": "Zeszłej nocy widziałem, jak anioły pukały do drzwi winiarni; ugniatały glinę Adama i wlewały ją do kielicha.",
+  "ar": "رأيت البارحة الملائكة يطرقون باب الحانة؛ عجنوا طين آدم وصبّوه في الكأس.",
+  "it": "Stanotte ho visto gli angeli bussare alla porta della taverna; impastarono l'argilla di Adamo e la versarono nella coppa.",
+  "ro": "Azi-noapte am văzut îngerii bătând la ușa cârciumii; au frământat lutul lui Adam și l-au turnat în cupă."
+  },
+  {
+  "fa": "شب تاریک و بیم موج و گردابی چنین هایل\nکجا دانند حال ما سبک‌باران ساحل‌ها",
+  "es": "Noche oscura, miedo a las olas y un remolino tan terrible: ¿cómo van a entendernos los que esperan ligeros en la orilla?",
+  "de": "Dunkle Nacht, Angst vor den Wellen und ein so schrecklicher Strudel – wie sollen die Unbeschwerten am Ufer unseren Zustand kennen?",
+  "en": "A dark night, fear of the waves and such a dreadful whirlpool — how could those resting lightly on the shore know our state?",
+  "tr": "Karanlık gece, dalga korkusu ve böyle korkunç bir girdap; sahilde yükü hafif olanlar halimizi nereden bilsin?",
+  "ru": "Тёмная ночь, страх волн и такой страшный водоворот — откуда знать о нас тем, кто налегке стоит на берегу?",
+  "uk": "Темна ніч, страх хвиль і такий страшний вир — звідки знати про нас тим, хто легко стоїть на березі?",
+  "pl": "Ciemna noc, strach przed falami i tak straszny wir — skąd mają znać nasz los ci, co lekko stoją na brzegu?",
+  "ar": "ليل مظلم وخوف من الموج ودوامة بهذا الهول؛ كيف يعرف حالنا المتخففون على الشواطئ؟",
+  "it": "Notte buia, paura delle onde e un vortice così terribile: come possono capirci quelli che restano leggeri sulla riva?",
+  "ro": "Noapte întunecată, frică de valuri și un vârtej atât de cumplit: cum să știe starea noastră cei ușori de pe țărm?"
+  },
+  {
+  "fa": "ما در پیاله عکس رخ یار دیده‌ایم\nای بی‌خبر ز لذت شرب مدام ما",
+  "es": "En la copa hemos visto el reflejo del rostro amado; tú, que no conoces el placer de nuestro beber eterno.",
+  "de": "Im Becher sahen wir das Spiegelbild des geliebten Gesichts; o du, der nichts weiß von der Freude unseres ewigen Trinkens.",
+  "en": "In the cup we have seen the reflection of the beloved's face; O you who know nothing of the joy of our endless drinking.",
+  "tr": "Kadehte sevgilinin yüzünün aksini gördük; ey bizim sonsuz içişimizin zevkinden habersiz olan.",
+  "ru": "В чаше мы увидели отражение лица любимой; о ты, не знающий радости нашего вечного пития.",
+  "uk": "У чаші ми побачили відображення обличчя коханої; о ти, хто не знає радості нашого вічного пиття.",
+  "pl": "W kielichu ujrzeliśmy odbicie twarzy ukochanej; o ty, który nie znasz rozkoszy naszego wiecznego picia.",
+  "ar": "لقد رأينا في الكأس انعكاس وجه الحبيب؛ يا من لا تعرف لذة شرابنا الدائم.",
+  "it": "Nella coppa abbiamo visto il riflesso del volto dell'amata; o tu che ignori la gioia del nostro bere eterno.",
+  "ro": "În cupă am văzut reflexia chipului iubitei; o, tu care nu cunoști bucuria băuturii noastre veșnice."
+  }
+  ];
+
   const S = {
     es: {
       tagline: 'Un toque para decir «te pienso».', askName: '¿Cómo te llamas?', namePh: 'Tu nombre', continue: 'Continuar',
@@ -60,6 +220,7 @@
       tabDates: "Fechas", datesTitle: "Fechas especiales", dateNamePh: "Nombre (ej. Cumpleaños de Mina)", dateAdd: "Añadir fecha", dtBirthday: "Cumpleaños", dtAnniv: "Aniversario", dtDate: "Cita", dtOther: "Otro", yearly: "Cada año", inDays: "en {n} {days}", todayIs: "¡Hoy! 🎉", tomorrowIs: "Mañana", addCal: "Añadir al calendario", datesEmpty: "Aún no hay fechas. Añade cumpleaños, citas o aniversarios 📅", photo: "Foto", audio: "Audio", recording: "Grabando… toca para terminar", attached: "Se enviará con tu próximo toque 💗", micDenied: "No se pudo usar el micrófono", settingsTitle: "Avisos que recibo", limitLbl: "Máximo de avisos cada 10 min", unlimited: "Sin límite", extraVib: "Vibraciones extra en toques fuertes", quietLbl: "No molestar", heldQuiet: "Guardado 💗 {p} lo verá al abrir la app", translatedMark: "traducido", dateToday: "Hoy: {name} 💗", dateTomorrow: "Mañana: {name}", tapToPlay: "Reproducir", viewPhoto: "Ver foto",
       unlink: "Desvincular pareja", unlinkConfirm: "¿Seguro? Toca otra vez para desvincular",
       typeHeart: "Corazón", typeKiss: "Beso", typeHug: "Abrazo", typeMiss: "Te extraño", typeNight: "Buenas noches", kissBody: "Te manda un beso 😘", hugBody: "Te manda un abrazo enorme 🤗", missBody: "Te extraña muchísimo 🥺", nightBody: "Te desea buenas noches 🌙✨", themeLbl: "Tema de color", themeRed: "Rojo y dorado", themeRose: "Rosa y plata", themeNight: "Noche estrellada", themeSunset: "Atardecer", qTitle: "Pregunta del día", qPh: "Tu respuesta…", qSend: "Responder", qWaiting: "{p} aún no ha respondido 💭", qLocked: "Responde para ver la respuesta de {p} 🔒", qPush: "{p} respondió la pregunta del día 💭", moodTitle: "Mi ánimo hoy", moodOf: "Ánimo de {p}", albumTitle: "Nuestro álbum", albumEmpty: "Las fotos que se envíen aparecerán aquí 📷",
+      hafezTitle: "Fal-e Hafez", hafezIntro: "Piensa en un deseo y abre el libro de Hafez 🌹", hafezOpen: "Abrir", hafezToday: "Tu verso de hoy", themeIsfahan: "Isfahán", drawBtn: "Dibujo", drawDone: "Usar dibujo", drawClear: "Borrar", drawUndo: "Deshacer", cancel: "Cancelar", persianDates: "Mostrar fechas persas", nowruz: "Nowruz · Año Nuevo persa", yalda: "Noche de Yalda", suri: "Chaharshanbe Suri · Fiesta del fuego", sizdah: "Sizdah Bedar · Día de la naturaleza",
       streakPush: '🔥 ¡{n} {days} seguidos!',
       err: { invalid_media: "No se pudo subir el archivo", invalid_date: 'Fecha no válida', unknown_user: 'Sesión no encontrada', code_not_found: 'Código no encontrado', couple_full: 'Esa pareja ya está completa', no_partner: 'Aún no tienes pareja vinculada', partner_no_notif: '{p} aún no activó las notificaciones', delivery_failed: 'No se pudo entregar la notificación', invalid_message: 'Mensaje inválido', min_one: 'Debe quedar al menos un mensaje', network: 'Sin conexión. Inténtalo de nuevo.' },
     },
@@ -85,6 +246,7 @@
       tabDates: "Termine", datesTitle: "Besondere Tage", dateNamePh: "Name (z. B. Minas Geburtstag)", dateAdd: "Termin hinzufügen", dtBirthday: "Geburtstag", dtAnniv: "Jahrestag", dtDate: "Date", dtOther: "Sonstiges", yearly: "Jedes Jahr", inDays: "in {n} {days}", todayIs: "Heute! 🎉", tomorrowIs: "Morgen", addCal: "Zum Kalender hinzufügen", datesEmpty: "Noch keine Termine. Füge Geburtstage, Dates oder Jahrestage hinzu 📅", photo: "Foto", audio: "Audio", recording: "Aufnahme… zum Beenden tippen", attached: "Wird mit deinem nächsten Tippen gesendet 💗", micDenied: "Mikrofon konnte nicht verwendet werden", settingsTitle: "Benachrichtigungen, die ich bekomme", limitLbl: "Höchstens so viele alle 10 Min.", unlimited: "Unbegrenzt", extraVib: "Extra-Vibrationen bei starkem Tippen", quietLbl: "Nicht stören", heldQuiet: "Gespeichert 💗 {p} sieht es beim Öffnen der App", translatedMark: "übersetzt", dateToday: "Heute: {name} 💗", dateTomorrow: "Morgen: {name}", tapToPlay: "Abspielen", viewPhoto: "Foto ansehen",
       unlink: "Verbindung trennen", unlinkConfirm: "Sicher? Zum Trennen nochmal tippen",
       typeHeart: "Herz", typeKiss: "Kuss", typeHug: "Umarmung", typeMiss: "Vermisse dich", typeNight: "Gute Nacht", kissBody: "Schickt dir einen Kuss 😘", hugBody: "Schickt dir eine riesige Umarmung 🤗", missBody: "Vermisst dich sehr 🥺", nightBody: "Wünscht dir eine gute Nacht 🌙✨", themeLbl: "Farbthema", themeRed: "Rot & Gold", themeRose: "Rosé & Silber", themeNight: "Sternennacht", themeSunset: "Sonnenuntergang", qTitle: "Frage des Tages", qPh: "Deine Antwort…", qSend: "Antworten", qWaiting: "{p} hat noch nicht geantwortet 💭", qLocked: "Antworte, um die Antwort von {p} zu sehen 🔒", qPush: "{p} hat die Frage des Tages beantwortet 💭", moodTitle: "Meine Stimmung heute", moodOf: "Stimmung von {p}", albumTitle: "Unser Album", albumEmpty: "Gesendete Fotos erscheinen hier 📷",
+      hafezTitle: "Fal-e Hafez", hafezIntro: "Denk an einen Wunsch und öffne das Buch von Hafis 🌹", hafezOpen: "Öffnen", hafezToday: "Dein Vers für heute", themeIsfahan: "Isfahan", drawBtn: "Zeichnung", drawDone: "Zeichnung verwenden", drawClear: "Löschen", drawUndo: "Rückgängig", cancel: "Abbrechen", persianDates: "Persische Feiertage anzeigen", nowruz: "Nouruz · Persisches Neujahr", yalda: "Yalda-Nacht", suri: "Tschaharschanbe Suri · Feuerfest", sizdah: "Sizdah Bedar · Tag der Natur",
       streakPush: '🔥 {n} {days} in Folge!',
       err: { invalid_media: "Datei konnte nicht hochgeladen werden", invalid_date: 'Ungültiges Datum', unknown_user: 'Sitzung nicht gefunden', code_not_found: 'Code nicht gefunden', couple_full: 'Dieses Paar ist schon vollständig', no_partner: 'Du bist noch mit niemandem verbunden', partner_no_notif: '{p} hat die Benachrichtigungen noch nicht aktiviert', delivery_failed: 'Benachrichtigung konnte nicht zugestellt werden', invalid_message: 'Ungültige Nachricht', min_one: 'Mindestens eine Nachricht muss bleiben', network: 'Keine Verbindung. Versuch es nochmal.' },
     },
@@ -110,6 +272,7 @@
       tabDates: "Dates", datesTitle: "Special dates", dateNamePh: "Name (e.g. Mina's birthday)", dateAdd: "Add date", dtBirthday: "Birthday", dtAnniv: "Anniversary", dtDate: "Date night", dtOther: "Other", yearly: "Every year", inDays: "in {n} {days}", todayIs: "Today! 🎉", tomorrowIs: "Tomorrow", addCal: "Add to calendar", datesEmpty: "No dates yet. Add birthdays, dates or anniversaries 📅", photo: "Photo", audio: "Audio", recording: "Recording… tap to finish", attached: "It will go with your next tap 💗", micDenied: "Couldn't use the microphone", settingsTitle: "Notifications I get", limitLbl: "Max notifications every 10 min", unlimited: "No limit", extraVib: "Extra vibrations on strong taps", quietLbl: "Do not disturb", heldQuiet: "Saved 💗 {p} will see it when opening the app", translatedMark: "translated", dateToday: "Today: {name} 💗", dateTomorrow: "Tomorrow: {name}", tapToPlay: "Play", viewPhoto: "View photo",
       unlink: "Unlink couple", unlinkConfirm: "Sure? Tap again to unlink",
       typeHeart: "Heart", typeKiss: "Kiss", typeHug: "Hug", typeMiss: "Miss you", typeNight: "Good night", kissBody: "Sends you a kiss 😘", hugBody: "Sends you a huge hug 🤗", missBody: "Misses you so much 🥺", nightBody: "Wishes you good night 🌙✨", themeLbl: "Colour theme", themeRed: "Red & gold", themeRose: "Rose & silver", themeNight: "Starry night", themeSunset: "Sunset", qTitle: "Question of the day", qPh: "Your answer…", qSend: "Answer", qWaiting: "{p} hasn't answered yet 💭", qLocked: "Answer to see what {p} said 🔒", qPush: "{p} answered the question of the day 💭", moodTitle: "My mood today", moodOf: "{p}'s mood", albumTitle: "Our album", albumEmpty: "Photos you send will appear here 📷",
+      hafezTitle: "Fal-e Hafez", hafezIntro: "Make a wish and open the book of Hafez 🌹", hafezOpen: "Open", hafezToday: "Today's verse", themeIsfahan: "Isfahan", drawBtn: "Drawing", drawDone: "Use drawing", drawClear: "Clear", drawUndo: "Undo", cancel: "Cancel", persianDates: "Show Persian dates", nowruz: "Nowruz · Persian New Year", yalda: "Yalda Night", suri: "Chaharshanbe Suri · Festival of Fire", sizdah: "Sizdah Bedar · Nature Day",
       streakPush: '🔥 {n} {days} in a row!',
       err: { invalid_media: "Couldn't upload the file", invalid_date: 'Invalid date', unknown_user: 'Session not found', code_not_found: 'Code not found', couple_full: 'That couple is already complete', no_partner: "You're not connected to anyone yet", partner_no_notif: "{p} hasn't turned on notifications yet", delivery_failed: "The notification couldn't be delivered", invalid_message: 'Invalid message', min_one: 'At least one message must remain', network: 'No connection. Try again.' },
     },
@@ -135,6 +298,7 @@
       tabDates: "Tarihler", datesTitle: "Özel günler", dateNamePh: "Ad (ör. Mina'nın doğum günü)", dateAdd: "Tarih ekle", dtBirthday: "Doğum günü", dtAnniv: "Yıldönümü", dtDate: "Buluşma", dtOther: "Diğer", yearly: "Her yıl", inDays: "{n} {days} sonra", todayIs: "Bugün! 🎉", tomorrowIs: "Yarın", addCal: "Takvime ekle", datesEmpty: "Henüz tarih yok. Doğum günleri, buluşmalar veya yıldönümleri ekle 📅", photo: "Fotoğraf", audio: "Ses", recording: "Kaydediliyor… bitirmek için dokun", attached: "Bir sonraki dokunuşunla gidecek 💗", micDenied: "Mikrofon kullanılamadı", settingsTitle: "Aldığım bildirimler", limitLbl: "10 dakikada en fazla bildirim", unlimited: "Sınırsız", extraVib: "Güçlü dokunuşlarda ekstra titreşim", quietLbl: "Rahatsız etme", heldQuiet: "Kaydedildi 💗 {p} uygulamayı açınca görecek", translatedMark: "çevrildi", dateToday: "Bugün: {name} 💗", dateTomorrow: "Yarın: {name}", tapToPlay: "Oynat", viewPhoto: "Fotoğrafı gör",
       unlink: "Bağlantıyı kaldır", unlinkConfirm: "Emin misin? Kaldırmak için tekrar dokun",
       typeHeart: "Kalp", typeKiss: "Öpücük", typeHug: "Sarılma", typeMiss: "Özledim", typeNight: "İyi geceler", kissBody: "Sana bir öpücük gönderiyor 😘", hugBody: "Sana kocaman sarılıyor 🤗", missBody: "Seni çok özledi 🥺", nightBody: "Sana iyi geceler diliyor 🌙✨", themeLbl: "Renk teması", themeRed: "Kırmızı ve altın", themeRose: "Pembe ve gümüş", themeNight: "Yıldızlı gece", themeSunset: "Gün batımı", qTitle: "Günün sorusu", qPh: "Cevabın…", qSend: "Cevapla", qWaiting: "{p} henüz cevaplamadı 💭", qLocked: "{p} ne demiş görmek için cevapla 🔒", qPush: "{p} günün sorusunu cevapladı 💭", moodTitle: "Bugünkü ruh hâlim", moodOf: "{p} ruh hâli", albumTitle: "Albümümüz", albumEmpty: "Gönderilen fotoğraflar burada görünecek 📷",
+      hafezTitle: "Hafız Falı", hafezIntro: "Bir dilek tut ve Hafız'ın kitabını aç 🌹", hafezOpen: "Aç", hafezToday: "Bugünkü beytin", themeIsfahan: "İsfahan", drawBtn: "Çizim", drawDone: "Çizimi kullan", drawClear: "Temizle", drawUndo: "Geri al", cancel: "İptal", persianDates: "İran bayramlarını göster", nowruz: "Nevruz · İran Yeni Yılı", yalda: "Yelda Gecesi", suri: "Çarşamba Suri · Ateş bayramı", sizdah: "Sizdah Bedar · Doğa günü",
       streakPush: '🔥 Üst üste {n} {days}!',
       err: { invalid_media: "Dosya yüklenemedi", invalid_date: 'Geçersiz tarih', unknown_user: 'Oturum bulunamadı', code_not_found: 'Kod bulunamadı', couple_full: 'Bu çift zaten tamam', no_partner: 'Henüz kimseyle bağlı değilsin', partner_no_notif: '{p} bildirimleri henüz açmadı', delivery_failed: 'Bildirim iletilemedi', invalid_message: 'Geçersiz mesaj', min_one: 'En az bir mesaj kalmalı', network: 'Bağlantı yok. Tekrar dene.' },
     },
@@ -160,6 +324,7 @@
       tabDates: "Даты", datesTitle: "Особые даты", dateNamePh: "Название (напр. День рождения Мины)", dateAdd: "Добавить дату", dtBirthday: "День рождения", dtAnniv: "Годовщина", dtDate: "Свидание", dtOther: "Другое", yearly: "Каждый год", inDays: "через {n} {days}", todayIs: "Сегодня! 🎉", tomorrowIs: "Завтра", addCal: "Добавить в календарь", datesEmpty: "Пока нет дат. Добавь дни рождения, свидания или годовщины 📅", photo: "Фото", audio: "Аудио", recording: "Запись… нажми, чтобы закончить", attached: "Отправится с твоим следующим касанием 💗", micDenied: "Не удалось использовать микрофон", settingsTitle: "Уведомления, которые я получаю", limitLbl: "Максимум уведомлений за 10 мин", unlimited: "Без ограничений", extraVib: "Доп. вибрации при сильном касании", quietLbl: "Не беспокоить", heldQuiet: "Сохранено 💗 {p} увидит, когда откроет приложение", translatedMark: "переведено", dateToday: "Сегодня: {name} 💗", dateTomorrow: "Завтра: {name}", tapToPlay: "Воспроизвести", viewPhoto: "Посмотреть фото",
       unlink: "Отвязать пару", unlinkConfirm: "Точно? Нажми ещё раз, чтобы отвязать",
       typeHeart: "Сердце", typeKiss: "Поцелуй", typeHug: "Объятие", typeMiss: "Скучаю", typeNight: "Спокойной ночи", kissBody: "Отправляет тебе поцелуй 😘", hugBody: "Крепко-крепко обнимает 🤗", missBody: "Очень скучает по тебе 🥺", nightBody: "Желает спокойной ночи 🌙✨", themeLbl: "Цветовая тема", themeRed: "Красное и золото", themeRose: "Розовое и серебро", themeNight: "Звёздная ночь", themeSunset: "Закат", qTitle: "Вопрос дня", qPh: "Твой ответ…", qSend: "Ответить", qWaiting: "{p} ещё не ответил(а) 💭", qLocked: "Ответь, чтобы увидеть ответ {p} 🔒", qPush: "{p} ответил(а) на вопрос дня 💭", moodTitle: "Моё настроение", moodOf: "Настроение {p}", albumTitle: "Наш альбом", albumEmpty: "Отправленные фото появятся здесь 📷",
+      hafezTitle: "Фал-е Хафез", hafezIntro: "Загадай желание и открой книгу Хафиза 🌹", hafezOpen: "Открыть", hafezToday: "Твой стих на сегодня", themeIsfahan: "Исфахан", drawBtn: "Рисунок", drawDone: "Готово", drawClear: "Очистить", drawUndo: "Отменить", cancel: "Закрыть", persianDates: "Показывать персидские праздники", nowruz: "Навруз · Персидский Новый год", yalda: "Ночь Ялда", suri: "Чахаршанбе-сури · Праздник огня", sizdah: "Сиздах-бедар · День природы",
       streakPush: '🔥 {n} {days} подряд!',
       err: { invalid_media: "Не удалось загрузить файл", invalid_date: 'Неверная дата', unknown_user: 'Сессия не найдена', code_not_found: 'Код не найден', couple_full: 'Эта пара уже собрана', no_partner: 'Ты ещё ни с кем не связан(а)', partner_no_notif: '{p} ещё не включил(а) уведомления', delivery_failed: 'Не удалось доставить уведомление', invalid_message: 'Недопустимое сообщение', min_one: 'Должно остаться хотя бы одно сообщение', network: 'Нет соединения. Попробуй ещё раз.' },
     },
@@ -185,6 +350,7 @@
       tabDates: "Дати", datesTitle: "Особливі дати", dateNamePh: "Назва (напр. День народження Міни)", dateAdd: "Додати дату", dtBirthday: "День народження", dtAnniv: "Річниця", dtDate: "Побачення", dtOther: "Інше", yearly: "Щороку", inDays: "через {n} {days}", todayIs: "Сьогодні! 🎉", tomorrowIs: "Завтра", addCal: "Додати до календаря", datesEmpty: "Поки немає дат. Додай дні народження, побачення чи річниці 📅", photo: "Фото", audio: "Аудіо", recording: "Запис… торкнися, щоб завершити", attached: "Надішлеться з твоїм наступним дотиком 💗", micDenied: "Не вдалося використати мікрофон", settingsTitle: "Сповіщення, які я отримую", limitLbl: "Максимум сповіщень за 10 хв", unlimited: "Без обмежень", extraVib: "Додаткові вібрації при сильному дотику", quietLbl: "Не турбувати", heldQuiet: "Збережено 💗 {p} побачить, коли відкриє застосунок", translatedMark: "перекладено", dateToday: "Сьогодні: {name} 💗", dateTomorrow: "Завтра: {name}", tapToPlay: "Відтворити", viewPhoto: "Переглянути фото",
       unlink: "Відв’язати пару", unlinkConfirm: "Точно? Торкнися ще раз, щоб відв’язати",
       typeHeart: "Серце", typeKiss: "Поцілунок", typeHug: "Обійми", typeMiss: "Сумую", typeNight: "На добраніч", kissBody: "Надсилає тобі поцілунок 😘", hugBody: "Міцно-міцно обіймає 🤗", missBody: "Дуже сумує за тобою 🥺", nightBody: "Бажає добраніч 🌙✨", themeLbl: "Кольорова тема", themeRed: "Червоне й золото", themeRose: "Рожеве й срібло", themeNight: "Зоряна ніч", themeSunset: "Захід сонця", qTitle: "Питання дня", qPh: "Твоя відповідь…", qSend: "Відповісти", qWaiting: "{p} ще не відповів(ла) 💭", qLocked: "Відповідай, щоб побачити відповідь {p} 🔒", qPush: "{p} відповів(ла) на питання дня 💭", moodTitle: "Мій настрій", moodOf: "Настрій {p}", albumTitle: "Наш альбом", albumEmpty: "Надіслані фото з'являться тут 📷",
+      hafezTitle: "Фал-е Гафез", hafezIntro: "Загадай бажання й відкрий книгу Гафіза 🌹", hafezOpen: "Відкрити", hafezToday: "Твій вірш на сьогодні", themeIsfahan: "Ісфахан", drawBtn: "Малюнок", drawDone: "Готово", drawClear: "Очистити", drawUndo: "Скасувати", cancel: "Закрити", persianDates: "Показувати перські свята", nowruz: "Навруз · Перський Новий рік", yalda: "Ніч Ялда", suri: "Чахаршанбе-сурі · Свято вогню", sizdah: "Сіздах-бедар · День природи",
       streakPush: '🔥 {n} {days} поспіль!',
       err: { invalid_media: "Не вдалося завантажити файл", invalid_date: 'Неправильна дата', unknown_user: 'Сесію не знайдено', code_not_found: 'Код не знайдено', couple_full: 'Ця пара вже повна', no_partner: 'Ти ще ні з ким не з’єднаний(а)', partner_no_notif: '{p} ще не увімкнув(ла) сповіщення', delivery_failed: 'Не вдалося доставити сповіщення', invalid_message: 'Недійсне повідомлення', min_one: 'Має залишитися хоча б одне повідомлення', network: 'Немає з’єднання. Спробуй ще раз.' },
     },
@@ -210,6 +376,7 @@
       tabDates: "Daty", datesTitle: "Wyjątkowe daty", dateNamePh: "Nazwa (np. Urodziny Miny)", dateAdd: "Dodaj datę", dtBirthday: "Urodziny", dtAnniv: "Rocznica", dtDate: "Randka", dtOther: "Inne", yearly: "Co roku", inDays: "za {n} {days}", todayIs: "Dziś! 🎉", tomorrowIs: "Jutro", addCal: "Dodaj do kalendarza", datesEmpty: "Brak dat. Dodaj urodziny, randki lub rocznice 📅", photo: "Zdjęcie", audio: "Audio", recording: "Nagrywanie… dotknij, aby zakończyć", attached: "Pójdzie z twoim następnym dotknięciem 💗", micDenied: "Nie udało się użyć mikrofonu", settingsTitle: "Powiadomienia, które dostaję", limitLbl: "Maks. powiadomień co 10 min", unlimited: "Bez limitu", extraVib: "Dodatkowe wibracje przy mocnym dotknięciu", quietLbl: "Nie przeszkadzać", heldQuiet: "Zapisano 💗 {p} zobaczy to po otwarciu aplikacji", translatedMark: "przetłumaczono", dateToday: "Dziś: {name} 💗", dateTomorrow: "Jutro: {name}", tapToPlay: "Odtwórz", viewPhoto: "Zobacz zdjęcie",
       unlink: "Rozłącz parę", unlinkConfirm: "Na pewno? Dotknij ponownie, aby rozłączyć",
       typeHeart: "Serce", typeKiss: "Buziak", typeHug: "Przytulas", typeMiss: "Tęsknię", typeNight: "Dobranoc", kissBody: "Przesyła ci buziaka 😘", hugBody: "Mocno cię przytula 🤗", missBody: "Bardzo za tobą tęskni 🥺", nightBody: "Życzy ci dobrej nocy 🌙✨", themeLbl: "Motyw kolorów", themeRed: "Czerwień i złoto", themeRose: "Róż i srebro", themeNight: "Gwiaździsta noc", themeSunset: "Zachód słońca", qTitle: "Pytanie dnia", qPh: "Twoja odpowiedź…", qSend: "Odpowiedz", qWaiting: "{p} jeszcze nie odpowiedział(a) 💭", qLocked: "Odpowiedz, aby zobaczyć odpowiedź: {p} 🔒", qPush: "{p} odpowiedział(a) na pytanie dnia 💭", moodTitle: "Mój nastrój", moodOf: "Nastrój: {p}", albumTitle: "Nasz album", albumEmpty: "Wysłane zdjęcia pojawią się tutaj 📷",
+      hafezTitle: "Fal-e Hafez", hafezIntro: "Pomyśl życzenie i otwórz księgę Hafeza 🌹", hafezOpen: "Otwórz", hafezToday: "Twój dzisiejszy wers", themeIsfahan: "Isfahan", drawBtn: "Rysunek", drawDone: "Użyj rysunku", drawClear: "Wyczyść", drawUndo: "Cofnij", cancel: "Anuluj", persianDates: "Pokaż perskie święta", nowruz: "Nouruz · Perski Nowy Rok", yalda: "Noc Jalda", suri: "Czaharszanbe Suri · Święto ognia", sizdah: "Sizdah Bedar · Dzień natury",
       streakPush: '🔥 {n} {days} z rzędu!',
       err: { invalid_media: "Nie udało się przesłać pliku", invalid_date: 'Nieprawidłowa data', unknown_user: 'Nie znaleziono sesji', code_not_found: 'Nie znaleziono kodu', couple_full: 'Ta para jest już pełna', no_partner: 'Nie masz jeszcze z nikim połączenia', partner_no_notif: '{p} nie włączył(a) jeszcze powiadomień', delivery_failed: 'Nie udało się dostarczyć powiadomienia', invalid_message: 'Nieprawidłowa wiadomość', min_one: 'Musi zostać co najmniej jedna wiadomość', network: 'Brak połączenia. Spróbuj ponownie.' },
     },
@@ -235,6 +402,7 @@
       tabDates: "التواريخ", datesTitle: "تواريخ مميزة", dateNamePh: "الاسم (مثال: عيد ميلاد مينا)", dateAdd: "إضافة تاريخ", dtBirthday: "عيد ميلاد", dtAnniv: "ذكرى", dtDate: "موعد", dtOther: "أخرى", yearly: "كل سنة", inDays: "بعد {n} {days}", todayIs: "اليوم! 🎉", tomorrowIs: "غدًا", addCal: "أضف إلى التقويم", datesEmpty: "لا توجد تواريخ بعد. أضف أعياد الميلاد أو المواعيد أو الذكريات 📅", photo: "صورة", audio: "صوت", recording: "جارٍ التسجيل… المس للإنهاء", attached: "ستُرسل مع لمستك القادمة 💗", micDenied: "تعذّر استخدام الميكروفون", settingsTitle: "الإشعارات التي تصلني", limitLbl: "أقصى عدد إشعارات كل ١٠ دقائق", unlimited: "بلا حد", extraVib: "اهتزازات إضافية مع اللمسات القوية", quietLbl: "عدم الإزعاج", heldQuiet: "تم الحفظ 💗 سيراه {p} عند فتح التطبيق", translatedMark: "مترجم", dateToday: "اليوم: {name} 💗", dateTomorrow: "غدًا: {name}", tapToPlay: "تشغيل", viewPhoto: "عرض الصورة",
       unlink: "إلغاء الربط", unlinkConfirm: "هل أنت متأكد؟ المس مرة أخرى لإلغاء الربط",
       typeHeart: "قلب", typeKiss: "قبلة", typeHug: "عناق", typeMiss: "اشتقت إليك", typeNight: "تصبح على خير", kissBody: "يرسل لك قبلة 😘", hugBody: "يرسل لك عناقًا كبيرًا 🤗", missBody: "اشتاق إليك كثيرًا 🥺", nightBody: "يتمنى لك ليلة سعيدة 🌙✨", themeLbl: "سمة الألوان", themeRed: "أحمر وذهبي", themeRose: "وردي وفضي", themeNight: "ليلة مرصعة بالنجوم", themeSunset: "غروب", qTitle: "سؤال اليوم", qPh: "إجابتك…", qSend: "أجب", qWaiting: "{p} لم يُجب بعد 💭", qLocked: "أجب لترى إجابة {p} 🔒", qPush: "{p} أجاب عن سؤال اليوم 💭", moodTitle: "مزاجي اليوم", moodOf: "مزاج {p}", albumTitle: "ألبومنا", albumEmpty: "ستظهر هنا الصور المرسلة 📷",
+      hafezTitle: "فال حافظ", hafezIntro: "تمنَّ أمنية وافتح ديوان حافظ 🌹", hafezOpen: "افتح", hafezToday: "بيتك لهذا اليوم", themeIsfahan: "أصفهان", drawBtn: "رسم", drawDone: "استخدم الرسم", drawClear: "مسح", drawUndo: "تراجع", cancel: "إلغاء", persianDates: "إظهار المناسبات الفارسية", nowruz: "النوروز · رأس السنة الفارسية", yalda: "ليلة يلدا", suri: "جهارشنبه سوري · عيد النار", sizdah: "سيزده بدر · يوم الطبيعة",
       streakPush: '🔥 {n} {days} على التوالي!',
       err: { invalid_media: "تعذّر رفع الملف", invalid_date: 'تاريخ غير صالح', unknown_user: 'الجلسة غير موجودة', code_not_found: 'الرمز غير موجود', couple_full: 'هذا الثنائي مكتمل بالفعل', no_partner: 'لم ترتبط بأحد بعد', partner_no_notif: '{p} لم يفعّل الإشعارات بعد', delivery_failed: 'تعذّر إيصال الإشعار', invalid_message: 'رسالة غير صالحة', min_one: 'يجب أن تبقى رسالة واحدة على الأقل', network: 'لا يوجد اتصال. حاول مرة أخرى.' },
     },
@@ -260,6 +428,7 @@
       tabDates: "تاریخ‌ها", datesTitle: "روزهای خاص", dateNamePh: "عنوان (مثلاً تولد مینا)", dateAdd: "افزودن تاریخ", dtBirthday: "تولد", dtAnniv: "سالگرد", dtDate: "قرار", dtOther: "غیره", yearly: "هر سال", inDays: "{n} {days} دیگر", todayIs: "امروز! 🎉", tomorrowIs: "فردا", addCal: "افزودن به تقویم", datesEmpty: "هنوز تاریخی نیست. تولد، قرار یا سالگرد اضافه کن 📅", photo: "عکس", audio: "صدا", recording: "در حال ضبط… برای پایان لمس کن", attached: "با لمس بعدی‌ات فرستاده می‌شود 💗", micDenied: "استفاده از میکروفون ممکن نشد", settingsTitle: "اعلان‌هایی که می‌گیرم", limitLbl: "حداکثر اعلان در هر ۱۰ دقیقه", unlimited: "بدون محدودیت", extraVib: "لرزش بیشتر برای لمس‌های محکم", quietLbl: "مزاحم نشوید", heldQuiet: "ذخیره شد 💗 {p} وقتی برنامه را باز کند می‌بیند", translatedMark: "ترجمه‌شده", dateToday: "امروز: {name} 💗", dateTomorrow: "فردا: {name}", tapToPlay: "پخش", viewPhoto: "دیدن عکس",
       unlink: "لغو اتصال", unlinkConfirm: "مطمئنی؟ برای لغو اتصال دوباره لمس کن",
       typeHeart: "قلب", typeKiss: "بوسه", typeHug: "بغل", typeMiss: "دلتنگتم", typeNight: "شب بخیر", kissBody: "برایت یک بوسه فرستاد 😘", hugBody: "یک بغل بزرگ برایت فرستاد 🤗", missBody: "خیلی دلش برایت تنگ شده 🥺", nightBody: "برایت شب خوبی آرزو می‌کند 🌙✨", themeLbl: "تم رنگ", themeRed: "قرمز و طلایی", themeRose: "صورتی و نقره‌ای", themeNight: "شب پرستاره", themeSunset: "غروب", qTitle: "سؤال روز", qPh: "جواب تو…", qSend: "جواب بده", qWaiting: "{p} هنوز جواب نداده 💭", qLocked: "جواب بده تا جواب {p} را ببینی 🔒", qPush: "{p} به سؤال روز جواب داد 💭", moodTitle: "حال امروز من", moodOf: "حال {p}", albumTitle: "آلبوم ما", albumEmpty: "عکس‌هایی که فرستاده می‌شوند اینجا می‌آیند 📷",
+      hafezTitle: "فال حافظ", hafezIntro: "نیت کن و دیوان حافظ را باز کن 🌹", hafezOpen: "باز کن", hafezToday: "فال امروز تو", themeIsfahan: "اصفهان", drawBtn: "نقاشی", drawDone: "استفاده از نقاشی", drawClear: "پاک کردن", drawUndo: "برگرداندن", cancel: "لغو", persianDates: "نمایش مناسبت‌های ایرانی", nowruz: "نوروز", yalda: "شب یلدا", suri: "چهارشنبه‌سوری", sizdah: "سیزده‌بدر",
       streakPush: '🔥 {n} {days} پشت سر هم!',
       err: { invalid_media: "آپلود فایل ممکن نشد", invalid_date: 'تاریخ نامعتبر', unknown_user: 'نشست پیدا نشد', code_not_found: 'کد پیدا نشد', couple_full: 'این زوج کامل است', no_partner: 'هنوز به کسی وصل نشده‌ای', partner_no_notif: '{p} هنوز اعلان‌ها را فعال نکرده', delivery_failed: 'اعلان ارسال نشد', invalid_message: 'پیام نامعتبر', min_one: 'حداقل یک پیام باید بماند', network: 'اتصال برقرار نیست. دوباره امتحان کن.' },
     },
@@ -285,6 +454,7 @@
       tabDates: "Date", datesTitle: "Date speciali", dateNamePh: "Nome (es. Compleanno di Mina)", dateAdd: "Aggiungi data", dtBirthday: "Compleanno", dtAnniv: "Anniversario", dtDate: "Appuntamento", dtOther: "Altro", yearly: "Ogni anno", inDays: "tra {n} {days}", todayIs: "Oggi! 🎉", tomorrowIs: "Domani", addCal: "Aggiungi al calendario", datesEmpty: "Ancora nessuna data. Aggiungi compleanni, appuntamenti o anniversari 📅", photo: "Foto", audio: "Audio", recording: "Registrazione… tocca per finire", attached: "Partirà con il tuo prossimo tocco 💗", micDenied: "Impossibile usare il microfono", settingsTitle: "Notifiche che ricevo", limitLbl: "Max notifiche ogni 10 min", unlimited: "Senza limite", extraVib: "Vibrazioni extra con tocchi forti", quietLbl: "Non disturbare", heldQuiet: "Salvato 💗 {p} lo vedrà aprendo l'app", translatedMark: "tradotto", dateToday: "Oggi: {name} 💗", dateTomorrow: "Domani: {name}", tapToPlay: "Riproduci", viewPhoto: "Vedi foto",
       unlink: "Scollega la coppia", unlinkConfirm: "Sicuro? Tocca di nuovo per scollegare",
       typeHeart: "Cuore", typeKiss: "Bacio", typeHug: "Abbraccio", typeMiss: "Mi manchi", typeNight: "Buonanotte", kissBody: "Ti manda un bacio 😘", hugBody: "Ti manda un abbraccio enorme 🤗", missBody: "Gli/le manchi tantissimo 🥺", nightBody: "Ti augura buonanotte 🌙✨", themeLbl: "Tema colori", themeRed: "Rosso e oro", themeRose: "Rosa e argento", themeNight: "Notte stellata", themeSunset: "Tramonto", qTitle: "Domanda del giorno", qPh: "La tua risposta…", qSend: "Rispondi", qWaiting: "{p} non ha ancora risposto 💭", qLocked: "Rispondi per vedere la risposta di {p} 🔒", qPush: "{p} ha risposto alla domanda del giorno 💭", moodTitle: "Il mio umore oggi", moodOf: "Umore di {p}", albumTitle: "Il nostro album", albumEmpty: "Le foto inviate appariranno qui 📷",
+      hafezTitle: "Fal-e Hafez", hafezIntro: "Esprimi un desiderio e apri il libro di Hafez 🌹", hafezOpen: "Apri", hafezToday: "Il tuo verso di oggi", themeIsfahan: "Isfahan", drawBtn: "Disegno", drawDone: "Usa disegno", drawClear: "Cancella", drawUndo: "Annulla", cancel: "Chiudi", persianDates: "Mostra le feste persiane", nowruz: "Nowruz · Capodanno persiano", yalda: "Notte di Yalda", suri: "Chaharshanbe Suri · Festa del fuoco", sizdah: "Sizdah Bedar · Giornata della natura",
       streakPush: '🔥 {n} {days} di fila!',
       err: { invalid_media: "Impossibile caricare il file", invalid_date: 'Data non valida', unknown_user: 'Sessione non trovata', code_not_found: 'Codice non trovato', couple_full: 'Questa coppia è già completa', no_partner: 'Non sei ancora collegato/a a nessuno', partner_no_notif: '{p} non ha ancora attivato le notifiche', delivery_failed: 'Impossibile consegnare la notifica', invalid_message: 'Messaggio non valido', min_one: 'Deve restare almeno un messaggio', network: 'Nessuna connessione. Riprova.' },
     },
@@ -310,6 +480,7 @@
       tabDates: "Date", datesTitle: "Date speciale", dateNamePh: "Nume (ex. Ziua Minei)", dateAdd: "Adaugă dată", dtBirthday: "Zi de naștere", dtAnniv: "Aniversare", dtDate: "Întâlnire", dtOther: "Altele", yearly: "În fiecare an", inDays: "peste {n} {days}", todayIs: "Azi! 🎉", tomorrowIs: "Mâine", addCal: "Adaugă în calendar", datesEmpty: "Încă nu există date. Adaugă zile de naștere, întâlniri sau aniversări 📅", photo: "Foto", audio: "Audio", recording: "Se înregistrează… atinge pentru a termina", attached: "Va pleca odată cu următoarea ta atingere 💗", micDenied: "Microfonul nu a putut fi folosit", settingsTitle: "Notificări pe care le primesc", limitLbl: "Max. notificări la 10 min", unlimited: "Fără limită", extraVib: "Vibrații extra la atingeri puternice", quietLbl: "Nu deranja", heldQuiet: "Salvat 💗 {p} va vedea când deschide aplicația", translatedMark: "tradus", dateToday: "Azi: {name} 💗", dateTomorrow: "Mâine: {name}", tapToPlay: "Redă", viewPhoto: "Vezi poza",
       unlink: "Deconectează cuplul", unlinkConfirm: "Sigur? Atinge din nou pentru a deconecta",
       typeHeart: "Inimă", typeKiss: "Sărut", typeHug: "Îmbrățișare", typeMiss: "Mi-e dor", typeNight: "Noapte bună", kissBody: "Îți trimite un sărut 😘", hugBody: "Îți trimite o îmbrățișare uriașă 🤗", missBody: "Îi e tare dor de tine 🥺", nightBody: "Îți urează noapte bună 🌙✨", themeLbl: "Temă de culoare", themeRed: "Roșu și auriu", themeRose: "Roz și argintiu", themeNight: "Noapte înstelată", themeSunset: "Apus", qTitle: "Întrebarea zilei", qPh: "Răspunsul tău…", qSend: "Răspunde", qWaiting: "{p} nu a răspuns încă 💭", qLocked: "Răspunde ca să vezi ce a spus {p} 🔒", qPush: "{p} a răspuns la întrebarea zilei 💭", moodTitle: "Starea mea azi", moodOf: "Starea lui {p}", albumTitle: "Albumul nostru", albumEmpty: "Pozele trimise vor apărea aici 📷",
+      hafezTitle: "Fal-e Hafez", hafezIntro: "Pune-ți o dorință și deschide cartea lui Hafez 🌹", hafezOpen: "Deschide", hafezToday: "Versul tău de azi", themeIsfahan: "Isfahan", drawBtn: "Desen", drawDone: "Folosește desenul", drawClear: "Șterge", drawUndo: "Anulează", cancel: "Renunță", persianDates: "Arată sărbătorile persane", nowruz: "Nowruz · Anul Nou persan", yalda: "Noaptea Yalda", suri: "Chaharshanbe Suri · Sărbătoarea focului", sizdah: "Sizdah Bedar · Ziua naturii",
       streakPush: '🔥 {n} {days} la rând!',
       err: { invalid_media: "Fișierul nu a putut fi încărcat", invalid_date: 'Dată invalidă', unknown_user: 'Sesiune negăsită', code_not_found: 'Cod negăsit', couple_full: 'Acest cuplu este deja complet', no_partner: 'Nu ești încă conectat(ă) cu nimeni', partner_no_notif: '{p} nu a activat încă notificările', delivery_failed: 'Notificarea nu a putut fi livrată', invalid_message: 'Mesaj invalid', min_one: 'Trebuie să rămână cel puțin un mesaj', network: 'Fără conexiune. Încearcă din nou.' },
     },
@@ -351,7 +522,7 @@
     return 'de';
   }
 
-  const api = { LANGS, LANG_NAMES, RTL, LOCALES, MESSAGES, QUESTIONS, STRINGS: S, t, plural, fmtNum, localizeMessage, streakPush, detect, pick };
+  const api = { LANGS, LANG_NAMES, RTL, LOCALES, MESSAGES, QUESTIONS, HAFEZ, STRINGS: S, t, plural, fmtNum, localizeMessage, streakPush, detect, pick };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.SaharI18n = api;
 })(typeof self !== 'undefined' ? self : this);

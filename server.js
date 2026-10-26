@@ -371,6 +371,8 @@ function stateFor(user) {
     totalReceived: couple && partner ? couple.counts?.[partner.id] ?? received.length : 0,
     since: couple ? couple.since || null : null,
     dates: couple ? (couple.dates || []) : [],
+    persianOn: couple ? couple.persianDates !== false : true,
+    persian: couple && couple.persianDates !== false ? upcomingPersian(dayKey(new Date(), couple.tz)) : [],
     prefs: prefsOf(user),
     question: couple ? questionState(couple, user, partner) : null,
     myMood: moodToday(user, couple),
@@ -685,6 +687,37 @@ app.get('/api/media/:id', auth, async (req, res) => {
 });
 
 // ---------------------------------------------------------------------------
+// Fechas persas (calendario solar hijri real, vía Intl)
+//   nowruz = 1 Farvardin · sizdah = 13 Farvardin · yalda = 30 Azar (noche)
+//   suri = último martes antes de Nowruz (noche)
+// ---------------------------------------------------------------------------
+const PERSIAN_FMT = new Intl.DateTimeFormat('en-US-u-ca-persian', { month: 'numeric', day: 'numeric', timeZone: 'UTC' });
+const persianCache = {};
+function persianHolidays(gYear) {
+  if (persianCache[gYear]) return persianCache[gYear];
+  const out = {};
+  for (let d = new Date(Date.UTC(gYear, 0, 1, 12)); d.getUTCFullYear() === gYear; d.setUTCDate(d.getUTCDate() + 1)) {
+    const p = Object.fromEntries(PERSIAN_FMT.formatToParts(d).filter((x) => x.type !== 'literal').map((x) => [x.type, Number(x.value)]));
+    const key = d.toISOString().slice(0, 10);
+    if (p.month === 1 && p.day === 1) out.nowruz = key;
+    if (p.month === 1 && p.day === 13) out.sizdah = key;
+    if (p.month === 9 && p.day === 30) out.yalda = key;
+  }
+  if (out.nowruz) {
+    const d = new Date(out.nowruz + 'T12:00:00Z');
+    do d.setUTCDate(d.getUTCDate() - 1); while (d.getUTCDay() !== 2);
+    out.suri = d.toISOString().slice(0, 10);
+  }
+  return (persianCache[gYear] = out);
+}
+// Próxima fecha de cada fiesta a partir de hoy
+function upcomingPersian(todayKey) {
+  const y = Number(todayKey.slice(0, 4));
+  const a = persianHolidays(y), b = persianHolidays(y + 1);
+  return ['suri', 'nowruz', 'sizdah', 'yalda'].map((id) => ({ id, date: a[id] >= todayKey ? a[id] : b[id] })).filter((x) => x.date);
+}
+
+// ---------------------------------------------------------------------------
 // Fechas especiales
 // ---------------------------------------------------------------------------
 const DATE_TYPES = ['birthday', 'anniv', 'date', 'other'];
@@ -707,6 +740,13 @@ app.post('/api/dates', auth, (req, res) => {
   couple.dates = couple.dates || [];
   if (couple.dates.length >= 100) return fail(res, 400, 'invalid_date');
   couple.dates.push({ id: crypto.randomBytes(6).toString('hex'), name, date, type, yearly: req.body.yearly !== false, by: req.user.id });
+  save();
+  res.json(stateFor(req.user));
+});
+app.post('/api/persian', auth, (req, res) => {
+  const couple = db.couples[req.user.code];
+  if (!couple) return fail(res, 400, 'no_partner');
+  couple.persianDates = !!req.body.on;
   save();
   res.json(stateFor(req.user));
 });
@@ -752,7 +792,9 @@ async function runReminders(now = new Date()) {
 
     // Fechas especiales: el mismo día por la mañana y la víspera por la tarde
     couple.dateReminded = couple.dateReminded || [];
-    for (const d of couple.dates || []) {
+    const persianItems = couple.persianDates !== false
+      ? upcomingPersian(today).map((p) => ({ id: 'p-' + p.id, persian: p.id, date: p.date, yearly: false })) : [];
+    for (const d of [...(couple.dates || []), ...persianItems]) {
       const occ = nextOccurrence(d, today);
       let key = null, textKey = null;
       if (occ === today && h >= 8 && h <= 12) { key = `${d.id}:${occ}:t`; textKey = 'dateToday'; }
@@ -762,7 +804,8 @@ async function runReminders(now = new Date()) {
       for (const id of couple.members) {
         const u = db.users[id];
         if (!u || !canReceive(u) || inQuiet(u, now)) continue;
-        sent += await pushTo(u, { title: 'Sahar 📅', body: I18N.t(langOf(u), textKey, { name: d.name }) });
+        const name = d.persian ? I18N.t(langOf(u), d.persian) : d.name;
+        sent += await pushTo(u, { title: 'Sahar 📅', body: I18N.t(langOf(u), textKey, { name }) });
       }
       save();
     }
@@ -829,4 +872,4 @@ if (require.main === module) {
     setInterval(() => translatePending(6).catch(() => {}), 20 * 60 * 1000);
   }).catch((e) => { console.error('No se pudieron cargar los datos:', e.message); process.exit(1); });
 }
-module.exports = { questionIndex, MOODS, app, ready, streakInfo, recordDay, dayKey, prevDay, localize, runReminders, flush, translatePending, nextOccurrence, inQuiet, pushBudget, db: () => db };
+module.exports = { persianHolidays, upcomingPersian, questionIndex, MOODS, app, ready, streakInfo, recordDay, dayKey, prevDay, localize, runReminders, flush, translatePending, nextOccurrence, inQuiet, pushBudget, db: () => db };
