@@ -741,7 +741,7 @@ function deleteCouple(code) {
   save();
 }
 // Parejas borradas a petición (vinculación equivocada)
-const RESET_CODES = ['G7BDQF'];
+const RESET_CODES = []; // (G7BDQF ya no se borra: es la pareja que funciona)
 function migrate() {
   db.resets = db.resets || [];
   for (const code of RESET_CODES) {
