@@ -65,7 +65,7 @@ const { app, ready, streakInfo, recordDay, prevDay, runReminders, flush } = requ
   const enKeys = keys(I.STRINGS.en).sort();
   for (const l of I.LANGS) {
     assert.deepStrictEqual(keys(I.STRINGS[l]).sort(), enKeys, `claves de ${l}`);
-    assert.strictEqual(I.MESSAGES[l].length, 10, `mensajes de ${l}`);
+    assert.strictEqual(I.MESSAGES[l].length, 20, `mensajes de ${l}`);
     assert.ok(!/\{(n|days)\}/.test(I.streakPush(l, 5)), l);
   }
   assert.strictEqual(I.streakPush('ru', 5), '🔥 5 дней подряд!');
@@ -112,6 +112,126 @@ const { app, ready, streakInfo, recordDay, prevDay, runReminders, flush } = requ
 
   server.close();
   fs.rmSync(process.env.DATA_FILE, { force: true });
+
+  // ---- Funciones nuevas con un servidor de notificaciones simulado ----
+  {
+    const http = require('http');
+    const pushes = [];
+    const pushSrv = http.createServer((req, res) => res.end()).listen(0);
+    // Simular el servicio de notificaciones (web-push solo habla https)
+    const wp = require('web-push');
+    const realSend = wp.sendNotification;
+    wp.sendNotification = async (s2, payload) => { pushes.push({ endpoint: s2.endpoint, payload: JSON.parse(payload) }); return { statusCode: 201 }; };
+    const ecdh = crypto.createECDH('prime256v1'); ecdh.generateKeys();
+    const sub = { endpoint: `http://localhost:${pushSrv.address().port}/push/b`, keys: { p256dh: ecdh.getPublicKey('base64url'), auth: crypto.randomBytes(16).toString('base64url') } };
+    // Guardar la suscripción directamente (la API exige https)
+    const S = require('./server');
+    const dbb = S.db();
+    const server2 = app.listen(0);
+    const B2 = `http://localhost:${server2.address().port}`;
+    const c2 = async (method, p, body) => { const r = await fetch(B2 + p, { method, headers: { 'Content-Type': 'application/json' }, body: body && JSON.stringify(body) }); const ct = r.headers.get('content-type') || ''; return { status: r.status, json: ct.includes('json') ? await r.json() : null, raw: ct.includes('json') ? null : Buffer.from(await r.arrayBuffer()), ct }; };
+    await c2('POST', '/api/register', { userId: 'p1', name: 'Carlos', tz: 'Europe/Berlin', lang: 'es' });
+    await c2('POST', '/api/register', { userId: 'p2', name: 'Mina', tz: 'Europe/Berlin', lang: 'fa' });
+    const code2 = (await c2('POST', '/api/couple/create', { userId: 'p1' })).json.code;
+    const j2 = (await c2('POST', '/api/couple/join', { userId: 'p2', code: code2 })).json;
+    assert.strictEqual(j2.messages.length, 20, '20 mensajes predeterminados');
+    dbb.users.p2.subs = [sub];
+    dbb.users.p1.subs = [{ ...sub, endpoint: sub.endpoint.replace('/b', '/a') }];
+
+    // Límite 2 cada 10 min, sin vibraciones extra
+    let st = (await c2('POST', '/api/prefs', { userId: 'p2', prefs: { limit: 2, extra: false } })).json;
+    assert.deepStrictEqual([st.prefs.limit, st.prefs.extra], [2, false]);
+    const r1 = (await c2('POST', '/api/send', { userId: 'p1', level: 3 })).json;
+    const r2 = (await c2('POST', '/api/send', { userId: 'p1' })).json;
+    const r3 = (await c2('POST', '/api/send', { userId: 'p1' })).json;
+    await new Promise((r) => setTimeout(r, 300));
+    assert.deepStrictEqual([r1.held, r2.held, r3.held], [false, false, true], 'el tercero se guarda sin aviso');
+    assert.strictEqual(pushes.length, 2, 'sin vibraciones extra y con límite: 2 avisos');
+    const recv = (await c2('GET', '/api/state?userId=p2')).json.received;
+    assert.strictEqual(recv.length, 3, 'los 3 quedan en el historial');
+    assert.strictEqual(recv[0].held, true);
+
+    // No molestar todo el día → todo se guarda
+    dbb.users.p2.pushLog = [];
+    await c2('POST', '/api/prefs', { userId: 'p2', prefs: { limit: 0, quiet: true, from: '00:00', to: '23:59' } });
+    assert.strictEqual((await c2('POST', '/api/send', { userId: 'p1' })).json.held, true);
+    await c2('POST', '/api/prefs', { userId: 'p2', prefs: { quiet: false } });
+    // Sin límite + vibraciones extra: toque fuerte = 3 avisos
+    await c2('POST', '/api/prefs', { userId: 'p2', prefs: { extra: true } });
+    const before = pushes.length;
+    await c2('POST', '/api/send', { userId: 'p1', level: 3 });
+    await new Promise((r) => setTimeout(r, 3200));
+    assert.strictEqual(pushes.length - before, 3, 'toque con todo = 3 vibraciones');
+    console.log('✓ control de avisos');
+
+    // Fotos y audios
+    const jpeg = crypto.randomBytes(2000).toString('base64');
+    assert.strictEqual((await c2('POST', '/api/media', { userId: 'p1', kind: 'photo', mime: 'text/html', data: jpeg })).status, 400);
+    const up = (await c2('POST', '/api/media', { userId: 'p1', kind: 'photo', mime: 'image/jpeg', data: jpeg })).json;
+    assert.match(up.id, /^[0-9a-f]{24}$/);
+    const sentPhoto = (await c2('POST', '/api/send', { userId: 'p1', mediaId: up.id })).json;
+    assert.ok(sentPhoto.ok);
+    const got = (await c2('GET', '/api/state?userId=p2')).json.received[0];
+    assert.deepStrictEqual(got.media, { id: up.id, kind: 'photo' });
+    const dl = await c2('GET', `/api/media/${up.id}?userId=p2`);
+    assert.strictEqual(dl.ct, 'image/jpeg'); assert.strictEqual(dl.raw.toString('base64'), jpeg);
+    assert.strictEqual((await c2('GET', `/api/media/${up.id}?userId=a`)).status, 404, 'otra pareja no puede verla');
+    assert.strictEqual((await c2('POST', '/api/send', { userId: 'p2', mediaId: up.id })).json.code, 'invalid_media', 'no se puede reenviar media ajena');
+    const big = 'A'.repeat(1500000);
+    assert.strictEqual((await c2('POST', '/api/media', { userId: 'p1', kind: 'audio', mime: 'audio/mp4', data: big })).status, 400);
+    console.log('✓ fotos y audios');
+
+    // Fechas especiales
+    assert.strictEqual(S.nextOccurrence({ date: '1995-03-10', yearly: true }, '2026-10-26'), '2027-03-10');
+    assert.strictEqual(S.nextOccurrence({ date: '1995-12-24', yearly: true }, '2026-10-26'), '2026-12-24');
+    assert.strictEqual(S.nextOccurrence({ date: '2000-02-29', yearly: true }, '2026-10-26'), '2027-02-28');
+    let ds = (await c2('POST', '/api/dates', { userId: 'p1', name: 'Cumpleaños de Mina', date: '1998-12-24', type: 'birthday' })).json.dates;
+    assert.strictEqual(ds.length, 1); assert.strictEqual(ds[0].yearly, true);
+    assert.strictEqual((await c2('POST', '/api/dates', { userId: 'p1', name: '', date: '2026-01-01' })).json.code, 'invalid_date');
+    const ics = await c2('GET', `/api/ics/${ds[0].id}?userId=p2`);
+    assert.ok(ics.ct.startsWith('text/calendar') && /RRULE:FREQ=YEARLY/.test(ics.raw.toString()) && /DTSTART;VALUE=DATE:19981224/.test(ics.raw.toString()));
+    // Recordatorio el mismo día por la mañana (hora de Berlín)
+    const pb = pushes.length;
+    await S.runReminders(new Date('2026-12-24T09:30:00Z'));
+    assert.strictEqual(pushes.length - pb, 2, 'aviso de fecha a los dos');
+    await S.runReminders(new Date('2026-12-24T09:40:00Z'));
+    assert.strictEqual(pushes.length - pb, 2, 'solo una vez');
+    ds = (await c2('DELETE', '/api/dates', { userId: 'p1', id: ds[0].id })).json.dates;
+    assert.strictEqual(ds.length, 0);
+    console.log('✓ fechas especiales');
+
+    // Traducción automática (servicio simulado)
+    const realFetch = global.fetch;
+    const asked = [];
+    global.fetch = async (url, opts) => {
+      if (String(url).startsWith('https://api.mymemory.translated.net/')) {
+        const u = new URL(url); asked.push(u.searchParams.get('langpair'));
+        const tgt = u.searchParams.get('langpair').split('|')[1];
+        return new Response(JSON.stringify({ responseStatus: 200, responseData: { translatedText: `[${tgt}] ${u.searchParams.get('q')}` } }), { status: 200 });
+      }
+      return realFetch(url, opts);
+    };
+    await c2('POST', '/api/messages', { userId: 'p1', text: 'Eres mi sol' });
+    await new Promise((r) => setTimeout(r, 200));
+    await S.translatePending(10);
+    global.fetch = realFetch;
+    assert.ok(asked.every((p) => p.startsWith('es|')), 'traduce desde el idioma de quien lo escribió');
+    const stFa = (await c2('GET', '/api/state?userId=p2')).json;
+    assert.strictEqual(stFa.trans['Eres mi sol'], '[fa-IR] Eres mi sol');
+    const stEs = (await c2('GET', '/api/state?userId=p1')).json;
+    assert.strictEqual(stEs.trans['Eres mi sol'], undefined, 'el autor lo ve tal cual');
+    // Fallo del servicio: se reintenta más tarde sin romper nada
+    global.fetch = async (url, opts) => (String(url).includes('mymemory') ? new Response('{"responseStatus":429,"responseData":{"translatedText":"MYMEMORY WARNING: YOU USED ALL AVAILABLE FREE TRANSLATIONS"}}', { status: 429 }) : realFetch(url, opts));
+    await c2('POST', '/api/messages', { userId: 'p2', text: 'دوستت دارم عزیزم' });
+    await new Promise((r) => setTimeout(r, 200));
+    await S.translatePending(10);
+    global.fetch = realFetch;
+    assert.strictEqual((await c2('GET', '/api/state?userId=p1')).json.trans['دوستت دارم عزیزم'], undefined);
+    console.log('✓ traducción automática');
+
+    wp.sendNotification = realSend;
+    server2.close(); pushSrv.close();
+  }
 
   // ---- Upstash (servidor simulado) ----
   const http = require('http');

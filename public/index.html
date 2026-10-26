@@ -180,11 +180,59 @@
   .level-txt { margin-top:22px; min-height:28px; font-family:var(--font-display); font-size:26px; font-weight:700; color:var(--gold-1); text-shadow:0 0 18px rgba(243,210,122,.55); }
   html[dir="rtl"] .level-txt { font-size:22px; }
   .level-txt.pop { animation:numpop .45s cubic-bezier(.2,.9,.3,1.5); }
+  .hint { text-align:center; }
   .hint small { display:block; margin-top:4px; font-size:12.5px; letter-spacing:0; }
   .loading { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px; min-height:60vh; text-align:center; }
   .loading .big { font-size:84px; animation:beat 1.6s ease-in-out infinite; filter:drop-shadow(0 10px 30px rgba(225,29,72,.6)); }
   .loading p { color:var(--gold-1); font-family:var(--font-display); font-size:22px; margin:0; }
   .loading .btn { width:auto; padding:12px 26px; }
+  /* Adjuntos */
+  .attach-row { display:flex; gap:10px; justify-content:center; margin-top:10px; flex-wrap:wrap; }
+  .chip-btn { display:inline-flex; align-items:center; gap:6px; padding:9px 16px; border-radius:999px; border:1px solid var(--card-line);
+    background:rgba(255,255,255,.04); color:var(--gold-1); font-size:15px; font-weight:600; }
+  .chip-btn:active { transform:scale(.96); }
+  .chip-btn.rec { border-color:var(--red); color:#fff; background:rgba(225,29,72,.35); animation:fade 1.2s infinite; }
+  .attach-prev { display:flex; align-items:center; gap:10px; margin:12px auto 0; padding:8px 10px 8px 8px; border-radius:16px;
+    background:var(--card); border:1px solid var(--gold-3); max-width:320px; }
+  .attach-prev img { width:52px; height:52px; object-fit:cover; border-radius:10px; }
+  .attach-prev .ico { width:52px; height:52px; border-radius:10px; display:grid; place-items:center; font-size:26px; background:rgba(225,29,72,.25); }
+  .attach-prev span { flex:1; font-size:13px; color:var(--muted); line-height:1.35; }
+  .media-box { margin-top:10px; }
+  .media-box img { width:100%; max-height:320px; object-fit:cover; border-radius:14px; display:block; border:1px solid var(--card-line); }
+  .media-box audio { width:100%; margin-top:4px; }
+  .media-btn { margin-top:8px; background:none; border:1px solid var(--card-line); color:var(--gold-1); border-radius:999px; padding:6px 12px; font-size:13px; }
+  .letter .media-box img { max-height:46vh; }
+  .tr-mark { display:block; color:var(--muted-2); font-size:12px; margin-top:4px; }
+  /* Ajustes */
+  .set-row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 0; border-bottom:1px solid rgba(243,210,122,.1); }
+  .set-row:last-child { border:0; }
+  .set-row label { color:var(--cream); font-size:15px; line-height:1.35; }
+  .set-row select, .set-row input[type=time] { background:rgba(20,4,10,.6); color:var(--gold-1); border:1px solid var(--card-line); border-radius:12px; padding:8px 10px; font-size:16px; color-scheme:dark; }
+  .switch { position:relative; width:52px; height:32px; flex:none; }
+  .switch input { opacity:0; width:0; height:0; }
+  .switch i { position:absolute; inset:0; border-radius:999px; background:rgba(255,255,255,.12); transition:.25s; }
+  .switch i::after { content:""; position:absolute; top:3px; left:3px; width:26px; height:26px; border-radius:50%; background:#fff; transition:.25s; }
+  .switch input:checked + i { background:linear-gradient(135deg,var(--red),var(--red-2)); }
+  .switch input:checked + i::after { transform:translateX(20px); }
+  html[dir="rtl"] .switch input:checked + i::after { transform:translateX(-20px); }
+  html[dir="rtl"] .switch i::after { left:auto; right:3px; }
+  .quiet-times { display:flex; align-items:center; gap:8px; direction:ltr; }
+  /* Fechas */
+  .date-form .row2 { display:flex; gap:8px; }
+  .date-form .row2 > * { flex:1; min-width:0; }
+  .date-form select, .date-form input[type=date] { color-scheme:dark; }
+  .date-item { display:flex; align-items:center; gap:12px; }
+  .date-ico { flex:none; width:48px; height:48px; border-radius:14px; display:grid; place-items:center; font-size:24px; background:rgba(225,29,72,.18); border:1px solid var(--card-line); }
+  .date-main { flex:1; min-width:0; }
+  .date-main b { display:block; color:var(--cream); font-weight:600; overflow-wrap:anywhere; }
+  .date-main small { display:block; color:var(--muted-2); font-size:13px; margin-top:3px; }
+  .date-left { text-align:center; flex:none; min-width:58px; }
+  .date-left b { display:block; font-family:var(--font-display); font-size:26px; line-height:1; color:var(--gold-1); }
+  .date-left span { font-size:11px; color:var(--muted-2); }
+  .date-left.today b { color:var(--rose); font-size:18px; }
+  .date-acts { display:flex; gap:8px; margin-top:8px; }
+  .date-acts a, .date-acts button { font-size:13px; color:var(--gold-1); text-decoration:none; background:none; border:1px solid var(--card-line); border-radius:999px; padding:5px 12px; }
+  .tab .badge { inset-inline-end:calc(50% - 26px); }
   #hapticLbl { position:fixed; left:-200px; top:0; opacity:0; pointer-events:none; }
   .hint { margin-top:22px; color:var(--muted-2); font-size:14px; letter-spacing:.04em; animation:fade 2.4s ease-in-out infinite; }
   @keyframes fade { 0%,100%{opacity:.45} 50%{opacity:1} }
@@ -353,6 +401,12 @@
       <div class="level-txt hidden" id="levelTxt"></div>
       <div class="hint" id="hint"><span data-i18n="tapHint"></span><small data-i18n="holdHint"></small></div>
       <div class="status" id="status"></div>
+      <div class="attach-prev hidden" id="attachPrev"></div>
+      <div class="attach-row" id="attachRow">
+        <button class="chip-btn" id="photoBtn">📷 <span data-i18n="photo"></span></button>
+        <button class="chip-btn" id="audioBtn">🎤 <span data-i18n="audio"></span></button>
+      </div>
+      <input type="file" id="photoInput" accept="image/*" hidden>
     </div>
 
     <div class="card">
@@ -387,6 +441,26 @@
       </div>
     </div>
 
+    <h2 data-i18n="settingsTitle"></h2>
+    <div class="card">
+      <div class="set-row">
+        <label for="limitSel" data-i18n="limitLbl"></label>
+        <select id="limitSel"></select>
+      </div>
+      <div class="set-row">
+        <label for="extraChk" data-i18n="extraVib"></label>
+        <span class="switch"><input type="checkbox" id="extraChk"><i></i></span>
+      </div>
+      <div class="set-row">
+        <label for="quietChk">🌙 <span data-i18n="quietLbl"></span></label>
+        <span class="switch"><input type="checkbox" id="quietChk"><i></i></span>
+      </div>
+      <div class="set-row hidden" id="quietRow">
+        <span></span>
+        <span class="quiet-times"><input type="time" id="quietFrom"> – <input type="time" id="quietTo"></span>
+      </div>
+    </div>
+
     <h2 data-i18n="receivedTitle"></h2>
     <ul class="list" id="recvList"></ul>
 
@@ -398,6 +472,25 @@
       <button class="btn" id="addMsg" data-i18n="add"></button>
     </div>
     <div class="err" id="msgErr"></div>
+  </section>
+
+  <!-- Fechas especiales -->
+  <section id="datesView" class="view hidden">
+    <h2 data-i18n="datesTitle"></h2>
+    <div class="card date-form">
+      <input id="dateName" class="field" data-i18n-ph="dateNamePh" maxlength="60" autocomplete="off">
+      <div class="row2">
+        <input type="date" id="dateDate" class="field">
+        <select id="dateType" class="field"></select>
+      </div>
+      <div class="set-row" style="padding-top:0">
+        <label for="dateYearly" data-i18n="yearly"></label>
+        <span class="switch"><input type="checkbox" id="dateYearly" checked><i></i></span>
+      </div>
+      <button class="btn gold" id="dateAdd" data-i18n="dateAdd" style="margin:6px 0 0"></button>
+      <div class="err" id="dateErr"></div>
+    </div>
+    <ul class="list" id="dateList" style="margin-top:16px"></ul>
   </section>
 </main>
 
@@ -411,6 +504,11 @@
     <span data-i18n="tabMsgs"></span>
     <span class="badge hidden" id="badge"></span>
   </button>
+  <button class="tab" data-tab="dates">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M12 17.3l-.6-.5c-1.6-1.4-2.6-2.3-2.6-3.4 0-.9.7-1.6 1.6-1.6.5 0 1 .2 1.3.6.3-.4.8-.6 1.3-.6.9 0 1.6.7 1.6 1.6 0 1.1-1 2-2.6 3.4l-.6.5z" fill="currentColor" stroke="none"/></svg>
+    <span data-i18n="tabDates"></span>
+    <span class="badge hidden" id="dateBadge">!</span>
+  </button>
 </nav>
 
 <div class="letter hidden" id="letter">
@@ -418,6 +516,7 @@
     <div class="seal">💌</div>
     <div class="from" id="letterFrom"></div>
     <div class="msg" id="letterMsg"></div>
+    <div class="media-box hidden" id="letterMedia"></div>
     <button class="btn" id="replyBtn" data-i18n="replyBack"></button>
     <div class="close" data-i18n="tapClose"></div>
   </div>
@@ -436,7 +535,8 @@ const store = {
 /* =================== Idioma =================== */
 let lang = I.pick(store.get('sahar_lang') || I.detect(navigator.languages || [navigator.language]));
 const t = (k, v) => I.t(lang, k, v);
-const showMsg = (m) => I.localizeMessage(m, lang);
+const showMsg = (m) => (/^@\d+$/.test(m || '') ? I.localizeMessage(m, lang) : ((state && state.trans && state.trans[m]) || m));
+const isTranslated = (m) => !!(state && state.trans && state.trans[m]);
 const num = (n) => I.fmtNum(lang, n);
 
 function applyLang() {
@@ -485,7 +585,8 @@ let pollTimer = null;
 let shownStreak = null;
 const isStandalone = window.navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-const VIEWS = ['loadingView', 'installView', 'nameView', 'coupleView', 'homeView', 'msgsView'];
+const VIEWS = ['loadingView', 'installView', 'nameView', 'coupleView', 'homeView', 'msgsView', 'datesView'];
+const TAB_VIEW = { home: 'homeView', msgs: 'msgsView', dates: 'datesView' };
 
 function show(name) {
   VIEWS.forEach((v) => {
@@ -493,7 +594,7 @@ function show(name) {
     if (on && el.classList.contains('hidden')) { el.classList.remove('hidden'); el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; }
     else if (!on) el.classList.add('hidden');
   });
-  const inApp = name === 'homeView' || name === 'msgsView';
+  const inApp = name === 'homeView' || name === 'msgsView' || name === 'datesView';
   $('tabbar').classList.toggle('hidden', !inApp);
   $('main').classList.toggle('with-tabs', inApp);
 }
@@ -510,10 +611,11 @@ function render(fresh = true) {
     if (waiting) { $('codeText').textContent = state.code; pollTimer = setInterval(refresh, 3000); }
     return;
   }
-  show(tab === 'home' ? 'homeView' : 'msgsView');
+  show(TAB_VIEW[tab] || 'homeView');
   pollTimer = setInterval(refresh, 20000);
   renderHome(fresh);
   renderMessages();
+  renderDates();
   checkNewLove();
 }
 
@@ -576,6 +678,7 @@ function fmtDate(ms) {
   catch (_) { return new Date(ms).toLocaleString(); }
 }
 function renderMessages() {
+  renderPrefs();
   $('statSent').textContent = num(state.totalSent || 0);
   $('statRecv').textContent = num(state.totalReceived || 0);
   const si = $('sinceInput');
@@ -585,6 +688,7 @@ function renderMessages() {
   state.messages.forEach((m, i) => {
     const li = document.createElement('li'); li.style.animationDelay = `${Math.min(i, 12) * 35}ms`;
     const span = document.createElement('span'); span.className = 'txt'; span.textContent = showMsg(m);
+    if (isTranslated(m)) { const o = document.createElement('small'); o.className = 'tr-mark'; o.textContent = `🌐 ${t('translatedMark')} · ${m}`; span.append(o); }
     const del = document.createElement('button'); del.className = 'del'; del.textContent = '×'; del.setAttribute('aria-label', '×');
     del.onclick = async () => {
       li.style.transition = 'opacity .25s, transform .25s'; li.style.opacity = '0'; li.style.transform = 'scale(.96)';
@@ -598,8 +702,16 @@ function renderMessages() {
   state.received.slice(0, 20).forEach((r, i) => {
     const li = document.createElement('li'); li.className = 'recv'; li.style.animationDelay = `${Math.min(i, 12) * 35}ms`;
     const box = document.createElement('span'); box.className = 'txt'; box.textContent = showMsg(r.body);
-    const small = document.createElement('small'); small.textContent = `${r.from} ${'💗'.repeat(r.level || 1)} · ${fmtDate(r.at)}`;
-    box.append(small); li.append(box); recv.append(li);
+    const small = document.createElement('small'); small.textContent = `${r.from} ${'💗'.repeat(r.level || 1)}${r.held ? ' 🌙' : ''} · ${fmtDate(r.at)}`;
+    box.append(small);
+    if (r.media) {
+      const mb = document.createElement('button'); mb.className = 'media-btn';
+      mb.textContent = r.media.kind === 'photo' ? `📷 ${t('viewPhoto')}` : `▶︎ ${t('tapToPlay')}`;
+      const holder = document.createElement('div'); holder.className = 'media-box';
+      mb.onclick = async () => { mb.remove(); await showMedia(holder, r.media, true); };
+      box.append(mb, holder);
+    }
+    li.append(box); recv.append(li);
   });
   updateBadge();
 }
@@ -620,11 +732,14 @@ function checkNewLove() {
   const lv = r.level || 1;
   $('letterFrom').textContent = `${t('newLove', { p: r.from })} ${'💗'.repeat(lv)}`;
   $('letterMsg').textContent = showMsg(r.body);
+  const lm = $('letterMedia'); lm.innerHTML = '';
+  lm.classList.toggle('hidden', !r.media);
+  if (r.media) showMedia(lm, r.media, false);
   $('letter').classList.remove('hidden');
   setTimeout(() => { const b = $('letter').querySelector('.seal').getBoundingClientRect(); FX.burst(b.left + b.width / 2, b.top + b.height / 2, 40 + lv * 25); }, 350);
   FX.shower(1400 + lv * 900);
 }
-$('letter').onclick = (e) => { if (e.target.id !== 'replyBtn') $('letter').classList.add('hidden'); };
+$('letter').onclick = (e) => { if (e.target.id !== 'replyBtn' && !e.target.closest('.media-box')) { $('letter').classList.add('hidden'); $('letterMedia').querySelectorAll('audio').forEach((a) => a.pause()); } };
 $('replyBtn').onclick = () => {
   $('letter').classList.add('hidden');
   if (tab !== 'home') document.querySelector('.tab[data-tab=home]').click();
@@ -698,10 +813,185 @@ $('newMsg').onkeydown = (e) => { if (e.key === 'Enter') $('addMsg').click(); };
 document.querySelectorAll('.tab').forEach((b) => b.onclick = () => {
   tab = b.dataset.tab;
   document.querySelectorAll('.tab').forEach((x) => x.classList.toggle('on', x === b));
-  show(tab === 'home' ? 'homeView' : 'msgsView');
+  show(TAB_VIEW[tab] || 'homeView');
   if (tab === 'msgs') { store.set('sahar_seen_list', String(Date.now())); updateBadge(); refresh(); }
+  if (tab === 'dates') renderDates();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
+
+/* ----- Fotos y audios ----- */
+let attach = null; // { kind, mime, data(base64), url, id? }
+const mediaCache = {};
+function blobToB64(blob) {
+  return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.onerror = rej; r.readAsDataURL(blob); });
+}
+async function compressImage(file) {
+  const url = URL.createObjectURL(file);
+  const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+  const max = 1280, k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+  c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+  URL.revokeObjectURL(url);
+  let q = 0.78, blob;
+  do { blob = await new Promise((r) => c.toBlob(r, 'image/jpeg', q)); q -= 0.12; } while (blob.size > 700000 && q > 0.3);
+  return blob;
+}
+function renderAttach() {
+  const p = $('attachPrev'); p.innerHTML = '';
+  p.classList.toggle('hidden', !attach);
+  $('attachRow').classList.toggle('hidden', !!attach);
+  if (!attach) return;
+  if (attach.kind === 'photo') { const im = document.createElement('img'); im.src = attach.url; p.append(im); }
+  else { const ic = document.createElement('div'); ic.className = 'ico'; ic.textContent = '🎤'; p.append(ic); }
+  const s = document.createElement('span'); s.textContent = (attach.kind === 'audio' && attach.secs ? `${attach.secs}s · ` : '') + t('attached'); p.append(s);
+  const x = document.createElement('button'); x.className = 'del'; x.textContent = '×'; x.onclick = clearAttach; p.append(x);
+}
+function clearAttach() { if (attach && attach.url) URL.revokeObjectURL(attach.url); attach = null; renderAttach(); }
+async function uploadAttach() {
+  if (!attach) return null;
+  if (attach.id) return attach.id;
+  const r = await api('/api/media', 'POST', { kind: attach.kind, mime: attach.mime, data: attach.data });
+  attach.id = r.id;
+  return r.id;
+}
+$('photoBtn').onclick = () => $('photoInput').click();
+$('photoInput').onchange = async () => {
+  const f = $('photoInput').files[0]; $('photoInput').value = '';
+  if (!f) return;
+  try {
+    const blob = await compressImage(f);
+    attach = { kind: 'photo', mime: 'image/jpeg', data: await blobToB64(blob), url: URL.createObjectURL(blob) };
+    renderAttach();
+    uploadAttach().catch(() => {}); // subir ya para que el envío sea rápido
+  } catch (_) { $('status').className = 'status bad'; $('status').textContent = t('err.invalid_media'); }
+};
+let rec = null;
+$('audioBtn').onclick = async () => {
+  if (rec) { rec.stop(); return; }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const type = ['audio/mp4', 'audio/aac', 'audio/webm;codecs=opus', 'audio/webm'].find((m) => window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m));
+    const mr = new MediaRecorder(stream, type ? { mimeType: type, audioBitsPerSecond: 48000 } : undefined);
+    const chunks = []; const t0 = Date.now();
+    mr.ondataavailable = (e) => e.data.size && chunks.push(e.data);
+    mr.onstop = async () => {
+      stream.getTracks().forEach((tr) => tr.stop());
+      clearInterval(rec.timer); clearTimeout(rec.limit); rec = null;
+      $('audioBtn').classList.remove('rec'); $('audioBtn').innerHTML = `🎤 <span>${t('audio')}</span>`;
+      const blob = new Blob(chunks, { type: (mr.mimeType || type || 'audio/mp4').split(';')[0] });
+      if (blob.size < 1500) return;
+      attach = { kind: 'audio', mime: blob.type || 'audio/mp4', data: await blobToB64(blob), url: URL.createObjectURL(blob), secs: Math.round((Date.now() - t0) / 1000) };
+      renderAttach();
+      uploadAttach().catch(() => {});
+    };
+    mr.start(250);
+    rec = { mr, timer: setInterval(() => { $('audioBtn').innerHTML = `⏺ ${Math.round((Date.now() - t0) / 1000)}s · ${t('recording')}`; }, 300), limit: setTimeout(() => mr.state !== 'inactive' && mr.stop(), 20000) };
+    $('audioBtn').classList.add('rec');
+    $('audioBtn').textContent = `⏺ 0s · ${t('recording')}`;
+  } catch (_) { $('status').className = 'status bad'; $('status').textContent = t('micDenied'); }
+};
+async function fetchMedia(id) {
+  if (mediaCache[id]) return mediaCache[id];
+  const r = await fetch(`/api/media/${id}?userId=${encodeURIComponent(userId)}`);
+  if (!r.ok) throw new Error('media');
+  return (mediaCache[id] = URL.createObjectURL(await r.blob()));
+}
+async function showMedia(holder, media, autoplay) {
+  holder.innerHTML = '<div class="hint">…</div>';
+  try {
+    const url = await fetchMedia(media.id);
+    holder.innerHTML = '';
+    if (media.kind === 'photo') { const im = document.createElement('img'); im.src = url; im.alt = '📷'; holder.append(im); }
+    else { const au = document.createElement('audio'); au.controls = true; au.src = url; holder.append(au); if (autoplay) au.play().catch(() => {}); }
+  } catch (_) { holder.innerHTML = ''; }
+}
+
+/* ----- Ajustes de avisos ----- */
+function renderPrefs() {
+  const p = state.prefs || { limit: 3, extra: true, quiet: false, from: '23:00', to: '07:00' };
+  const sel = $('limitSel');
+  if (!sel.options.length || sel.dataset.lang !== lang) {
+    sel.innerHTML = '';
+    [1, 2, 3, 5, 10, 0].forEach((v) => { const o = document.createElement('option'); o.value = v; o.textContent = v ? num(v) : t('unlimited'); sel.append(o); });
+    sel.dataset.lang = lang;
+  }
+  sel.value = String(p.limit);
+  $('extraChk').checked = !!p.extra;
+  $('quietChk').checked = !!p.quiet;
+  $('quietRow').classList.toggle('hidden', !p.quiet);
+  if (document.activeElement !== $('quietFrom')) $('quietFrom').value = p.from;
+  if (document.activeElement !== $('quietTo')) $('quietTo').value = p.to;
+}
+async function savePrefs(patch) {
+  try { state = await api('/api/prefs', 'POST', { prefs: patch }); renderPrefs(); }
+  catch (e) { $('msgErr').textContent = errText(e); }
+}
+$('limitSel').onchange = () => savePrefs({ limit: Number($('limitSel').value) });
+$('extraChk').onchange = () => savePrefs({ extra: $('extraChk').checked });
+$('quietChk').onchange = () => { $('quietRow').classList.toggle('hidden', !$('quietChk').checked); savePrefs({ quiet: $('quietChk').checked }); };
+$('quietFrom').onchange = () => savePrefs({ from: $('quietFrom').value });
+$('quietTo').onchange = () => savePrefs({ to: $('quietTo').value });
+
+/* ----- Fechas especiales ----- */
+const DATE_ICONS = { birthday: '🎂', anniv: '💍', date: '🥂', other: '⭐' };
+const DATE_LABEL = { birthday: 'dtBirthday', anniv: 'dtAnniv', date: 'dtDate', other: 'dtOther' };
+function todayKey() { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); }
+function nextOcc(d, today) {
+  if (!d.yearly) return d.date;
+  const y = Number(today.slice(0, 4)), md = d.date.slice(5);
+  const fix = (yy) => (md === '02-29' && !((yy % 4 === 0 && yy % 100 !== 0) || yy % 400 === 0) ? `${yy}-02-28` : `${yy}-${md}`);
+  return fix(y) >= today ? fix(y) : fix(y + 1);
+}
+const daysBetween = (a, b) => Math.round((Date.parse(b + 'T12:00:00Z') - Date.parse(a + 'T12:00:00Z')) / 86400000);
+function renderDates() {
+  if (!state) return;
+  const ts = $('dateType');
+  if (!ts.options.length || ts.dataset.lang !== lang) {
+    const cur = ts.value; ts.innerHTML = '';
+    Object.keys(DATE_ICONS).forEach((k) => { const o = document.createElement('option'); o.value = k; o.textContent = `${DATE_ICONS[k]} ${t(DATE_LABEL[k])}`; ts.append(o); });
+    ts.value = cur || 'birthday'; ts.dataset.lang = lang;
+  }
+  const today = todayKey();
+  const items = (state.dates || []).map((d) => ({ ...d, occ: nextOcc(d, today) })).map((d) => ({ ...d, left: daysBetween(today, d.occ) }))
+    .filter((d) => d.left >= 0 || d.left > -2).sort((a, b) => a.left - b.left);
+  const list = $('dateList'); list.innerHTML = '';
+  if (!items.length) { const li = document.createElement('li'); li.className = 'empty'; li.textContent = t('datesEmpty'); list.append(li); }
+  items.forEach((d, i) => {
+    const li = document.createElement('li'); li.style.animationDelay = `${Math.min(i, 12) * 35}ms`;
+    const wrap = document.createElement('div'); wrap.style.flex = '1';
+    const row = document.createElement('div'); row.className = 'date-item';
+    const ic = document.createElement('div'); ic.className = 'date-ico'; ic.textContent = DATE_ICONS[d.type] || '⭐';
+    const main = document.createElement('div'); main.className = 'date-main';
+    const b = document.createElement('b'); b.textContent = d.name;
+    const sm = document.createElement('small');
+    let ds; try { ds = new Intl.DateTimeFormat(I.LOCALES[lang], { day: 'numeric', month: 'long', ...(d.yearly ? {} : { year: 'numeric' }) }).format(new Date(d.occ + 'T12:00:00')); } catch (_) { ds = d.occ; }
+    sm.textContent = `${t(DATE_LABEL[d.type] || 'dtOther')} · ${ds}${d.yearly ? ' · 🔁' : ''}`;
+    main.append(b, sm);
+    const left = document.createElement('div'); left.className = 'date-left';
+    if (d.left <= 0) { left.classList.add('today'); left.innerHTML = ''; const bb = document.createElement('b'); bb.textContent = t('todayIs'); left.append(bb); }
+    else if (d.left === 1) { const bb = document.createElement('b'); bb.style.fontSize = '16px'; bb.textContent = t('tomorrowIs'); left.append(bb); }
+    else { const bb = document.createElement('b'); bb.textContent = num(d.left); const sp = document.createElement('span'); sp.textContent = I.plural(lang, d.left, I.STRINGS[lang].days); left.append(bb, sp); }
+    row.append(ic, main, left);
+    const acts = document.createElement('div'); acts.className = 'date-acts';
+    const cal = document.createElement('a'); cal.href = `/api/ics/${d.id}?userId=${encodeURIComponent(userId)}`; cal.target = '_blank'; cal.rel = 'noopener'; cal.textContent = `📅 ${t('addCal')}`;
+    const del = document.createElement('button'); del.textContent = '🗑';
+    del.onclick = async () => { try { state = await api('/api/dates', 'DELETE', { id: d.id }); renderDates(); } catch (e) { $('dateErr').textContent = errText(e); } };
+    acts.append(cal, del);
+    wrap.append(row, acts); li.append(wrap); list.append(li);
+  });
+  const soon = items.some((d) => d.left <= 1);
+  $('dateBadge').classList.toggle('hidden', !soon || tab === 'dates');
+}
+$('dateAdd').onclick = async () => {
+  const name = $('dateName').value.trim(), date = $('dateDate').value;
+  if (!name) return $('dateName').focus();
+  if (!date) return $('dateDate').focus();
+  try {
+    state = await api('/api/dates', 'POST', { name, date, type: $('dateType').value, yearly: $('dateYearly').checked });
+    $('dateName').value = ''; $('dateDate').value = ''; $('dateErr').textContent = '';
+    renderDates(); FX.shower(1000);
+  } catch (e) { $('dateErr').textContent = errText(e); }
+};
 
 /* ----- Corazón: toca o mantén presionado (más tiempo = más fuerza) ----- */
 let sending = false;
@@ -783,9 +1073,13 @@ async function sendLove(level = 1) {
   st.className = 'status'; st.textContent = t('sending');
   try {
     const before = state.streak;
-    const res = await api('/api/send', 'POST', { level });
+    let mediaId = null;
+    if (attach) { st.textContent = t('sending') + ' ' + (attach.kind === 'photo' ? '📷' : '🎤'); mediaId = await uploadAttach(); }
+    const res = await api('/api/send', 'POST', { level, mediaId });
     state = { ...state, ...res };
-    st.className = 'status ok'; st.textContent = t('delivered', { m: showMsg(res.body) });
+    if (mediaId) clearAttach();
+    st.className = 'status ok';
+    st.textContent = res.held ? t('heldQuiet', { p: state.partnerName || '' }) : t('delivered', { m: showMsg(res.body) }) + (mediaId ? ' 📎' : '');
     renderHome(true);
     if (res.streak > before || level === 3) FX.shower(level === 3 ? 2200 : 1800);
   } catch (e) { st.className = 'status bad'; st.textContent = errText(e); }
