@@ -390,7 +390,8 @@ function auth(req, res, next) {
   next();
 }
 
-app.get('/api/health', (_req, res) => res.json({ ok: true, storage: useUpstash ? 'upstash' : 'file', apns: apnsEnabled }));
+const APP_VERSION = (() => { try { return /const APP_VERSION = '([^']+)'/.exec(fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8'))[1]; } catch (_) { return null; } })();
+app.get('/api/health', (_req, res) => { res.setHeader('Cache-Control', 'no-store'); res.json({ ok: true, version: APP_VERSION, storage: useUpstash ? 'upstash' : 'file', apns: apnsEnabled }); });
 app.get('/api/vapid', (_req, res) => res.json({ publicKey: vapid.publicKey }));
 
 app.post('/api/register', (req, res) => {
