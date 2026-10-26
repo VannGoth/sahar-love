@@ -229,6 +229,12 @@ const { app, ready, streakInfo, recordDay, prevDay, runReminders, flush } = requ
     assert.strictEqual((await c2('GET', '/api/state?userId=p1')).json.trans['دوستت دارم عزیزم'], undefined);
     console.log('✓ traducción automática');
 
+    // Desvincular: el último en salir borra la pareja
+    assert.strictEqual((await c2('POST', '/api/couple/leave', { userId: 'p1' })).json.code, null);
+    assert.strictEqual((await c2('GET', '/api/state?userId=p2')).json.partnerName, null);
+    await c2('POST', '/api/couple/leave', { userId: 'p2' });
+    assert.strictEqual(dbb.couples[code2], undefined);
+    console.log('✓ desvincular');
     wp.sendNotification = realSend;
     server2.close(); pushSrv.close();
   }

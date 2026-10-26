@@ -434,6 +434,19 @@ app.post('/api/couple/join', auth, (req, res) => {
 
 app.get('/api/state', auth, (req, res) => res.json(stateFor(req.user)));
 
+// Desvincularse de la pareja (si no queda nadie, se borra)
+app.post('/api/couple/leave', auth, (req, res) => {
+  const code = req.user.code;
+  const couple = code && db.couples[code];
+  req.user.code = null;
+  if (couple) {
+    couple.members = couple.members.filter((m) => m !== req.user.id);
+    if (!couple.members.length) deleteCouple(code);
+  }
+  save();
+  res.json(stateFor(req.user));
+});
+
 app.post('/api/lang', auth, (req, res) => {
   if (!LANGS.includes(req.body.lang)) return fail(res, 400, 'invalid_lang');
   req.user.lang = req.body.lang;
@@ -719,7 +732,24 @@ app.get('/api/cron', async (req, res) => {
 });
 
 // ---------------------------------------------------------------------------
+function deleteCouple(code) {
+  const couple = db.couples[code];
+  if (!couple) return;
+  for (const id of couple.members) if (db.users[id] && db.users[id].code === code) db.users[id].code = null;
+  for (const m of couple.media || []) delMedia(m.id);
+  delete db.couples[code];
+  save();
+}
+// Parejas borradas a petición (vinculación equivocada)
+const RESET_CODES = ['G7BDQF'];
 function migrate() {
+  db.resets = db.resets || [];
+  for (const code of RESET_CODES) {
+    if (db.resets.includes(code)) continue;
+    deleteCouple(code);
+    db.resets.push(code);
+    save();
+  }
   for (const couple of Object.values(db.couples)) {
     if ((couple.defaultsV || 1) < 2) {
       for (let i = 10; i < I18N.MESSAGES.es.length; i++) if (!couple.messages.includes(`@${i}`)) couple.messages.push(`@${i}`);

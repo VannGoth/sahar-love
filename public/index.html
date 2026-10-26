@@ -472,6 +472,7 @@
       <button class="btn" id="addMsg" data-i18n="add"></button>
     </div>
     <div class="err" id="msgErr"></div>
+    <button class="btn ghost" id="unlinkBtn" data-i18n="unlink" style="margin-top:28px;color:#fda4af;border-color:rgba(253,164,175,.35)"></button>
   </section>
 
   <!-- Fechas especiales -->
@@ -525,7 +526,7 @@
 <label id="hapticLbl" aria-hidden="true"><input type="checkbox" switch tabindex="-1"></label>
 <script src="/i18n.js"></script>
 <script>
-const APP_VERSION = '2026-10-26-3';
+const APP_VERSION = '2026-10-26-4';
 const I = window.SaharI18n;
 // Si el servidor ya tiene una versión más nueva, borrar la copia guardada y recargar una vez
 (async () => {
@@ -920,6 +921,20 @@ async function showMedia(holder, media, autoplay) {
     else { const au = document.createElement('audio'); au.controls = true; au.src = url; holder.append(au); if (autoplay) au.play().catch(() => {}); }
   } catch (_) { holder.innerHTML = ''; }
 }
+
+/* ----- Desvincular (dos toques para confirmar) ----- */
+let unlinkArmed = null;
+$('unlinkBtn').onclick = async () => {
+  const b = $('unlinkBtn');
+  if (!unlinkArmed) {
+    b.textContent = t('unlinkConfirm');
+    unlinkArmed = setTimeout(() => { unlinkArmed = null; b.textContent = t('unlink'); }, 5000);
+    return;
+  }
+  clearTimeout(unlinkArmed); unlinkArmed = null; b.textContent = t('unlink');
+  try { state = await api('/api/couple/leave', 'POST', {}); tab = 'home'; document.querySelectorAll('.tab').forEach((x) => x.classList.toggle('on', x.dataset.tab === 'home')); render(); }
+  catch (e) { $('msgErr').textContent = errText(e); }
+};
 
 /* ----- Ajustes de avisos ----- */
 function renderPrefs() {
