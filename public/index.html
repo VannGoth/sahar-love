@@ -40,6 +40,18 @@
   html[data-theme="isfahan"] { --bg-1:#04161c; --bg-2:#0b4152; --bg-3:#062730; --red:#14b8a6; --red-2:#0e7490; --red-3:#164e63; --rose:#5eead4;
     --gold-1:#fff3c4; --gold-2:#f3d27a; --gold-3:#d4af37; --gold-4:#9a7420; --card:rgba(6,48,60,.6); --card-line:rgba(243,210,122,.3);
     --muted:#bfe3e0; --muted-2:#7fb0ad; --glow:20,184,166; --glowg:243,210,122; --orb-hi:#a7f3e8; --orb-lo:#062f3a; }
+  html[data-theme="aurora"] { --bg-1:#120720; --bg-2:#43186b; --bg-3:#2b0c3f; --red:#ff4f8b; --red-2:#d02ba8; --red-3:#6d28d9; --rose:#ff9ecb;
+    --gold-1:#fff4ea; --gold-2:#ffcba4; --gold-3:#ff9f7a; --gold-4:#c8645a; --card:rgba(52,20,82,.55); --card-line:rgba(255,203,164,.28);
+    --muted:#e6d2f3; --muted-2:#a88dc6; --glow:255,79,139; --glowg:255,203,164; --orb-hi:#ffc4e0; --orb-lo:#3d0a5e; --bar:rgba(26,10,44,.78); --paper-1:#4b1c72; --paper-2:#22093a; }
+  html[data-theme="gold"] { --bg-1:#120c03; --bg-2:#4a3409; --bg-3:#2a1d05; --red:#f5b301; --red-2:#c98a00; --red-3:#7a4f00; --rose:#ffd877;
+    --gold-1:#fffbea; --gold-2:#ffe39a; --gold-3:#f2c14e; --gold-4:#a87b13; --card:rgba(70,48,10,.55); --card-line:rgba(255,227,154,.32);
+    --muted:#f1e2bb; --muted-2:#b49a62; --glow:245,179,1; --glowg:255,227,154; --orb-hi:#fff0b8; --orb-lo:#4a2f00; --bar:rgba(30,20,4,.78); --paper-1:#5a3f0c; --paper-2:#2a1d05; }
+  html[data-theme="galaxy"] { --bg-1:#03020c; --bg-2:#1b1450; --bg-3:#0b0826; --red:#a855f7; --red-2:#6d28d9; --red-3:#312e81; --rose:#67e8f9;
+    --gold-1:#f0fdff; --gold-2:#a5f3fc; --gold-3:#67e8f9; --gold-4:#0e7490; --card:rgba(24,18,70,.55); --card-line:rgba(165,243,252,.25);
+    --muted:#d4d0f5; --muted-2:#8f89c4; --glow:168,85,247; --glowg:103,232,249; --orb-hi:#e9d5ff; --orb-lo:#1e0b4f; --bar:rgba(8,6,28,.8); --paper-1:#2a1f6e; --paper-2:#0b0826; }
+  html[data-theme="galaxy"] body::after { content:""; position:fixed; inset:-50%; z-index:0; pointer-events:none; opacity:.55;
+    background:radial-gradient(40% 25% at 30% 40%,rgba(168,85,247,.25),transparent 70%),radial-gradient(35% 25% at 70% 60%,rgba(103,232,249,.18),transparent 70%);
+    animation:spin 120s linear infinite; }
   /* Patrón geométrico persa (girih) del tema Isfahán */
   html[data-theme="isfahan"] body::before { content:""; position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.09;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%23f3d27a' stroke-width='1.2'%3E%3Cpath d='M42 12l8.5 21.5L72 42l-21.5 8.5L42 72l-8.5-21.5L12 42l21.5-8.5z'/%3E%3Cpath d='M21 21h42v42H21z' transform='rotate(45 42 42)'/%3E%3Cpath d='M21 21h42v42H21z'/%3E%3Ccircle cx='42' cy='42' r='7'/%3E%3Cpath d='M0 0l12 12M84 0L72 12M0 84l12-12M84 84L72 72'/%3E%3C/g%3E%3C/svg%3E");
@@ -49,6 +61,9 @@
   .orb-wrap[data-touch="hug"]   { --red:#f59e0b; --red-2:#c2410c; --orb-hi:#ffe2a8; --orb-lo:#5c2508; --glow:245,158,11; }
   .orb-wrap[data-touch="miss"]  { --red:#8b5cf6; --red-2:#6d28d9; --orb-hi:#dccbff; --orb-lo:#2e1065; --glow:139,92,246; }
   .orb-wrap[data-touch="night"] { --red:#3b82f6; --red-2:#1e3a8a; --orb-hi:#c2d8ff; --orb-lo:#0b1437; --glow:59,130,246; }
+  .orb-wrap[data-touch="morning"] { --red:#fbbf24; --red-2:#f97316; --orb-hi:#fff3b0; --orb-lo:#7c2d12; --glow:251,191,36; }
+  .orb-wrap[data-touch="laugh"] { --red:#22c55e; --red-2:#0d9488; --orb-hi:#bbf7d0; --orb-lo:#064e3b; --glow:34,197,94; }
+  .orb-wrap[data-touch="proud"] { --red:#f43f5e; --red-2:#9333ea; --orb-hi:#fecdd3; --orb-lo:#4c0519; --glow:244,63,94; }
   html[dir="rtl"] { --font-ui:"Vazirmatn",-apple-system,system-ui,sans-serif; --font-display:"Vazirmatn",serif; }
   * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html, body { margin:0; height:100%; }
@@ -239,7 +254,6 @@
   .switch input:checked + i::after { transform:translateX(20px); }
   html[dir="rtl"] .switch input:checked + i::after { transform:translateX(-20px); }
   html[dir="rtl"] .switch i::after { left:auto; right:3px; }
-  .quiet-times { display:flex; align-items:center; gap:8px; direction:ltr; }
   /* Fechas */
   .date-form .row2 { display:flex; gap:8px; }
   .date-form .row2 > * { flex:1; min-width:0; }
@@ -256,8 +270,9 @@
   .date-acts { display:flex; gap:8px; margin-top:8px; }
   .date-acts a, .date-acts button { font-size:13px; color:var(--gold-1); text-decoration:none; background:none; border:1px solid var(--card-line); border-radius:999px; padding:5px 12px; }
   .tab .badge { inset-inline-end:calc(50% - 26px); }
-  .types { display:flex; gap:6px; justify-content:center; margin:4px 0 14px; width:100%; max-width:420px; }
-  .type-chip { flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:2px; padding:8px 2px 6px; border-radius:16px;
+  .types { display:flex; gap:6px; margin:4px 0 14px; width:100%; max-width:440px; overflow-x:auto; scrollbar-width:none; padding:4px 2px 6px; scroll-snap-type:x proximity; }
+  .types::-webkit-scrollbar { display:none; }
+  .type-chip { flex:0 0 64px; scroll-snap-align:center; display:flex; flex-direction:column; align-items:center; gap:2px; padding:8px 2px 6px; border-radius:16px;
     border:1px solid var(--card-line); background:rgba(255,255,255,.03); color:var(--muted); font-size:11px; font-weight:600; transition:all .25s; }
   .type-chip b { font-size:22px; line-height:1; font-weight:400; }
   .type-chip span { max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:10.5px; }
@@ -361,7 +376,7 @@
   /* ---------- Barra de pestañas ---------- */
   .tabbar { position:fixed; z-index:20; left:50%; transform:translateX(-50%); bottom:calc(env(safe-area-inset-bottom) + 12px);
     width:min(440px,calc(100% - 32px)); height:var(--tab-h); display:flex; gap:6px; padding:8px; border-radius:26px;
-    background:rgba(28,5,13,.72); border:1px solid var(--card-line); backdrop-filter:blur(18px) saturate(1.3); -webkit-backdrop-filter:blur(18px) saturate(1.3);
+    background:var(--bar,rgba(28,5,13,.72)); border:1px solid var(--card-line); backdrop-filter:blur(18px) saturate(1.3); -webkit-backdrop-filter:blur(18px) saturate(1.3);
     box-shadow:0 14px 40px rgba(0,0,0,.45); }
   .tab { position:relative; flex:1; border:0; border-radius:20px; background:transparent; color:var(--muted-2); font-size:12.5px; font-weight:600;
     display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; transition:color .25s, background .25s; }
@@ -373,7 +388,7 @@
   /* ---------- Carta recibida ---------- */
   .letter { position:fixed; inset:0; z-index:60; display:grid; place-items:center; padding:24px; background:rgba(10,1,4,.72); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); animation:fadein .35s both; }
   .letter .paper { width:min(380px,100%); text-align:center; padding:34px 26px 26px; border-radius:28px; position:relative;
-    background:linear-gradient(160deg,#4a0b1f 0%,#2a0611 100%); border:1px solid var(--gold-3);
+    background:linear-gradient(160deg,var(--paper-1,#4a0b1f) 0%,var(--paper-2,#2a0611) 100%); border:1px solid var(--gold-3);
     box-shadow:0 30px 80px rgba(0,0,0,.6), 0 0 0 6px rgba(var(--glowg),.08), inset 0 1px 0 rgba(255,241,193,.2);
     animation:unfold .7s cubic-bezier(.2,.9,.25,1.2) both; }
   .letter .seal { width:74px; height:74px; margin:-72px auto 14px; border-radius:50%; display:grid; place-items:center; font-size:34px;
@@ -384,6 +399,82 @@
   .letter .close { color:var(--muted-2); font-size:13px; }
   @keyframes fadein { from{opacity:0} to{opacity:1} }
   @keyframes unfold { from{opacity:0; transform:translateY(40px) scale(.85) rotateX(25deg)} to{opacity:1; transform:none} }
+
+  /* Mensaje directo */
+  .direct { display:flex; gap:8px; width:100%; max-width:420px; margin-top:14px; }
+  .direct .field { margin:0; padding:13px 16px; font-size:16px; border-radius:999px; }
+  .direct .btn { width:auto; margin:0; padding:0 18px; border-radius:999px; flex:none; font-size:20px; }
+  /* Reacciones en la carta */
+  .reacts { display:flex; justify-content:center; gap:8px; margin:0 0 14px; }
+  .reacts button { width:46px; height:46px; border-radius:50%; border:1px solid var(--card-line); background:rgba(255,255,255,.06); font-size:23px; transition:transform .15s; }
+  .reacts button:active { transform:scale(1.35); }
+  .letter.sync .seal { animation:spin 2.4s linear infinite; }
+  .sync-tag { display:inline-block; margin-bottom:6px; padding:4px 12px; border-radius:999px; font-size:13px; font-weight:700; color:#fff; background:linear-gradient(90deg,var(--red),var(--red-3)); }
+  /* Esto o aquello */
+  .tot h3, .score h3, .cards h3, .fact h3, .badges h3 { margin:0 0 8px; font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--gold-2); display:flex; align-items:center; gap:6px; }
+  html[dir="rtl"] .tot h3, html[dir="rtl"] .score h3, html[dir="rtl"] .cards h3, html[dir="rtl"] .fact h3, html[dir="rtl"] .badges h3 { letter-spacing:0; font-size:15px; }
+  .tot .intro { color:var(--muted); font-size:14.5px; line-height:1.45; margin:0 0 12px; }
+  .tot-step { color:var(--gold-1); font-family:var(--font-display); font-size:21px; text-align:center; margin:2px 0 10px; }
+  .tot-dots { display:flex; justify-content:center; gap:6px; margin-bottom:12px; }
+  .tot-dots i { width:22px; height:5px; border-radius:3px; background:rgba(255,255,255,.14); transition:background .3s; }
+  .tot-dots i.on { background:linear-gradient(90deg,var(--red),var(--gold-2)); }
+  .tot-pick { display:grid; grid-template-columns:1fr auto 1fr; gap:8px; align-items:center; animation:rise .35s both; }
+  .tot-pick .vs { color:var(--muted-2); font-size:13px; font-weight:700; }
+  .tot-opt { border:1px solid var(--card-line); background:rgba(255,255,255,.05); color:var(--cream); border-radius:20px; padding:16px 8px; display:flex; flex-direction:column; align-items:center; gap:6px; font-size:15px; font-weight:600; transition:transform .15s, background .2s; }
+  .tot-opt b { font-size:38px; line-height:1; font-weight:400; }
+  .tot-opt:active { transform:scale(.94); background:rgba(var(--glow),.3); }
+  .tot-res { display:flex; flex-direction:column; gap:8px; }
+  .tot-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:10px 12px; border-radius:14px; background:rgba(255,255,255,.04); border:1px solid rgba(var(--glowg),.14); font-size:14px; }
+  .tot-row.same { border-color:var(--gold-3); background:rgba(var(--glowg),.1); }
+  .tot-row small { display:block; color:var(--muted-2); font-size:11.5px; margin-bottom:2px; }
+  .tot-sum { text-align:center; color:var(--gold-1); font-family:var(--font-display); font-size:20px; margin:12px 0 2px; }
+  .tot-wait { text-align:center; color:var(--muted); padding:8px 0 2px; }
+  /* Marcador */
+  .vs-board { display:grid; grid-template-columns:1fr auto 1fr; gap:10px; align-items:center; text-align:center; }
+  .vs-board .side b { display:block; font-family:var(--font-display); font-size:40px; line-height:1; background:linear-gradient(180deg,var(--gold-1),var(--gold-3)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .vs-board .side span { display:block; color:var(--muted); font-size:13px; margin-top:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .vs-board .side.lead span::before { content:"👑 "; }
+  .vs-board .mid { color:var(--muted-2); font-size:12px; font-weight:700; }
+  .score-bar { height:10px; border-radius:999px; background:rgba(255,255,255,.1); overflow:hidden; margin:12px 0 6px; display:flex; }
+  .score-bar i { display:block; height:100%; transition:width .8s cubic-bezier(.2,.9,.3,1); }
+  .score-note { text-align:center; color:var(--muted-2); font-size:13px; line-height:1.4; }
+  .score-lead { text-align:center; color:var(--gold-1); font-weight:600; margin-top:8px; }
+  /* Vales */
+  .vouchers { display:flex; gap:10px; overflow-x:auto; padding:4px 2px 8px; scroll-snap-type:x mandatory; scrollbar-width:none; }
+  .vouchers::-webkit-scrollbar { display:none; }
+  .voucher { flex:0 0 74%; scroll-snap-align:center; position:relative; border-radius:20px; padding:16px; min-height:150px; display:flex; flex-direction:column; gap:6px;
+    background:linear-gradient(135deg,var(--red) 0%,var(--red-2) 55%,var(--red-3) 100%); box-shadow:0 12px 30px rgba(var(--glow),.35); color:#fff; overflow:hidden; }
+  .voucher::before, .voucher::after { content:""; position:absolute; top:50%; width:22px; height:22px; border-radius:50%; background:var(--bg-1); transform:translateY(-50%); }
+  .voucher::before { left:-11px; } .voucher::after { right:-11px; }
+  .voucher .em { font-size:40px; line-height:1; }
+  .voucher .nm { font-family:var(--font-display); font-size:22px; font-weight:700; line-height:1.15; }
+  html[dir="rtl"] .voucher .nm { font-size:18px; }
+  .voucher .vwho { font-size:12px; opacity:.85; font-family:var(--font-ui); }
+  .voucher .use { margin-top:auto; align-self:flex-start; border:0; border-radius:999px; padding:8px 16px; font-weight:700; color:var(--red-3); background:#fff; }
+  .voucher.used { filter:grayscale(.8) brightness(.7); }
+  .voucher.used .use { display:none; }
+  .voucher.theirs { background:linear-gradient(135deg,rgba(255,255,255,.1),rgba(255,255,255,.04)); border:1px dashed var(--card-line); box-shadow:none; }
+  .voucher .stamp { position:absolute; top:14px; inset-inline-end:14px; transform:rotate(12deg); border:2px solid #fff; border-radius:8px; padding:2px 8px; font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+  /* Curiosidad */
+  .fact p { margin:0; line-height:1.55; color:var(--cream); font-size:16px; }
+  /* Logros de racha */
+  .badge-row { display:flex; gap:8px; overflow-x:auto; padding:2px 0 4px; scrollbar-width:none; margin-top:14px; }
+  .badge-row::-webkit-scrollbar { display:none; }
+  .mbadge { flex:none; width:58px; text-align:center; }
+  .mbadge b { width:50px; height:50px; margin:0 auto 4px; border-radius:16px; display:grid; place-items:center; font-size:24px; font-weight:400; border:1px solid var(--card-line); background:rgba(255,255,255,.04); }
+  .mbadge span { font-size:11px; color:var(--muted-2); }
+  .mbadge.on b { background:radial-gradient(circle at 50% 35%,rgba(var(--glowg),.4),rgba(var(--glow),.25)); border-color:var(--gold-2); box-shadow:0 0 18px rgba(var(--glowg),.35); }
+  .mbadge.on span { color:var(--gold-1); font-weight:600; }
+  .mbadge.off b { filter:grayscale(1) opacity(.35); }
+  .ms-next { color:var(--muted-2); font-size:13px; margin-top:6px; }
+  /* Celebración de logro */
+  .celebrate { position:fixed; inset:0; z-index:62; display:grid; place-items:center; padding:24px; background:rgba(5,0,10,.78); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); animation:fadein .35s both; text-align:center; }
+  .celebrate .big { font-size:110px; line-height:1; animation:trophy 1.2s cubic-bezier(.2,.9,.3,1.4) both; filter:drop-shadow(0 10px 40px rgba(var(--glowg),.7)); }
+  .celebrate h2 { font-family:var(--font-display); font-size:36px; letter-spacing:0; text-transform:none; color:var(--gold-1); margin:18px 0 6px; }
+  .celebrate p { color:var(--muted); margin:0 0 6px; font-size:16px; }
+  .celebrate .btn { margin-top:18px; width:auto; padding:14px 32px; }
+  @keyframes trophy { 0%{ transform:scale(0) rotate(-30deg); opacity:0 } 60%{ transform:scale(1.25) rotate(8deg); opacity:1 } 100%{ transform:none } }
+  .status.sync { color:var(--gold-1); font-family:var(--font-display); font-size:24px; font-weight:700; animation:numpop .7s cubic-bezier(.2,.9,.3,1.5); }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; }
@@ -482,7 +573,12 @@
         <button class="chip-btn" id="photoBtn">📷 <span data-i18n="photo"></span></button>
         <button class="chip-btn" id="audioBtn">🎤 <span data-i18n="audio"></span></button>
         <button class="chip-btn" id="drawBtn">✏️ <span data-i18n="drawBtn"></span></button>
+        <button class="chip-btn" id="askBtn">🎲 <span data-i18n="askBtn"></span></button>
       </div>
+      <form class="direct" id="directForm" autocomplete="off">
+        <input id="directInput" class="field" maxlength="140" data-i18n-ph="directPh" enterkeyhint="send">
+        <button class="btn" id="directBtn" type="submit" aria-label="↑">➤</button>
+      </form>
       <input type="file" id="photoInput" accept="image/*" hidden>
     </div>
 
@@ -500,6 +596,20 @@
         <span class="chip" id="chipPartner"><i class="dot"></i><span id="chipPartnerTxt"></span></span>
       </div>
       <p class="streak-hint" data-i18n="streakHint"></p>
+      <div class="badge-row" id="badgeRow"></div>
+      <div class="ms-next" id="msNext"></div>
+    </div>
+    <div class="card tot" id="totCard">
+      <h3>🎲 <span data-i18n="totTitle"></span></h3>
+      <div id="totBody"></div>
+    </div>
+    <div class="card score" id="scoreCard">
+      <h3>🏆 <span data-i18n="scoreTitle"></span></h3>
+      <div id="scoreBody"></div>
+    </div>
+    <div class="card cards" id="cardsCard">
+      <h3>🎁 <span data-i18n="cardsTitle"></span></h3>
+      <div id="cardsBody"></div>
     </div>
     <div class="card qcard" id="qCard">
       <h3>💭 <span data-i18n="qTitle"></span></h3>
@@ -510,6 +620,10 @@
       <h3>🌤 <span data-i18n="moodTitle"></span></h3>
       <p class="partner-mood hidden" id="partnerMoodTxt"></p>
       <div class="moods" id="moodRow"></div>
+    </div>
+    <div class="card fact" id="factCard">
+      <h3>💡 <span data-i18n="factTitle"></span></h3>
+      <p id="factText"></p>
     </div>
     <div class="card hafez" id="hafezCard">
       <h3>🌹 <span data-i18n="hafezTitle"></span></h3>
@@ -543,20 +657,8 @@
         <select id="themeSel"></select>
       </div>
       <div class="set-row">
-        <label for="limitSel" data-i18n="limitLbl"></label>
-        <select id="limitSel"></select>
-      </div>
-      <div class="set-row">
         <label for="extraChk" data-i18n="extraVib"></label>
         <span class="switch"><input type="checkbox" id="extraChk"><i></i></span>
-      </div>
-      <div class="set-row">
-        <label for="quietChk">🌙 <span data-i18n="quietLbl"></span></label>
-        <span class="switch"><input type="checkbox" id="quietChk"><i></i></span>
-      </div>
-      <div class="set-row hidden" id="quietRow">
-        <span></span>
-        <span class="quiet-times"><input type="time" id="quietFrom"> – <input type="time" id="quietTo"></span>
       </div>
     </div>
 
@@ -620,14 +722,25 @@
 <div class="letter hidden" id="letter">
   <div class="paper">
     <div class="seal">💌</div>
+    <div class="sync-tag hidden" id="letterSync"></div>
     <div class="from" id="letterFrom"></div>
     <div class="msg" id="letterMsg"></div>
     <div class="media-box hidden" id="letterMedia"></div>
+    <div class="reacts" id="reactRow"></div>
     <button class="btn" id="replyBtn" data-i18n="replyBack"></button>
     <div class="close" data-i18n="tapClose"></div>
   </div>
 </div>
 
+<div class="celebrate hidden" id="celebrate">
+  <div>
+    <div class="big" id="celEmoji">🏆</div>
+    <h2 id="celTitle"></h2>
+    <p id="celSub"></p>
+    <p id="celReward"></p>
+    <button class="btn gold" id="celOk">💗</button>
+  </div>
+</div>
 <div class="lightbox hidden" id="lightbox"><img alt="📷"></div>
 <div class="draw hidden" id="drawPad">
   <div class="bar" id="drawColors"></div>
@@ -645,9 +758,13 @@
 <label id="hapticLbl" aria-hidden="true"><input type="checkbox" switch tabindex="-1"></label>
 <script src="/i18n.js"></script>
 <script>
-const APP_VERSION = '2026-10-26-6';
-let currentTheme = 'red';
-try { currentTheme = localStorage.getItem('sahar_theme') || 'red'; } catch (_) {}
+const APP_VERSION = '2026-11-02-1';
+let currentTheme = 'aurora';
+try {
+  // Estreno del color nuevo: pasar una vez a «Aurora»; después se respeta lo que elijan
+  if (!localStorage.getItem('sahar_theme_v2')) { localStorage.setItem('sahar_theme_v2', '1'); localStorage.setItem('sahar_theme', 'aurora'); }
+  currentTheme = localStorage.getItem('sahar_theme') || 'aurora';
+} catch (_) {}
 const I = window.SaharI18n;
 // Si el servidor ya tiene una versión más nueva, borrar la copia guardada y recargar una vez
 (async () => {
@@ -672,7 +789,7 @@ const store = {
 /* =================== Idioma =================== */
 let lang = I.pick(store.get('sahar_lang') || I.detect(navigator.languages || [navigator.language]));
 const t = (k, v) => I.t(lang, k, v);
-const showMsg = (m) => (/^@\d+$/.test(m || '') ? I.localizeMessage(m, lang) : ((state && state.trans && state.trans[m]) || m));
+const showMsg = (m) => (/^[@#?]\w+$/.test(m || '') ? I.localizeMessage(m, lang) : ((state && state.trans && state.trans[m]) || m));
 const isTranslated = (m) => !!(state && state.trans && state.trans[m]);
 const num = (n) => I.fmtNum(lang, n);
 
@@ -757,6 +874,11 @@ function render(fresh = true) {
   renderQuestion();
   renderMood();
   renderHafez(false);
+  renderTot();
+  renderScore();
+  renderCards();
+  renderFact();
+  renderBadges();
   checkNewLove();
 }
 
@@ -846,7 +968,8 @@ function renderMessages() {
   state.received.slice(0, 20).forEach((r, i) => {
     const li = document.createElement('li'); li.className = 'recv'; li.style.animationDelay = `${Math.min(i, 12) * 35}ms`;
     const box = document.createElement('span'); box.className = 'txt'; box.textContent = showMsg(r.body);
-    const small = document.createElement('small'); small.textContent = `${r.from} ${(TYPE_EMOJI[r.type] || '💗').repeat(r.level || 1)}${r.held ? ' 🔕' : ''} · ${fmtDate(r.at)}`;
+    const small = document.createElement('small'); small.textContent = `${r.from} ${recvIcon(r)}${r.sync ? ' 💞' : ''} · ${fmtDate(r.at)}`;
+    if (r.type === 'react') box.textContent = `${t('reactBody', { e: r.body })}`;
     box.append(small);
     if (r.media) {
       const mb = document.createElement('button'); mb.className = 'media-btn';
@@ -868,26 +991,61 @@ function updateBadge() {
   $('badge').textContent = n > 9 ? '9+' : num(n);
   $('badge').classList.toggle('hidden', n === 0 || tab === 'msgs');
 }
+function recvIcon(r) {
+  if (r.type === 'text') return '💌';
+  if (r.type === 'ask') return '💭';
+  if (r.type === 'react') return r.body;
+  return (TYPE_EMOJI[r.type] || '💗').repeat(r.level || 1);
+}
+const REACTIONS = ['❤️', '😍', '😂', '🥺', '🔥', '😘'];
 function checkNewLove() {
   const r = state.received[0];
   if (!r || r.at <= lastSeen() || !$('letter').classList.contains('hidden')) return;
   store.set('sahar_seen', String(r.at));
   if (lastSeen() && Date.now() - r.at > 1000 * 60 * 60 * 24 * 3) return;
+  // Una reacción no abre carta: lluvia de ese emoji y aviso breve
+  if (r.type === 'react') {
+    FX.shower(1800, { colors: ['#ff4f8b', '#ffcba4', '#c026d3'], emoji: r.body });
+    const st = $('status'); st.className = 'status ok'; st.textContent = `${r.from}: ${t('reactBody', { e: r.body })}`;
+    return;
+  }
   const lv = r.level || 1;
-  $('letterFrom').textContent = `${t('newLove', { p: r.from })} ${(TYPE_EMOJI[r.type] || '💗').repeat(lv)}`;
-  $('letter').querySelector('.seal').textContent = r.type && r.type !== 'heart' ? TYPE_EMOJI[r.type] : '💌';
+  const fx = r.type === 'text' ? { colors: ['#ff4f8b', '#ffcba4', '#c026d3'], emoji: '💌' } : r.type === 'ask' ? { colors: ['#a78bfa', '#ffcba4', '#67e8f9'], emoji: '💭' } : (TYPES[r.type] || {}).fx;
+  $('letterFrom').textContent = `${t('newLove', { p: r.from })} ${recvIcon(r)}`;
+  $('letter').querySelector('.seal').textContent = r.type === 'text' || r.type === 'heart' || !r.type ? '💌' : r.type === 'ask' ? '💭' : TYPE_EMOJI[r.type] || '💌';
+  $('letterSync').textContent = t('syncTitle');
+  $('letterSync').classList.toggle('hidden', !r.sync);
+  $('letter').classList.toggle('sync', !!r.sync);
   $('letterMsg').textContent = showMsg(r.body);
   const lm = $('letterMedia'); lm.innerHTML = '';
   lm.classList.toggle('hidden', !r.media);
   if (r.media) showMedia(lm, r.media, false);
+  // Si es una pregunta, «Responder» lleva al cuadro de mensaje
+  $('replyBtn').dataset.mode = r.type === 'ask' ? 'answer' : 'touch';
+  const rr = $('reactRow'); rr.innerHTML = '';
+  REACTIONS.forEach((e) => {
+    const b = document.createElement('button'); b.textContent = e;
+    b.onclick = async (ev) => {
+      ev.stopPropagation();
+      const rc = b.getBoundingClientRect(); FX.burst(rc.left + rc.width / 2, rc.top + rc.height / 2, 26, { colors: ['#ff4f8b', '#ffcba4'], emoji: e });
+      haptic([30]);
+      rr.querySelectorAll('button').forEach((x) => { x.disabled = true; x.style.opacity = x === b ? '1' : '.35'; });
+      try { state = await api('/api/react', 'POST', { emoji: e }); $('status').className = 'status ok'; $('status').textContent = t('reactSent', { e }); }
+      catch (err) { $('status').className = 'status bad'; $('status').textContent = errText(err); }
+      setTimeout(() => $('letter').classList.add('hidden'), 650);
+    };
+    rr.append(b);
+  });
   $('letter').classList.remove('hidden');
-  setTimeout(() => { const b = $('letter').querySelector('.seal').getBoundingClientRect(); FX.burst(b.left + b.width / 2, b.top + b.height / 2, 40 + lv * 25, (TYPES[r.type] || {}).fx); }, 350);
-  FX.shower(1400 + lv * 900, (TYPES[r.type] || {}).fx);
+  setTimeout(() => { const b = $('letter').querySelector('.seal').getBoundingClientRect(); FX.burst(b.left + b.width / 2, b.top + b.height / 2, 40 + lv * 25 + (r.sync ? 60 : 0), fx); }, 350);
+  FX.shower(1400 + lv * 900 + (r.sync ? 1500 : 0), fx);
+  haptic(r.sync ? [60, 40, 60, 40, 120] : [40]);
 }
-$('letter').onclick = (e) => { if (e.target.id !== 'replyBtn' && !e.target.closest('.media-box')) { $('letter').classList.add('hidden'); $('letterMedia').querySelectorAll('audio').forEach((a) => a.pause()); } };
+$('letter').onclick = (e) => { if (e.target.id !== 'replyBtn' && !e.target.closest('.media-box') && !e.target.closest('.reacts')) { $('letter').classList.add('hidden'); $('letterMedia').querySelectorAll('audio').forEach((a) => a.pause()); } };
 $('replyBtn').onclick = () => {
   $('letter').classList.add('hidden');
   if (tab !== 'home') document.querySelector('.tab[data-tab=home]').click();
+  if ($('replyBtn').dataset.mode === 'answer') { setTimeout(() => { $('directInput').scrollIntoView({ behavior: 'smooth', block: 'center' }); $('directInput').focus(); }, 250); return; }
   setTimeout(() => sendLove(2), 250);
 };
 $('sinceInput').onchange = async () => {
@@ -1065,31 +1223,16 @@ $('unlinkBtn').onclick = async () => {
   catch (e) { $('msgErr').textContent = errText(e); }
 };
 
-/* ----- Ajustes de avisos ----- */
+/* ----- Ajustes de avisos (sin «no molestar»: todo llega al instante) ----- */
 function renderPrefs() {
-  const p = state.prefs || { limit: 3, extra: true, quiet: false, from: '23:00', to: '07:00' };
-  const sel = $('limitSel');
-  if (!sel.options.length || sel.dataset.lang !== lang) {
-    sel.innerHTML = '';
-    [1, 2, 3, 5, 10, 0].forEach((v) => { const o = document.createElement('option'); o.value = v; o.textContent = v ? num(v) : t('unlimited'); sel.append(o); });
-    sel.dataset.lang = lang;
-  }
-  sel.value = String(p.limit);
-  $('extraChk').checked = !!p.extra;
-  $('quietChk').checked = !!p.quiet;
-  $('quietRow').classList.toggle('hidden', !p.quiet);
-  if (document.activeElement !== $('quietFrom')) $('quietFrom').value = p.from;
-  if (document.activeElement !== $('quietTo')) $('quietTo').value = p.to;
+  const p = state.prefs || { extra: true };
+  $('extraChk').checked = p.extra !== false;
 }
 async function savePrefs(patch) {
   try { state = await api('/api/prefs', 'POST', { prefs: patch }); renderPrefs(); }
   catch (e) { $('msgErr').textContent = errText(e); }
 }
-$('limitSel').onchange = () => savePrefs({ limit: Number($('limitSel').value) });
 $('extraChk').onchange = () => savePrefs({ extra: $('extraChk').checked });
-$('quietChk').onchange = () => { $('quietRow').classList.toggle('hidden', !$('quietChk').checked); savePrefs({ quiet: $('quietChk').checked }); };
-$('quietFrom').onchange = () => savePrefs({ from: $('quietFrom').value });
-$('quietTo').onchange = () => savePrefs({ to: $('quietTo').value });
 
 /* ----- Fechas especiales ----- */
 const DATE_ICONS = { birthday: '🎂', anniv: '💍', date: '🥂', other: '⭐' };
@@ -1161,6 +1304,9 @@ const TYPES = {
   hug:   { emoji: '🤗', label: 'typeHug',   fx: { colors: ['#f59e0b', '#fbbf24', '#f97316', '#fde68a'], emoji: '🤗' } },
   miss:  { emoji: '🥺', label: 'typeMiss',  fx: { colors: ['#8b5cf6', '#a78bfa', '#6d28d9', '#c4b5fd'], emoji: '💜' } },
   night: { emoji: '🌙', label: 'typeNight', fx: { colors: ['#3b82f6', '#93c5fd', '#1e40af', '#e0e7ff'], emoji: '⭐' } },
+  morning: { emoji: '☀️', label: 'typeMorning', fx: { colors: ['#fbbf24', '#fde68a', '#f97316', '#fff7d6'], emoji: '☀️' } },
+  laugh: { emoji: '😂', label: 'typeLaugh', fx: { colors: ['#22c55e', '#86efac', '#14b8a6', '#fde68a'], emoji: '😂' } },
+  proud: { emoji: '🫶', label: 'typeProud', fx: { colors: ['#f43f5e', '#c084fc', '#fda4af', '#fde68a'], emoji: '🫶' } },
 };
 const TYPE_EMOJI = Object.fromEntries(Object.entries(TYPES).map(([k, v]) => [k, v.emoji]));
 let curType = 'heart';
@@ -1172,7 +1318,7 @@ function renderTypes() {
     const e = document.createElement('b'); e.textContent = v.emoji;
     const s = document.createElement('span'); s.textContent = t(v.label);
     b.append(e, s);
-    b.onclick = () => { curType = k; store.set('sahar_type', k); renderTypes(); const [x, y] = heartCenter(); FX.burst(x, y, 14, v.fx); };
+    b.onclick = () => { curType = k; store.set('sahar_type', k); renderTypes(); const [x, y] = heartCenter(); FX.burst(x, y, 14, v.fx); haptic(10); };
     row.append(b);
   });
   document.querySelector('.orb-wrap').dataset.touch = curType;
@@ -1183,45 +1329,73 @@ function renderTypes() {
 }
 
 /* ----- Temas de color ----- */
-const THEMES = { red: 'themeRed', rose: 'themeRose', night: 'themeNight', sunset: 'themeSunset', isfahan: 'themeIsfahan' };
-const THEME_BG = { red: '#14040a', rose: '#1f0b16', night: '#070b1d', sunset: '#1c0a14', isfahan: '#04161c' };
+const THEMES = { aurora: 'themeAurora', red: 'themeRed', rose: 'themeRose', night: 'themeNight', sunset: 'themeSunset', isfahan: 'themeIsfahan', gold: 'themeGold', galaxy: 'themeGalaxy' };
+const THEME_BG = { aurora: '#120720', red: '#14040a', rose: '#1f0b16', night: '#070b1d', sunset: '#1c0a14', isfahan: '#04161c', gold: '#120c03', galaxy: '#03020c' };
+// Temas que se ganan con la racha (mejor racha de los dos)
+const THEME_UNLOCK = { gold: 7, galaxy: 30 };
+const bestOf = () => Math.max((state && state.bestStreak) || 0, (state && state.streak) || 0);
+const themeLocked = (k) => THEME_UNLOCK[k] && bestOf() < THEME_UNLOCK[k];
 function applyTheme(th) {
-  currentTheme = THEMES[th] ? th : 'red';
+  currentTheme = THEMES[th] && !(state && themeLocked(th)) ? th : 'aurora';
   if (currentTheme === 'red') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = currentTheme;
   document.querySelector('meta[name=theme-color]').setAttribute('content', THEME_BG[currentTheme]);
   if (typeof FX !== 'undefined' && FX.setTheme) FX.setTheme();
 }
 function renderThemeSel() {
   const sel = $('themeSel');
-  if (sel.dataset.lang !== lang) {
+  const sig = lang + bestOf();
+  if (sel.dataset.sig !== sig) {
     sel.innerHTML = '';
-    Object.entries(THEMES).forEach(([k, lbl]) => { const o = document.createElement('option'); o.value = k; o.textContent = t(lbl); sel.append(o); });
-    sel.dataset.lang = lang;
+    Object.entries(THEMES).forEach(([k, lbl]) => {
+      const o = document.createElement('option'); o.value = k;
+      const n = THEME_UNLOCK[k];
+      o.textContent = t(lbl) + (themeLocked(k) ? `  ${t('locked', { n: num(n), days: I.plural(lang, n, I.STRINGS[lang].days) })}` : n ? ' ✨' : '');
+      o.disabled = !!themeLocked(k);
+      sel.append(o);
+    });
+    sel.dataset.sig = sig;
   }
   sel.value = currentTheme;
 }
 $('themeSel').onchange = () => { applyTheme($('themeSel').value); store.set('sahar_theme', currentTheme); FX.shower(1200); };
 
 /* ----- Pregunta del día ----- */
+// El cuadro de texto se conserva entre refrescos (antes se recreaba cada 20 s y
+// se borraba lo escrito). El borrador también se guarda por si se cierra la app.
+let qShown = '';
 function renderQuestion() {
   const q = state.question;
   $('qCard').classList.toggle('hidden', !q);
   if (!q) return;
   $('qText').textContent = (I.QUESTIONS[lang] || I.QUESTIONS.en)[q.q];
-  const body = $('qBody'); body.innerHTML = '';
   const p = state.partnerName || '';
+  const sig = [lang, q.day, q.q, q.mine || '', q.partner || '', q.partnerAnswered, p].join('|');
+  if (sig === qShown && $('qBody').childElementCount) return; // nada cambió: no tocar lo que se escribe
+  qShown = sig;
+  const body = $('qBody');
+  const prev = $('qInput');
+  const draftKey = 'sahar_qdraft_' + q.day;
+  const draft = prev ? prev.value : (store.get(draftKey) || '');
+  const hadFocus = prev && document.activeElement === prev;
+  body.innerHTML = '';
   const ans = (who, text) => { const d = document.createElement('div'); d.className = 'q-answer'; const s = document.createElement('small'); s.textContent = who; d.append(s, document.createTextNode(showMsg(text))); return d; };
   if (!q.mine) {
     if (q.partnerAnswered) { const l = document.createElement('div'); l.className = 'q-answer wait'; l.textContent = t('qLocked', { p }); body.append(l); }
     const ta = document.createElement('textarea'); ta.className = 'field'; ta.maxLength = 300; ta.placeholder = t('qPh'); ta.id = 'qInput';
+    ta.value = draft;
+    ta.oninput = () => store.set(draftKey, ta.value);
     const btn = document.createElement('button'); btn.className = 'btn'; btn.textContent = t('qSend');
     btn.onclick = async () => {
       const text = ta.value.trim(); if (!text) return ta.focus();
       btn.disabled = true;
-      try { state = await api('/api/answer', 'POST', { text }); renderQuestion(); const r = $('qCard').getBoundingClientRect(); FX.burst(r.left + r.width / 2, r.top + 30, 30); }
-      catch (e) { btn.disabled = false; $('status').className = 'status bad'; $('status').textContent = errText(e); }
+      try {
+        state = await api('/api/answer', 'POST', { text });
+        try { localStorage.removeItem(draftKey); } catch (_) {}
+        renderQuestion(); const r = $('qCard').getBoundingClientRect(); FX.burst(r.left + r.width / 2, r.top + 30, 30);
+      } catch (e) { btn.disabled = false; $('status').className = 'status bad'; $('status').textContent = errText(e); }
     };
     body.append(ta, btn);
+    if (hadFocus) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
   } else {
     body.append(ans(t('you'), q.mine));
     if (q.partner) body.append(ans(p, q.partner));
@@ -1282,6 +1456,207 @@ function renderHafez(animate) {
   if (lang !== 'fa') { const tr = document.createElement('p'); tr.className = 'verse-tr'; tr.textContent = v[lang] || v.en; if (!animate) tr.style.animation = 'none'; body.append(tr); }
   const who = document.createElement('small'); who.className = 'who'; who.textContent = lang === 'fa' || lang === 'ar' ? '— حافظ شیرازی' : '— Hafez de Shiraz · حافظ'; body.append(who);
 }
+
+/* ----- Esto o aquello: elige lo tuyo y adivina lo del otro ----- */
+let totPlay = null; // { step, mine:[], guess:[] }
+function totLabel(i, k) { return (I.TOT[lang] || I.TOT.en)[i][k]; }
+function renderTot() {
+  const tt = state.tot;
+  $('totCard').classList.toggle('hidden', !tt);
+  if (!tt) return;
+  const p = state.partnerName || '';
+  const body = $('totBody');
+  if (totPlay && totPlay.day !== tt.day) totPlay = null;
+  if (totPlay && !tt.mine) return drawTotStep(); // jugando: no reiniciar con el refresco
+  body.innerHTML = '';
+  if (!tt.mine) {
+    const intro = document.createElement('p'); intro.className = 'intro'; intro.textContent = t('totIntro', { p });
+    const b = document.createElement('button'); b.className = 'btn gold'; b.textContent = `🎲 ${t('totPlay')}`;
+    b.onclick = () => { totPlay = { day: tt.day, step: 0, mine: [], guess: [] }; drawTotStep(); };
+    body.append(intro);
+    if (tt.partnerPlayed) { const w = document.createElement('div'); w.className = 'q-answer wait'; w.textContent = t('qLocked', { p }); body.append(w); }
+    body.append(b);
+    return;
+  }
+  if (!tt.partner) {
+    body.append(totResults(tt, null));
+    const w = document.createElement('div'); w.className = 'tot-wait'; w.textContent = t('totWait', { p }); body.append(w);
+    return;
+  }
+  body.append(totResults(tt, tt.partner));
+  const same = tt.mine.mine.filter((x, i) => x === tt.partner.mine[i]).length;
+  const sum = document.createElement('div'); sum.className = 'tot-sum';
+  sum.textContent = `${t('totMatch', { n: num(same), t: num(tt.pairs.length) })} · 🎯 ${t('totPts', { n: num(tt.myHits), t: num(tt.pairs.length) })}`;
+  const nx = document.createElement('div'); nx.className = 'score-note'; nx.textContent = t('totDoneToday');
+  body.append(sum, nx);
+}
+function totResults(tt, theirs) {
+  const wrap = document.createElement('div'); wrap.className = 'tot-res';
+  const p = state.partnerName || '';
+  tt.pairs.forEach((pi, i) => {
+    const row = document.createElement('div'); row.className = 'tot-row';
+    const mineK = tt.mine.mine[i];
+    const a = document.createElement('div');
+    const sa = document.createElement('small'); sa.textContent = t('you');
+    a.append(sa, document.createTextNode(`${I.TOT_EMOJI[pi][mineK]} ${totLabel(pi, mineK)}`));
+    const b = document.createElement('div');
+    const sb = document.createElement('small'); sb.textContent = p;
+    if (theirs) {
+      const k = theirs.mine[i];
+      const hit = tt.mine.guess[i] === k;
+      b.append(sb, document.createTextNode(`${I.TOT_EMOJI[pi][k]} ${totLabel(pi, k)} ${hit ? '🎯' : '✗'}`));
+      if (k === mineK) row.classList.add('same');
+    } else {
+      const g = tt.mine.guess[i];
+      b.append(sb, document.createTextNode(`🤔 ${I.TOT_EMOJI[pi][g]} ${totLabel(pi, g)}`));
+    }
+    row.append(a, b); wrap.append(row);
+  });
+  return wrap;
+}
+function drawTotStep() {
+  const tt = state.tot, body = $('totBody'), P = totPlay;
+  const n = tt.pairs.length;
+  body.innerHTML = '';
+  const dots = document.createElement('div'); dots.className = 'tot-dots';
+  for (let i = 0; i < n * 2; i++) { const d = document.createElement('i'); if (i < P.step) d.className = 'on'; dots.append(d); }
+  const pairIdx = Math.floor(P.step / 2), guessing = P.step % 2 === 1;
+  const pi = tt.pairs[pairIdx];
+  const q = document.createElement('div'); q.className = 'tot-step';
+  q.textContent = guessing ? t('totGuess', { p: state.partnerName || '' }) : t('totYou');
+  const pick = document.createElement('div'); pick.className = 'tot-pick';
+  const opt = (k) => {
+    const b = document.createElement('button'); b.className = 'tot-opt';
+    const e = document.createElement('b'); e.textContent = I.TOT_EMOJI[pi][k];
+    const l = document.createElement('span'); l.textContent = totLabel(pi, k);
+    b.append(e, l);
+    b.onclick = async () => {
+      const r = b.getBoundingClientRect(); FX.burst(r.left + r.width / 2, r.top + r.height / 2, 14, { colors: ['#ff4f8b', '#ffcba4', '#c026d3'], emoji: I.TOT_EMOJI[pi][k] });
+      haptic(12);
+      (guessing ? P.guess : P.mine)[pairIdx] = k;
+      P.step++;
+      if (P.step < n * 2) return drawTotStep();
+      body.innerHTML = '<div class="tot-wait">…</div>';
+      try {
+        state = await api('/api/tot', 'POST', { mine: P.mine, guess: P.guess });
+        totPlay = null; renderTot(); renderScore();
+        if (state.tot.partner) FX.shower(1600, { colors: ['#ff4f8b', '#ffcba4', '#fde68a'], emoji: '🎯' });
+      } catch (e) { totPlay = null; renderTot(); $('status').className = 'status bad'; $('status').textContent = errText(e); }
+    };
+    return b;
+  };
+  const vs = document.createElement('span'); vs.className = 'vs'; vs.textContent = 'VS';
+  pick.append(opt(0), vs, opt(1));
+  body.append(dots, q, pick);
+}
+
+/* ----- Marcador: quién conoce mejor a quién ----- */
+function renderScore() {
+  const sc = state.score;
+  $('scoreCard').classList.toggle('hidden', !sc);
+  if (!sc) return;
+  const p = state.partnerName || '';
+  const body = $('scoreBody'); body.innerHTML = '';
+  const board = document.createElement('div'); board.className = 'vs-board';
+  const side = (n, who, lead) => { const d = document.createElement('div'); d.className = 'side' + (lead ? ' lead' : ''); const b = document.createElement('b'); b.textContent = num(n); const s2 = document.createElement('span'); s2.textContent = who; d.append(b, s2); return d; };
+  const mid = document.createElement('div'); mid.className = 'mid'; mid.textContent = t('weekPts');
+  board.append(side(sc.weekMe, t('you'), sc.weekMe > sc.weekPartner), mid, side(sc.weekPartner, p, sc.weekPartner > sc.weekMe));
+  const bar = document.createElement('div'); bar.className = 'score-bar';
+  const tot = sc.weekMe + sc.weekPartner;
+  const a = document.createElement('i'); a.style.background = 'linear-gradient(90deg,var(--red),var(--rose))';
+  const b = document.createElement('i'); b.style.background = 'linear-gradient(90deg,var(--gold-3),var(--gold-2))';
+  a.style.width = tot ? `${(sc.weekMe / tot) * 100}%` : '50%'; b.style.width = tot ? `${(sc.weekPartner / tot) * 100}%` : '50%';
+  bar.append(a, b);
+  const lead = document.createElement('div'); lead.className = 'score-lead';
+  lead.textContent = sc.weekMe === sc.weekPartner ? t('scoreTie') : sc.weekMe > sc.weekPartner ? t('scoreYouLead') : t('scoreLead', { p });
+  const note = document.createElement('div'); note.className = 'score-note';
+  note.textContent = `${t('weekEnds')} · Σ ${num(sc.me)} – ${num(sc.partner)} ${t('pts')}`;
+  body.append(board, bar, lead, note);
+}
+
+/* ----- Vales para quien gane la semana ----- */
+let cardArmed = null;
+function renderCards() {
+  const cards = state.cards || [];
+  const body = $('cardsBody'); body.innerHTML = '';
+  const seen = Number(store.get('sahar_cards_seen') || 0);
+  const fresh = cards.find((c) => c.mine && !c.used && c.at > seen);
+  if (fresh) {
+    store.set('sahar_cards_seen', String(Date.now()));
+    if (seen) celebrate(I.CARD_EMOJI[fresh.card], t('newCard'), (I.CARDS[lang] || I.CARDS.en)[fresh.card], '');
+  }
+  if (!cards.length) { const e = document.createElement('p'); e.className = 'score-note'; e.style.textAlign = 'start'; e.textContent = t('cardsEmpty'); body.append(e); return; }
+  const row = document.createElement('div'); row.className = 'vouchers';
+  [...cards].sort((x, y) => (x.used - y.used) || (y.mine - x.mine) || (y.at - x.at)).forEach((c) => {
+    const v = document.createElement('div'); v.className = 'voucher' + (c.used ? ' used' : '') + (c.mine ? '' : ' theirs');
+    const em = document.createElement('div'); em.className = 'em'; em.textContent = I.CARD_EMOJI[c.card];
+    const nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = (I.CARDS[lang] || I.CARDS.en)[c.card];
+    const who = document.createElement('div'); who.className = 'vwho'; who.textContent = c.mine ? t('cardsMine') : t('cardsPartner', { p: state.partnerName || '' });
+    v.append(em, nm, who);
+    if (c.used) { const st = document.createElement('div'); st.className = 'stamp'; st.textContent = t('cardUsed'); v.append(st); }
+    if (c.mine && !c.used) {
+      const u = document.createElement('button'); u.className = 'use'; u.textContent = t('cardUse');
+      u.onclick = async () => {
+        if (cardArmed !== c.id) { cardArmed = c.id; u.textContent = t('cardConfirm'); setTimeout(() => { if (cardArmed === c.id) { cardArmed = null; u.textContent = t('cardUse'); } }, 4000); return; }
+        cardArmed = null; u.disabled = true;
+        const r = v.getBoundingClientRect();
+        try { state = await api('/api/card/use', 'POST', { id: c.id }); FX.burst(r.left + r.width / 2, r.top + r.height / 2, 60, { colors: ['#ff4f8b', '#ffcba4', '#fde68a'], emoji: I.CARD_EMOJI[c.card] }); haptic([40, 40, 80]); renderCards(); }
+        catch (e) { u.disabled = false; $('status').className = 'status bad'; $('status').textContent = errText(e); }
+      };
+      v.append(u);
+    }
+    row.append(v);
+  });
+  body.append(row);
+}
+
+/* ----- ¿Sabías que…? (una curiosidad al día) ----- */
+function renderFact() {
+  const list = I.FACTS[lang] || I.FACTS.en;
+  const d = Math.floor(Date.parse(todayKey() + 'T12:00:00Z') / 86400000);
+  $('factText').textContent = list[d % list.length];
+}
+
+/* ----- Logros de racha ----- */
+function renderBadges() {
+  const best = bestOf();
+  const row = $('badgeRow'); row.innerHTML = '';
+  I.MILESTONES.forEach((m) => {
+    const d = document.createElement('div'); d.className = 'mbadge ' + (best >= m ? 'on' : 'off');
+    const b = document.createElement('b'); b.textContent = I.MILESTONE_EMOJI[m];
+    const sp = document.createElement('span'); sp.textContent = num(m);
+    d.append(b, sp); row.append(d);
+  });
+  const next = I.MILESTONES.find((m) => m > state.streak);
+  $('msNext').textContent = next ? t('msNext', { n: num(next), days: I.plural(lang, next, I.STRINGS[lang].days) }) : '';
+  // Celebrar los logros nuevos (una vez por logro en este teléfono)
+  const shown = Number(store.get('sahar_ms_shown') || 0);
+  const got = I.MILESTONES.filter((m) => m <= state.streak).pop() || 0;
+  if (got > shown) {
+    store.set('sahar_ms_shown', String(got));
+    if (shown || state.streak === got) {
+      const reward = Object.entries(THEME_UNLOCK).find(([, n]) => n === got);
+      celebrate(I.MILESTONE_EMOJI[got], t('msTitle', { n: num(got), days: I.plural(lang, got, I.STRINGS[lang].days) }), t('msSub'), reward ? t('msReward', { x: t(THEMES[reward[0]]) }) : '');
+    }
+  }
+}
+function celebrate(emoji, title, sub, reward) {
+  $('celEmoji').textContent = emoji; $('celTitle').textContent = title; $('celSub').textContent = sub || ''; $('celReward').textContent = reward || '';
+  $('celebrate').classList.remove('hidden');
+  haptic([60, 40, 80, 40, 120]);
+  FX.shower(3500, { colors: ['#ffcba4', '#fde68a', '#ff4f8b', '#c026d3'], emoji });
+  setTimeout(() => FX.fireworks(5), 300);
+}
+$('celOk').onclick = () => $('celebrate').classList.add('hidden');
+
+/* ----- Mensaje directo y pregunta al azar ----- */
+$('directForm').onsubmit = (e) => {
+  e.preventDefault();
+  const text = $('directInput').value.trim();
+  if (!text) return $('directInput').focus();
+  sendLove(1, { text });
+};
+$('askBtn').onclick = () => sendLove(1, { ask: true });
 
 /* ----- Pizarra para dibujar ----- */
 const DRAW_COLORS = ['#1f2937', '#e11d48', '#d4af37', '#0e7490', '#7c3aed', '#16a34a', '#f97316', '#ffffff'];
@@ -1402,10 +1777,10 @@ heartBtn.addEventListener('pointercancel', cancelHold);
 heartBtn.addEventListener('contextmenu', (e) => e.preventDefault());
 heartBtn.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sendLove(1); } });
 
-async function sendLove(level = 1) {
+async function sendLove(level = 1, opts = {}) {
   const st = $('status');
   const [x, y] = heartCenter();
-  const fxs = TYPES[curType].fx;
+  const fxs = opts.text ? { colors: ['#ff4f8b', '#ffcba4', '#c026d3'], emoji: '💌' } : opts.ask ? { colors: ['#a78bfa', '#ffcba4', '#67e8f9'], emoji: '💭' } : TYPES[curType].fx;
   FX.burst(x, y, 30 + level * 22, fxs);
   if (level === 3) setTimeout(() => FX.burst(x, y, 50, fxs), 180);
   heartBtn.classList.remove('press'); void heartBtn.offsetWidth; heartBtn.classList.add('press');
@@ -1414,19 +1789,29 @@ async function sendLove(level = 1) {
   if (sending) return;
   sending = true;
   $('hint').classList.add('hidden');
-  $('levelTxt').textContent = t('lvl' + level); $('levelTxt').classList.remove('hidden');
+  $('levelTxt').textContent = opts.text ? '💌' : opts.ask ? '💭' : t('lvl' + level); $('levelTxt').classList.remove('hidden');
   st.className = 'status'; st.textContent = t('sending');
   try {
     const before = state.streak;
     let mediaId = null;
     if (attach) { st.textContent = t('sending') + ' ' + (attach.kind === 'photo' ? '📷' : '🎤'); mediaId = await uploadAttach(); }
-    const res = await api('/api/send', 'POST', { level, mediaId, type: curType });
+    const res = await api('/api/send', 'POST', { level, mediaId, type: curType, text: opts.text || undefined, ask: !!opts.ask });
     state = { ...state, ...res };
     if (mediaId) clearAttach();
-    st.className = 'status ok';
-    st.textContent = res.held ? t('heldQuiet', { p: state.partnerName || '' }) : t('delivered', { m: showMsg(res.body) }) + (mediaId ? ' 📎' : '');
+    if (opts.text) $('directInput').value = '';
+    // El mensaje sale volando hacia tu pareja
+    FX.fly(x, y, opts.text ? '💌' : opts.ask ? '💭' : TYPES[curType].emoji, fxs);
+    if (res.sync) {
+      st.className = 'status sync'; st.textContent = t('syncTitle');
+      FX.shower(3000, { colors: ['#ff4f8b', '#ffcba4', '#c026d3', '#67e8f9'], emoji: '💞' }); FX.fireworks(4);
+      haptic([60, 40, 60, 40, 120]);
+    } else {
+      st.className = 'status ok';
+      st.textContent = '✓✓ ' + t('delivered', { m: showMsg(res.body) }) + (mediaId ? ' 📎' : '');
+    }
     renderHome(true);
-    if (res.streak > before || level === 3) FX.shower(level === 3 ? 2200 : 1800, fxs);
+    renderBadges();
+    if (!res.sync && (res.streak > before || level === 3)) FX.shower(level === 3 ? 2200 : 1800, fxs);
   } catch (e) { st.className = 'status bad'; st.textContent = errText(e); }
   sending = false;
 }
@@ -1514,6 +1899,23 @@ const FX = (() => {
       setTimeout(drop, 60);
     })();
   }
+  // Emoji que sale volando hacia arriba dejando una estela
+  function fly(x, y, e, style) {
+    if (reduce) return;
+    const cols = (style && style.colors) || REDS;
+    const p = { x, y, vx: (Math.random() - 0.5) * 1.5, vy: -9, g: -0.12, s: 46, emoji: e, life: 1, decay: 0.006, rot: 0, vr: 0.02, trail: cols };
+    bursts.push(p);
+  }
+  function fireworks(n = 4) {
+    if (reduce) return;
+    for (let k = 0; k < n; k++) setTimeout(() => {
+      const x = W * (0.2 + Math.random() * 0.6), y = H * (0.15 + Math.random() * 0.35);
+      for (let i = 0; i < 36; i++) {
+        const ang = (i / 36) * Math.PI * 2, sp = 3 + Math.random() * 2.5;
+        bursts.push({ x, y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, g: 0.05, s: 5 + Math.random() * 5, heart: false, c: pick([...REDS, ...GOLDS]), life: 1, decay: 0.014 + Math.random() * 0.01, rot: 0, vr: 0 });
+      }
+    }, k * 380);
+  }
   function frame() {
     cs.clearRect(0, 0, W, H);
     const target = reduce ? 12 : Math.round(Math.min(46, W * H / 16000));
@@ -1530,16 +1932,17 @@ const FX = (() => {
     for (let i = bursts.length - 1; i >= 0; i--) {
       const p = bursts[i];
       p.vy += p.g; p.vx *= 0.985; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= p.decay;
+      if (p.trail && Math.random() < 0.8) bursts.push({ x: p.x + (Math.random() - 0.5) * 16, y: p.y + 18, vx: (Math.random() - 0.5) * 1.2, vy: 1 + Math.random(), g: 0.02, s: 6 + Math.random() * 8, heart: Math.random() < 0.6, c: pick(p.trail), life: 0.9, decay: 0.03, rot: 0, vr: 0 });
       if (p.emoji) emojiP(cf, p.x, p.y, p.s, p.rot, p.emoji, Math.max(0, p.life));
       else if (p.heart) heart(cf, p.x, p.y, p.s, p.rot, p.c, Math.max(0, p.life)); else spark(cf, p.x, p.y, p.s, Math.max(0, p.life), p.c);
-      if (p.life <= 0 || p.y > H + 40) bursts.splice(i, 1);
+      if (p.life <= 0 || p.y > H + 40 || p.y < -80) bursts.splice(i, 1);
     }
     requestAnimationFrame(frame);
   }
   resize(); addEventListener('resize', resize);
   for (let i = 0; i < 30; i++) spawnAmbient(true);
   requestAnimationFrame(frame);
-  return { burst, shower, setTheme };
+  return { burst, shower, setTheme, fly, fireworks };
 })();
 applyTheme(currentTheme);
 

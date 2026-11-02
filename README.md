@@ -11,6 +11,14 @@ Un toque en el corazón y a tu pareja le llega una notificación con un mensaje 
   - Los mensajes predeterminados le llegan a cada uno **en su propio idioma**. Por ejemplo, tú tocas en español y a ella le llega «دارم بهت فکر می‌کنم ❤️» si eligió persa, o «Ich denke an dich ❤️» si eligió alemán.
   - Los mensajes que escriban ustedes llegan tal cual se escribieron.
 
+- **Al instante, siempre**: ya no hay «no molestar» ni límite de avisos.
+- **Más formas de mandar**: 8 tipos de toque (☀️ buenos días, 😂 me reí, 🫶 orgullo…), mensaje escrito al momento, 🎲 pregunta al azar, y reacciones con emoji a lo que te llega.
+- **Sincronía 💞**: si los dos se tocan con menos de 90 segundos de diferencia, fuegos artificiales para los dos.
+- **Esto o aquello** 🎲: cada día 4 preguntas; eliges lo tuyo y adivinas lo del otro. Cada acierto es un punto en **¿Quién conoce mejor a quién?**
+- **Vales** 🎁: quien gane la semana se lleva un vale al azar (masaje, cena romántica, paseo, comodines…). Al canjearlo, al otro le llega el aviso.
+- **Logros de racha**: 3, 7, 14, 30, 50, 100, 200 y 365 días, con celebración. A los 7 días se desbloquea el tema Oro y a los 30, Galaxia.
+- **¿Sabías que…?**: una curiosidad bonita cada día. Tema nuevo por defecto: **Aurora**.
+
 ## 1. Publicarla en internet (unos 10 minutos)
 
 En iPhone, las notificaciones solo funcionan si la app está publicada con **HTTPS**. La opción más sencilla es [Render.com](https://render.com):

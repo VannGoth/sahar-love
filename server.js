@@ -169,7 +169,7 @@ const fail = (res, status, code, extra = {}) => res.status(status).json({ error:
 
 // Mensaje en el idioma de quien lo lee: predeterminados ("@n") o traducción guardada
 function textFor(couple, msg, lang) {
-  if (/^[@#]/.test(msg || '')) return localize(msg, lang);
+  if (/^[@#?]/.test(msg || '')) return localize(msg, lang);
   const tr = couple && couple.tr && couple.tr[msg];
   return (tr && tr[lang]) || msg;
 }
@@ -206,7 +206,7 @@ async function translatePending(limit = 6) {
       const texts = new Set([...(couple.messages || []), ...(couple.history || []).slice(-50).map((h) => h.body), ...answers]);
       for (const text of texts) {
         if (done >= limit) return done;
-        if (!text || /^[@#]/.test(text) || onlyEmoji(text)) continue;
+        if (!text || /^[@#?]/.test(text) || onlyEmoji(text)) continue;
         const entry = couple.tr[text] || (couple.tr[text] = { _src: couple.src?.[text] || null, _tries: 0 });
         if (entry._tries >= 5) continue;
         const src = entry._src || langOf(db.users[couple.members[0]]);
@@ -259,29 +259,11 @@ async function delMedia(id) {
 }
 
 // ---------------------------------------------------------------------------
-// Preferencias de avisos de quien recibe
+// Preferencias de avisos de quien recibe. Ya no hay "no molestar" ni límite:
+// cada toque llega al instante, siempre.
 // ---------------------------------------------------------------------------
-const DEFAULT_PREFS = { limit: 3, extra: true, quiet: false, from: '23:00', to: '07:00' };
-const prefsOf = (u) => ({ ...DEFAULT_PREFS, ...(u && u.prefs) });
-function minutesIn(date, tz) {
-  const [h, m] = new Intl.DateTimeFormat('en-GB', { timeZone: tz || 'Europe/Berlin', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(date).split(':').map(Number);
-  return h * 60 + m;
-}
-function inQuiet(user, now = new Date()) {
-  const p = prefsOf(user);
-  if (!p.quiet) return false;
-  const toMin = (s) => { const [h, m] = String(s).split(':').map(Number); return h * 60 + (m || 0); };
-  const cur = minutesIn(now, user.tz), a = toMin(p.from), b = toMin(p.to);
-  return a <= b ? cur >= a && cur < b : cur >= a || cur < b;
-}
-// ¿Cuántos avisos más se le pueden mandar ahora? (Infinity = sin límite)
-function pushBudget(user, now = Date.now()) {
-  if (inQuiet(user, new Date(now))) return 0;
-  const p = prefsOf(user);
-  user.pushLog = (user.pushLog || []).filter((t) => now - t < 10 * 60 * 1000);
-  return p.limit > 0 ? Math.max(0, p.limit - user.pushLog.length) : Infinity;
-}
-function logPush(user, now = Date.now()) { user.pushLog = [...(user.pushLog || []), now].slice(-20); }
+const DEFAULT_PREFS = { extra: true };
+const prefsOf = (u) => ({ extra: u && u.prefs && typeof u.prefs.extra === 'boolean' ? u.prefs.extra : DEFAULT_PREFS.extra });
 
 function newCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -335,9 +317,11 @@ function recordDay(couple, userId, now = new Date()) {
 
 // Pregunta del día: la misma para los dos, según la fecha de la pareja
 const N_Q = I18N.QUESTIONS.es.length;
-function questionIndex(day) { return Math.floor(Date.parse(day + 'T12:00:00Z') / 86400000) % N_Q; }
+const dayNum = (day) => Math.floor(Date.parse(day + 'T12:00:00Z') / 86400000);
+function questionIndex(day) { return dayNum(day) % N_Q; }
 const MOODS = ['😊', '🥰', '😴', '😔', '😤', '🤒', '🥳', '🤔', '😢', '🤗'];
-const TOUCH_TYPES = { heart: '💗', kiss: '💋', hug: '🤗', miss: '🥺', night: '🌙' };
+const TOUCH_TYPES = { heart: '💗', kiss: '💋', hug: '🤗', miss: '🥺', night: '🌙', morning: '☀️', laugh: '😂', proud: '🫶' };
+const REACTIONS = ['❤️', '😍', '😂', '🥺', '🔥', '😘'];
 
 function stateFor(user) {
   const couple = user.code ? db.couples[user.code] : null;
@@ -350,7 +334,7 @@ function stateFor(user) {
   if (couple) {
     const ans = Object.values(couple.qa || {}).flatMap((d) => Object.values(d.answers || {}));
     for (const t of new Set([...couple.messages, ...received.slice(-50).map((h) => h.body), ...ans])) {
-      if (!t || /^[@#]/.test(t)) continue;
+      if (!t || /^[@#?]/.test(t)) continue;
       const tx = textFor(couple, t, lang);
       if (tx !== t) trans[t] = tx;
     }
@@ -362,7 +346,7 @@ function stateFor(user) {
     partnerName: partner ? partner.name : null,
     messages: couple ? couple.messages : [],
     trans,
-    received: received.slice(-50).reverse().map(({ from, body, at, level, media, held, type }) => ({ from, body, at, level: level || 1, media: media || null, held: !!held, type: type || 'heart' })),
+    received: received.slice(-50).reverse().map(({ from, body, at, level, media, type, sync }) => ({ from, body, at, level: level || 1, media: media || null, type: type || 'heart', sync: !!sync })),
     streak: s.streak,
     bestStreak: s.bestStreak,
     iSentToday: s.todayMembers.includes(user.id),
@@ -378,6 +362,9 @@ function stateFor(user) {
     myMood: moodToday(user, couple),
     partnerMood: partner ? moodToday(partner, couple) : null,
     album: couple ? (couple.media || []).filter((m) => m.kind === 'photo').slice(-60).reverse().map((m) => ({ id: m.id, at: m.at, mine: m.by === user.id })) : [],
+    tot: couple ? totState(couple, user, partner) : null,
+    score: couple ? scoreState(couple, user, partner) : null,
+    cards: couple ? (couple.cards || []).filter((c) => !c.used || Date.now() - c.usedAt < 7 * 86400000).map((c) => ({ id: c.id, card: c.card, mine: c.owner === user.id, used: !!c.used, at: c.at })) : [],
     notifReady: canReceive(user),
     partnerNotifReady: partner ? canReceive(partner) : false,
   };
@@ -388,7 +375,9 @@ function questionState(couple, user, partner) {
   const entry = (couple.qa || {})[day] || { answers: {} };
   const mine = entry.answers[user.id] || null;
   const theirs = partner ? entry.answers[partner.id] || null : null;
-  return { day, q: questionIndex(day), mine, partner: mine ? theirs : null, partnerAnswered: !!theirs };
+  // Si ya respondieron antes del cambio a 40 preguntas, mantener la que vieron
+  const q = Number.isInteger(entry.q) ? entry.q : (Object.keys(entry.answers).length ? dayNum(day) % 20 : questionIndex(day));
+  return { day, q, mine, partner: mine ? theirs : null, partnerAnswered: !!theirs };
 }
 function moodToday(u, couple) {
   if (!u || !u.mood) return null;
@@ -413,6 +402,8 @@ function auth(req, res, next) {
   const user = id && db.users[id];
   if (!user) return fail(res, 401, 'unknown_user');
   req.user = user;
+  const couple = user.code && db.couples[user.code];
+  if (couple) settleWeek(couple);
   next();
 }
 
@@ -565,45 +556,199 @@ app.post('/api/send', auth, async (req, res) => {
   if (mediaId && !media) return fail(res, 400, 'invalid_media');
 
   const type = TOUCH_TYPES[req.body.type] ? req.body.type : 'heart';
-  const body = type === 'heart' ? nextMessage(couple) : `#${type}`;
+  // Mensaje escrito al momento, pregunta al azar, o mensaje del tipo de toque
+  const custom = String(req.body.text || '').trim().slice(0, 140);
+  let body;
+  if (custom) {
+    body = custom;
+    couple.src = couple.src || {};
+    couple.src[custom] = langOf(user);
+  } else if (req.body.ask) body = `?${crypto.randomInt(N_Q)}`;
+  else body = type === 'heart' ? nextMessage(couple) : `#${type}`;
   const lang = langOf(partner);
   const prevStreak = streakInfo(couple).streak;
   const prevDays = JSON.stringify(couple.days || {});
   const prevBest = couple.bestStreak;
   recordDay(couple, user.id);
   const s = streakInfo(couple);
-  const subtitle = s.streak > prevStreak && s.streak > 1 ? I18N.streakPush(lang, s.streak) : '';
+  const newMilestone = s.streak > prevStreak && I18N.MILESTONES.includes(s.streak);
+  let subtitle = '';
+  if (newMilestone) subtitle = `${I18N.MILESTONE_EMOJI[s.streak]} ${I18N.t(lang, 'msTitle', { n: I18N.fmtNum(lang, s.streak), days: I18N.plural(lang, s.streak, I18N.STRINGS[lang].days) })}`;
+  else if (s.streak > prevStreak && s.streak > 1) subtitle = I18N.streakPush(lang, s.streak);
   const icon = media ? (media.kind === 'photo' ? ' 📷' : ' 🎤') : '';
 
-  // Control de avisos de quien recibe: límite cada 10 min y "no molestar"
-  let delivered = 0, held = false;
-  if (pushBudget(partner) > 0) {
-    delivered = await pushTo(partner, { title: `${user.name} ${TOUCH_TYPES[type].repeat(level)}`, body: textFor(couple, body, lang) + icon, subtitle });
-    if (!delivered) {
-      couple.days = JSON.parse(prevDays); // si no llegó, no cuenta para la racha
-      couple.bestStreak = prevBest;
-      save();
-      return fail(res, 502, 'delivery_failed');
-    }
-    logPush(partner);
-  } else held = true;
+  // Sincronía: los dos se tocaron con menos de 90 segundos de diferencia
+  const lastFromPartner = [...couple.history].reverse().find((h) => h.fromId === partner.id && h.to === user.id && h.type !== 'react');
+  const sync = !!(lastFromPartner && Date.now() - lastFromPartner.at < 90 * 1000 && !lastFromPartner.sync);
 
-  couple.history.push({ to: partner.id, fromId: user.id, from: user.name, body, at: Date.now(), level, type, media: media ? { id: media.id, kind: media.kind } : null, held });
+  const emoji = req.body.ask ? '💭' : custom ? '💌' : TOUCH_TYPES[type];
+  const title = sync ? `${user.name} · ${I18N.t(lang, 'syncTitle')}` : `${user.name} ${emoji.repeat(custom || req.body.ask ? 1 : level)}`;
+  const delivered = await pushTo(partner, { title, body: textFor(couple, body, lang) + icon, subtitle });
+  if (!delivered) {
+    couple.days = JSON.parse(prevDays); // si no llegó, no cuenta para la racha
+    couple.bestStreak = prevBest;
+    save();
+    return fail(res, 502, 'delivery_failed');
+  }
+
+  couple.history.push({ to: partner.id, fromId: user.id, from: user.name, body, at: Date.now(), level, type: req.body.ask ? 'ask' : custom ? 'text' : type, media: media ? { id: media.id, kind: media.kind } : null, sync });
   couple.history = couple.history.slice(-500);
   couple.counts = couple.counts || {};
   couple.counts[user.id] = (couple.counts[user.id] ?? couple.history.filter((h) => h.fromId === user.id).length - 1) + 1;
+  if (newMilestone) couple.milestones = [...new Set([...(couple.milestones || []), s.streak])];
   save();
-  res.json({ ok: true, body, level, held, ...stateFor(user) });
+  res.json({ ok: true, body, level, sync, milestone: newMilestone ? s.streak : null, ...stateFor(user) });
+  if (custom) translatePending(2).catch(() => {});
+  if (sync) pushTo(user, { title: `${partner.name} · ${I18N.t(langOf(user), 'syncTitle')}`, body: I18N.t(langOf(user), 'syncBody') }).catch(() => {});
 
-  // Vibraciones extra según la fuerza, si quien recibe las quiere y no pasa su límite
-  if (held || !prefsOf(partner).extra) return;
+  // Vibraciones extra según la fuerza, si quien recibe las quiere
+  if (custom || req.body.ask || !prefsOf(partner).extra) return;
   for (let i = 2; i <= level; i++) {
     await new Promise((r) => setTimeout(r, 1300));
-    if (pushBudget(partner) <= 0) break;
-    const n = await pushTo(partner, { title: `${user.name} ${TOUCH_TYPES[type].repeat(i)}`, body: TOUCH_TYPES[type].repeat(i), tag: `sahar-extra-${Date.now()}-${i}` }).catch(() => 0);
-    if (n) logPush(partner);
+    await pushTo(partner, { title: `${user.name} ${TOUCH_TYPES[type].repeat(i)}`, body: TOUCH_TYPES[type].repeat(i), tag: `sahar-extra-${Date.now()}-${i}` }).catch(() => 0);
   }
   save();
+});
+
+// Reaccionar con un emoji a lo último que te mandaron
+app.post('/api/react', auth, async (req, res) => {
+  const user = req.user;
+  const couple = db.couples[user.code];
+  const partner = couple && partnerOf(user);
+  if (!partner) return fail(res, 400, 'no_partner');
+  const e = String(req.body.emoji || '');
+  if (!REACTIONS.includes(e)) return fail(res, 400, 'invalid_message');
+  couple.history.push({ to: partner.id, fromId: user.id, from: user.name, body: e, at: Date.now(), level: 1, type: 'react' });
+  couple.history = couple.history.slice(-500);
+  save();
+  res.json(stateFor(user));
+  if (canReceive(partner)) await pushTo(partner, { title: `${user.name} ${e}`, body: I18N.t(langOf(partner), 'reactBody', { e }) }).catch(() => 0);
+});
+
+// ---------------------------------------------------------------------------
+// «Esto o aquello»: cada uno elige lo suyo y adivina lo del otro.
+// Cada acierto = 1 punto. Puntos totales y por semana; quien gane la semana
+// se lleva un vale (masaje, cena romántica, comodín…).
+// ---------------------------------------------------------------------------
+const TOT_N = 4;
+function totPairs(day) {
+  const n = I18N.TOT.es.length;
+  const idx = Array.from({ length: n }, (_, i) => i);
+  let seed = dayNum(day) * 2654435761 >>> 0;
+  for (let i = n - 1; i > 0; i--) {
+    seed = (seed * 1103515245 + 12345) >>> 0;
+    const j = seed % (i + 1);
+    [idx[i], idx[j]] = [idx[j], idx[i]];
+  }
+  return idx.slice(0, TOT_N);
+}
+const countHits = (guess, mine) => guess.reduce((a, g, i) => a + (g === mine[i] ? 1 : 0), 0);
+function totState(couple, user, partner) {
+  const day = dayKey(new Date(), couple.tz);
+  const entry = (couple.tot || {})[day] || { answers: {} };
+  const mine = entry.answers[user.id] || null;
+  const theirs = partner ? entry.answers[partner.id] || null : null;
+  const both = !!(mine && theirs);
+  return {
+    day, pairs: entry.pairs || totPairs(day), mine,
+    partner: both ? theirs : null, partnerPlayed: !!theirs,
+    myHits: both ? countHits(mine.guess, theirs.mine) : null,
+    partnerHits: both ? countHits(theirs.guess, mine.mine) : null,
+  };
+}
+function weekKey(now, tz) {
+  const d = new Date(dayKey(now, tz) + 'T12:00:00Z');
+  d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7)); // lunes
+  return d.toISOString().slice(0, 10);
+}
+function scoreState(couple, user, partner) {
+  const wk = couple.week && couple.week.key === weekKey(new Date(), couple.tz) ? couple.week.pts : {};
+  return {
+    me: (couple.points || {})[user.id] || 0, partner: partner ? (couple.points || {})[partner.id] || 0 : 0,
+    weekMe: wk[user.id] || 0, weekPartner: partner ? wk[partner.id] || 0 : 0,
+  };
+}
+function drawCard(couple, owner) {
+  const n = I18N.CARDS.es.length;
+  const have = new Set((couple.cards || []).filter((c) => c.owner === owner && !c.used).map((c) => c.card));
+  const pool = Array.from({ length: n }, (_, i) => i).filter((i) => !have.has(i));
+  const card = (pool.length ? pool : Array.from({ length: n }, (_, i) => i))[crypto.randomInt(pool.length || n)];
+  const c = { id: crypto.randomBytes(6).toString('hex'), card, owner, at: Date.now(), used: false };
+  couple.cards = [...(couple.cards || []), c].slice(-60);
+  return c;
+}
+const cardName = (lang, i) => `${I18N.CARD_EMOJI[i]} ${I18N.CARDS[I18N.pick(lang)][i]}`;
+// Cierra la semana anterior: quien tenga más puntos se lleva un vale; empate con puntos = vale para los dos
+function settleWeek(couple, now = new Date()) {
+  const cur = weekKey(now, couple.tz);
+  if (!couple.week) { couple.week = { key: cur, pts: {} }; return; }
+  if (couple.week.key === cur) return;
+  const pts = couple.week.pts || {};
+  couple.week = { key: cur, pts: {} };
+  save();
+  const [a, b] = couple.members;
+  if (!a || !b) return;
+  const pa = pts[a] || 0, pb = pts[b] || 0;
+  if (!pa && !pb) return;
+  const users = [db.users[a], db.users[b]];
+  if (pa === pb) {
+    const ca = drawCard(couple, a), cb = drawCard(couple, b);
+    for (const [u, c] of [[users[0], ca], [users[1], cb]]) if (u && canReceive(u)) pushTo(u, { title: 'Sahar 🎁', body: `${I18N.t(langOf(u), 'weekTiePush')}\n${cardName(langOf(u), c.card)}` }).catch(() => {});
+    return;
+  }
+  const [win, lose] = pa > pb ? users : [users[1], users[0]];
+  if (!win) return;
+  const c = drawCard(couple, win.id);
+  if (canReceive(win)) pushTo(win, { title: 'Sahar 🏆', body: I18N.t(langOf(win), 'weekWinPush', { c: cardName(langOf(win), c.card) }) }).catch(() => {});
+  if (lose && canReceive(lose)) pushTo(lose, { title: 'Sahar 🏆', body: I18N.t(langOf(lose), 'weekLosePush', { p: win.name, c: cardName(langOf(lose), c.card) }) }).catch(() => {});
+}
+app.post('/api/tot', auth, async (req, res) => {
+  const user = req.user;
+  const couple = db.couples[user.code];
+  const partner = couple && partnerOf(user);
+  if (!partner) return fail(res, 400, 'no_partner');
+  const ok = (a) => Array.isArray(a) && a.length === TOT_N && a.every((x) => x === 0 || x === 1);
+  const { mine, guess } = req.body;
+  if (!ok(mine) || !ok(guess)) return fail(res, 400, 'invalid_message');
+  const day = dayKey(new Date(), couple.tz);
+  couple.tot = couple.tot || {};
+  const entry = couple.tot[day] || (couple.tot[day] = { answers: {}, pairs: totPairs(day) });
+  if (entry.answers[user.id]) return res.json(stateFor(user)); // ya jugó hoy
+  entry.answers[user.id] = { mine, guess };
+  const theirs = entry.answers[partner.id];
+  if (theirs && !entry.scored) {
+    entry.scored = true;
+    couple.points = couple.points || {};
+    if (!couple.week || couple.week.key !== weekKey(new Date(), couple.tz)) couple.week = { key: weekKey(new Date(), couple.tz), pts: {} };
+    for (const [uid, g, m] of [[user.id, guess, theirs.mine], [partner.id, theirs.guess, mine]]) {
+      const hits = countHits(g, m);
+      couple.points[uid] = (couple.points[uid] || 0) + hits;
+      couple.week.pts[uid] = (couple.week.pts[uid] || 0) + hits;
+    }
+  }
+  const keys = Object.keys(couple.tot).sort();
+  while (keys.length > 14) delete couple.tot[keys.shift()];
+  save();
+  res.json(stateFor(user));
+  if (canReceive(partner)) {
+    const pl = langOf(partner);
+    const body = theirs
+      ? I18N.t(pl, 'totPts', { n: I18N.fmtNum(pl, countHits(theirs.guess, mine)), t: I18N.fmtNum(pl, TOT_N) }) + ' 🎯'
+      : I18N.t(pl, 'totPush', { p: user.name });
+    pushTo(partner, { title: `Sahar 🎲 ${I18N.t(pl, 'totTitle')}`, body }).catch(() => {});
+  }
+});
+// Canjear un vale: avisa a la pareja
+app.post('/api/card/use', auth, async (req, res) => {
+  const user = req.user;
+  const couple = db.couples[user.code];
+  const partner = couple && partnerOf(user);
+  const c = couple && (couple.cards || []).find((x) => x.id === req.body.id && x.owner === user.id && !x.used);
+  if (!c) return fail(res, 400, 'invalid_message');
+  c.used = true; c.usedAt = Date.now();
+  save();
+  res.json(stateFor(user));
+  if (partner && canReceive(partner)) pushTo(partner, { title: 'Sahar 🎁', body: I18N.t(langOf(partner), 'cardPush', { p: user.name, c: cardName(langOf(partner), c.card) }) }).catch(() => {});
 });
 
 // Responder la pregunta del día
@@ -617,6 +762,7 @@ app.post('/api/answer', auth, async (req, res) => {
   couple.qa = couple.qa || {};
   const entry = couple.qa[day] || (couple.qa[day] = { answers: {} });
   const first = !entry.answers[user.id];
+  if (!Number.isInteger(entry.q)) entry.q = questionState(couple, user, null).q;
   entry.answers[user.id] = text;
   couple.src = couple.src || {};
   couple.src[text] = langOf(user);
@@ -626,9 +772,9 @@ app.post('/api/answer', auth, async (req, res) => {
   res.json(stateFor(user));
   translatePending(2).catch(() => {});
   const partner = partnerOf(user);
-  if (first && partner && canReceive(partner) && pushBudget(partner) > 0) {
+  if (first && partner && canReceive(partner)) {
     const n = await pushTo(partner, { title: 'Sahar 💭', body: I18N.t(langOf(partner), 'qPush', { p: user.name }) }).catch(() => 0);
-    if (n) { logPush(partner); save(); }
+    if (n) save();
   }
 });
 
@@ -646,14 +792,7 @@ app.post('/api/mood', auth, (req, res) => {
 app.post('/api/prefs', auth, (req, res) => {
   const p = req.body.prefs || {};
   const cur = prefsOf(req.user);
-  const hhmm = (v, d) => (/^([01]\d|2[0-3]):[0-5]\d$/.test(v) ? v : d);
-  req.user.prefs = {
-    limit: [0, 1, 2, 3, 5, 10].includes(Number(p.limit)) ? Number(p.limit) : cur.limit,
-    extra: typeof p.extra === 'boolean' ? p.extra : cur.extra,
-    quiet: typeof p.quiet === 'boolean' ? p.quiet : cur.quiet,
-    from: hhmm(p.from, cur.from),
-    to: hhmm(p.to, cur.to),
-  };
+  req.user.prefs = { extra: typeof p.extra === 'boolean' ? p.extra : cur.extra };
   save();
   res.json(stateFor(req.user));
 });
@@ -803,7 +942,7 @@ async function runReminders(now = new Date()) {
       couple.dateReminded = [...couple.dateReminded, key].slice(-200);
       for (const id of couple.members) {
         const u = db.users[id];
-        if (!u || !canReceive(u) || inQuiet(u, now)) continue;
+        if (!u || !canReceive(u)) continue;
         const name = d.persian ? I18N.t(langOf(u), d.persian) : d.name;
         sent += await pushTo(u, { title: 'Sahar 📅', body: I18N.t(langOf(u), textKey, { name }) });
       }
@@ -820,11 +959,12 @@ async function runReminders(now = new Date()) {
       if (s.streak === 0 && s.todayMembers.length === 0) continue; // nada en juego
       const user = db.users[id];
       const partner = db.users[couple.members.find((m) => m !== id)];
-      if (!user || !partner || !canReceive(user) || pushBudget(user) <= 0) continue;
+      if (!user || !partner || !canReceive(user)) continue;
       couple.reminded.ids.push(id);
       sent += await pushTo(user, { title: 'Sahar 💗', body: I18N.t(langOf(user), 'reminderPush', { p: partner.name }) });
     }
   }
+  for (const couple of Object.values(db.couples)) settleWeek(couple, now);
   if (sent) save();
   return sent;
 }
@@ -872,4 +1012,4 @@ if (require.main === module) {
     setInterval(() => translatePending(6).catch(() => {}), 20 * 60 * 1000);
   }).catch((e) => { console.error('No se pudieron cargar los datos:', e.message); process.exit(1); });
 }
-module.exports = { persianHolidays, upcomingPersian, questionIndex, MOODS, app, ready, streakInfo, recordDay, dayKey, prevDay, localize, runReminders, flush, translatePending, nextOccurrence, inQuiet, pushBudget, db: () => db };
+module.exports = { persianHolidays, upcomingPersian, questionIndex, MOODS, app, ready, streakInfo, recordDay, dayKey, prevDay, localize, runReminders, flush, translatePending, nextOccurrence, totPairs, weekKey, settleWeek, db: () => db };

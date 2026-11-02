@@ -61,7 +61,10 @@ const { app, ready, streakInfo, recordDay, prevDay, runReminders, flush } = requ
   const I = require('./public/i18n.js');
   const DEFAULT_TEXTS = I.MESSAGES;
   // Todas las claves de cada idioma existen
-  for (const l of I.LANGS) assert.strictEqual(I.QUESTIONS[l].length, 20, `preguntas ${l}`);
+  for (const l of I.LANGS) assert.strictEqual(I.QUESTIONS[l].length, 40, `preguntas ${l}`);
+  for (const l of I.LANGS) assert.ok(I.TOT[l].length === 12 && I.FACTS[l].length === 12 && I.CARDS[l].length === 12, `juegos ${l}`);
+  assert.strictEqual(localize('?3', 'es'), I.QUESTIONS.es[3]);
+  assert.strictEqual(localize('#morning', 'de'), I.STRINGS.de.morningBody);
   for (const v of I.HAFEZ) for (const l of I.LANGS) assert.ok(v[l] && v[l].length > 10, `hafez ${l}`);
   const keys = (o, pre = '') => Object.entries(o).flatMap(([k, v]) => (v && typeof v === 'object' && k !== 'days' ? keys(v, pre + k + '.') : [pre + k]));
   const enKeys = keys(I.STRINGS.en).sort();
@@ -140,31 +143,83 @@ const { app, ready, streakInfo, recordDay, prevDay, runReminders, flush } = requ
     dbb.users.p2.subs = [sub];
     dbb.users.p1.subs = [{ ...sub, endpoint: sub.endpoint.replace('/b', '/a') }];
 
-    // Límite 2 cada 10 min, sin vibraciones extra
-    let st = (await c2('POST', '/api/prefs', { userId: 'p2', prefs: { limit: 2, extra: false } })).json;
-    assert.deepStrictEqual([st.prefs.limit, st.prefs.extra], [2, false]);
-    const r1 = (await c2('POST', '/api/send', { userId: 'p1', level: 3 })).json;
-    const r2 = (await c2('POST', '/api/send', { userId: 'p1' })).json;
-    const r3 = (await c2('POST', '/api/send', { userId: 'p1' })).json;
-    await new Promise((r) => setTimeout(r, 300));
-    assert.deepStrictEqual([r1.held, r2.held, r3.held], [false, false, true], 'el tercero se guarda sin aviso');
-    assert.strictEqual(pushes.length, 2, 'sin vibraciones extra y con límite: 2 avisos');
-    const recv = (await c2('GET', '/api/state?userId=p2')).json.received;
-    assert.strictEqual(recv.length, 3, 'los 3 quedan en el historial');
-    assert.strictEqual(recv[0].held, true);
-
-    // No molestar todo el día → todo se guarda
-    dbb.users.p2.pushLog = [];
-    await c2('POST', '/api/prefs', { userId: 'p2', prefs: { limit: 0, quiet: true, from: '00:00', to: '23:59' } });
-    assert.strictEqual((await c2('POST', '/api/send', { userId: 'p1' })).json.held, true);
-    await c2('POST', '/api/prefs', { userId: 'p2', prefs: { quiet: false } });
-    // Sin límite + vibraciones extra: toque fuerte = 3 avisos
+    // Sin "no molestar" ni límite: todos los toques llegan al momento
+    let st = (await c2('POST', '/api/prefs', { userId: 'p2', prefs: { extra: false, quiet: true, limit: 1 } })).json;
+    assert.deepStrictEqual(st.prefs, { extra: false });
+    const p0 = pushes.length;
+    for (let i = 0; i < 5; i++) assert.strictEqual((await c2('POST', '/api/send', { userId: 'p1' })).status, 200);
+    assert.strictEqual(pushes.length - p0, 5, '5 toques = 5 avisos');
+    // Vibraciones extra: toque con todo = 3 avisos
     await c2('POST', '/api/prefs', { userId: 'p2', prefs: { extra: true } });
     const before = pushes.length;
     await c2('POST', '/api/send', { userId: 'p1', level: 3 });
     await new Promise((r) => setTimeout(r, 3200));
     assert.strictEqual(pushes.length - before, 3, 'toque con todo = 3 vibraciones');
-    console.log('✓ control de avisos');
+    // Mensaje escrito al momento y pregunta al azar
+    let rs = (await c2('POST', '/api/send', { userId: 'p1', text: 'Te veo a las 8 💕' })).json;
+    assert.strictEqual(rs.body, 'Te veo a las 8 💕');
+    assert.ok(pushes[pushes.length - 1].payload.body.startsWith('Te veo a las 8'));
+    rs = (await c2('POST', '/api/send', { userId: 'p1', ask: true })).json;
+    assert.match(rs.body, /^\?\d+$/);
+    assert.strictEqual(pushes[pushes.length - 1].payload.body, localize(rs.body, 'fa'), 'pregunta en el idioma de quien recibe');
+    // Nuevos tipos de toque
+    rs = (await c2('POST', '/api/send', { userId: 'p1', type: 'morning' })).json;
+    assert.strictEqual(rs.body, '#morning');
+    // Sincronía: los dos tocan en menos de 90 s
+    const sy = (await c2('POST', '/api/send', { userId: 'p2' })).json;
+    assert.strictEqual(sy.sync, true, 'sincronía');
+    await new Promise((r) => setTimeout(r, 100));
+    assert.ok(pushes.slice(-2).some((x) => x.payload.title.includes(I.t('es', 'syncTitle'))));
+    // Reacción
+    assert.strictEqual((await c2('POST', '/api/react', { userId: 'p2', emoji: '💩' })).status, 400);
+    const pr = pushes.length;
+    await c2('POST', '/api/react', { userId: 'p2', emoji: '😍' });
+    await new Promise((r) => setTimeout(r, 100));
+    assert.strictEqual(pushes.length - pr, 1);
+    assert.strictEqual((await c2('GET', '/api/state?userId=p1')).json.received[0].type, 'react');
+    console.log('✓ avisos al instante, mensajes, sincronía y reacciones');
+
+    // «Esto o aquello» con puntos y vales semanales
+    let tt = (await c2('GET', '/api/state?userId=p1')).json.tot;
+    assert.strictEqual(tt.pairs.length, 4);
+    assert.strictEqual((await c2('POST', '/api/tot', { userId: 'p1', mine: [0, 1], guess: [0, 0, 0, 0] })).status, 400);
+    tt = (await c2('POST', '/api/tot', { userId: 'p1', mine: [0, 1, 0, 1], guess: [1, 1, 1, 1] })).json.tot;
+    assert.ok(tt.mine && tt.partner === null && tt.myHits === null, 'no ve lo del otro hasta que juegue');
+    let sp = (await c2('POST', '/api/tot', { userId: 'p2', mine: [1, 1, 0, 0], guess: [0, 1, 0, 1] })).json;
+    assert.strictEqual(sp.tot.myHits, 4, 'Mina adivinó las 4');
+    assert.strictEqual(sp.tot.partnerHits, 2, 'Carlos adivinó 2');
+    assert.deepStrictEqual([sp.score.me, sp.score.partner, sp.score.weekMe, sp.score.weekPartner], [4, 2, 4, 2]);
+    // Jugar otra vez el mismo día no suma
+    sp = (await c2('POST', '/api/tot', { userId: 'p2', mine: [1, 1, 0, 0], guess: [0, 1, 0, 1] })).json;
+    assert.strictEqual(sp.score.me, 4);
+    // Cierre de la semana: Mina gana y se lleva un vale
+    const cp = dbb.couples[code2];
+    cp.week.key = '2020-01-06';
+    const pw = pushes.length;
+    sp = (await c2('GET', '/api/state?userId=p2')).json;
+    await new Promise((r) => setTimeout(r, 100));
+    assert.strictEqual(sp.cards.length, 1);
+    assert.ok(sp.cards[0].mine && !sp.cards[0].used);
+    assert.strictEqual(sp.score.weekMe, 0, 'la semana nueva empieza en 0');
+    assert.strictEqual(sp.score.me, 4, 'el total se conserva');
+    assert.strictEqual(pushes.length - pw, 2, 'aviso al ganador y al otro');
+    assert.strictEqual((await c2('POST', '/api/card/use', { userId: 'p1', id: sp.cards[0].id })).status, 400, 'solo la dueña puede canjearlo');
+    sp = (await c2('POST', '/api/card/use', { userId: 'p2', id: sp.cards[0].id })).json;
+    assert.ok(sp.cards[0].used);
+    await new Promise((r) => setTimeout(r, 100));
+    assert.ok(pushes[pushes.length - 1].payload.body.startsWith('Mina'), 'aviso del canje');
+    // Logros de racha: el séptimo día seguido avisa con el logro
+    cp.days = {};
+    let dd = S.dayKey(new Date(), cp.tz);
+    for (let i = 1; i <= 6; i++) { dd = S.prevDay(dd); cp.days[dd] = ['p1', 'p2']; }
+    const ms = (await c2('POST', '/api/send', { userId: 'p1' })).json;
+    assert.strictEqual(ms.streak, 6, 'hoy aún no cuenta hasta que toquen los dos');
+    assert.strictEqual(ms.milestone, null, 'hoy solo tocó uno');
+    const ms2 = (await c2('POST', '/api/send', { userId: 'p2' })).json;
+    assert.strictEqual(ms2.milestone, 7);
+    await new Promise((r) => setTimeout(r, 100));
+    assert.ok(pushes.slice(-2).some((x) => x.payload.body.includes('🌹')), 'aviso del logro');
+    console.log('✓ esto o aquello, puntos, vales y logros');
 
     // Fotos y audios
     const jpeg = crypto.randomBytes(2000).toString('base64');
@@ -245,7 +300,7 @@ const { app, ready, streakInfo, recordDay, prevDay, runReminders, flush } = requ
 
     // Pregunta del día
     let q1 = (await c2('GET', '/api/state?userId=p1')).json.question;
-    assert.ok(q1.q >= 0 && q1.q < 20 && q1.mine === null);
+    assert.ok(q1.q >= 0 && q1.q < 40 && q1.mine === null);
     await c2('POST', '/api/answer', { userId: 'p2', text: 'سفر به شیراز' });
     q1 = (await c2('GET', '/api/state?userId=p1')).json.question;
     assert.strictEqual(q1.partnerAnswered, true); assert.strictEqual(q1.partner, null, 'oculta hasta que respondas');
