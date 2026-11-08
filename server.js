@@ -203,7 +203,7 @@ async function translatePending(limit = 6) {
     for (const couple of Object.values(db.couples)) {
       couple.tr = couple.tr || {};
       const answers = Object.values(couple.qa || {}).flatMap((d) => Object.values(d.answers || {}));
-      const texts = new Set([...(couple.messages || []), ...(couple.history || []).slice(-50).map((h) => h.body), ...answers]);
+      const texts = new Set([...(couple.messages || []), ...(couple.history || []).slice(-50).map((h) => h.body), ...answers, ...harmonyTexts(couple)]);
       for (const text of texts) {
         if (done >= limit) return done;
         if (!text || /^[@#?]/.test(text) || onlyEmoji(text)) continue;
@@ -333,7 +333,7 @@ function stateFor(user) {
   const trans = {};
   if (couple) {
     const ans = Object.values(couple.qa || {}).flatMap((d) => Object.values(d.answers || {}));
-    for (const t of new Set([...couple.messages, ...received.slice(-50).map((h) => h.body), ...ans])) {
+    for (const t of new Set([...couple.messages, ...received.slice(-50).map((h) => h.body), ...ans, ...harmonyTexts(couple)])) {
       if (!t || /^[@#?]/.test(t)) continue;
       const tx = textFor(couple, t, lang);
       if (tx !== t) trans[t] = tx;
@@ -364,10 +364,21 @@ function stateFor(user) {
     album: couple ? (couple.media || []).filter((m) => m.kind === 'photo').slice(-60).reverse().map((m) => ({ id: m.id, at: m.at, mine: m.by === user.id })) : [],
     tot: couple ? totState(couple, user, partner) : null,
     score: couple ? scoreState(couple, user, partner) : null,
-    cards: couple ? (couple.cards || []).filter((c) => !c.used || Date.now() - c.usedAt < 7 * 86400000).map((c) => ({ id: c.id, card: c.card, mine: c.owner === user.id, used: !!c.used, at: c.at })) : [],
+    cards: couple ? (couple.cards || []).filter((c) => !c.used || Date.now() - c.usedAt < 7 * 86400000).map((c) => ({ id: c.id, card: c.card, mine: c.owner === user.id, used: !!c.used, at: c.at, gift: !!c.from, fromMe: c.from === user.id, note: c.note || '', issue: c.issue || null })) : [],
     notifReady: canReceive(user),
     partnerNotifReady: partner ? canReceive(partner) : false,
+    harmony: couple ? harmonyState(couple, user, partner) : null,
+    race: couple ? raceState(user) : null,
   };
+}
+// Textos escritos a mano en «Armonía» que conviene traducir
+function harmonyTexts(couple) {
+  return [
+    ...(couple.issues || []).slice(-60).flatMap((x) => [x.what, x.need]),
+    ...(couple.thanks || []).slice(-40).map((x) => x.text),
+    ...(couple.cards || []).map((c) => c.note),
+    ...Object.values(couple.wishes || {}).flatMap((w) => w.items || []),
+  ].filter(Boolean);
 }
 
 function questionState(couple, user, partner) {
@@ -403,7 +414,7 @@ function auth(req, res, next) {
   if (!user) return fail(res, 401, 'unknown_user');
   req.user = user;
   const couple = user.code && db.couples[user.code];
-  if (couple) settleWeek(couple);
+  if (couple) { settleTotBonus(couple); settleWeek(couple); }
   next();
 }
 
@@ -631,16 +642,49 @@ app.post('/api/react', auth, async (req, res) => {
 // se lleva un vale (masaje, cena romántica, comodín…).
 // ---------------------------------------------------------------------------
 const TOT_N = 4;
-function totPairs(day) {
-  const n = I18N.TOT.es.length;
+// Recorre todas las preguntas sin repetir: cada «vuelta» es una baraja distinta
+// y cada día toma las 4 siguientes. Solo se repite una pregunta cuando ya
+// salieron todas.
+function totPerm(round, n) {
   const idx = Array.from({ length: n }, (_, i) => i);
-  let seed = dayNum(day) * 2654435761 >>> 0;
+  let seed = (round + 1) * 2654435761 >>> 0;
   for (let i = n - 1; i > 0; i--) {
     seed = (seed * 1103515245 + 12345) >>> 0;
     const j = seed % (i + 1);
     [idx[i], idx[j]] = [idx[j], idx[i]];
   }
-  return idx.slice(0, TOT_N);
+  return idx;
+}
+function totPairs(day) {
+  const n = I18N.TOT.es.length;
+  const perDay = Math.floor(n / TOT_N); // días por vuelta
+  const d = dayNum(day);
+  const round = Math.floor(d / perDay), slot = d % perDay;
+  return totPerm(round, n).slice(slot * TOT_N, slot * TOT_N + TOT_N);
+}
+// Punto extra por constancia: si un día solo jugó uno de los dos, quien jugó
+// se lleva 1 punto cuando termina ese día.
+const TOT_BONUS = 1;
+function settleTotBonus(couple, now = new Date()) {
+  if (!couple.tot || couple.members.length < 2) return;
+  const today = dayKey(now, couple.tz);
+  const oldest = prevDay(prevDay(today)); // no repartir puntos de días muy antiguos
+  for (const [day, entry] of Object.entries(couple.tot)) {
+    if (day >= today || day < oldest || entry.bonus || entry.scored) continue;
+    const played = couple.members.filter((m) => entry.answers && entry.answers[m]);
+    if (played.length !== 1) continue;
+    const uid = played[0];
+    entry.bonus = uid;
+    couple.points = couple.points || {};
+    couple.points[uid] = (couple.points[uid] || 0) + TOT_BONUS;
+    if (couple.week && couple.week.key === weekKey(new Date(day + 'T12:00:00Z'), 'UTC')) {
+      couple.week.pts[uid] = (couple.week.pts[uid] || 0) + TOT_BONUS;
+    }
+    save();
+    const u = db.users[uid];
+    const other = db.users[couple.members.find((m) => m !== uid)];
+    if (u && canReceive(u)) pushTo(u, { title: 'Sahar 🌟', body: I18N.t(langOf(u), 'totBonusPush', { p: other ? other.name : '' }) }).catch(() => {});
+  }
 }
 const countHits = (guess, mine) => guess.reduce((a, g, i) => a + (g === mine[i] ? 1 : 0), 0);
 function totState(couple, user, partner) {
@@ -749,6 +793,221 @@ app.post('/api/card/use', auth, async (req, res) => {
   save();
   res.json(stateFor(user));
   if (partner && canReceive(partner)) pushTo(partner, { title: 'Sahar 🎁', body: I18N.t(langOf(partner), 'cardPush', { p: user.name, c: cardName(langOf(partner), c.card) }) }).catch(() => {});
+});
+
+// ---------------------------------------------------------------------------
+// Armonía: enojos contados con suavidad, gratitud, vales regalados y deseos
+// ---------------------------------------------------------------------------
+const N_ISS_CATS = I18N.ISS_CAT_EMOJI.length;
+const N_FEELS = I18N.FEEL_EMOJI.length;
+const N_WISHES = 7;
+const clean = (v, max) => String(v || '').trim().slice(0, max);
+const remember = (couple, text, user) => { if (!text) return; couple.src = couple.src || {}; couple.src[text] = langOf(user); if (couple.tr && couple.tr[text]) couple.tr[text]._tries = 0; };
+const DAY_MS = 86400000;
+const recentCount = (list, uid, ms) => (list || []).filter((x) => x.by === uid && Date.now() - x.at < ms).length;
+
+// Contar algo que molestó: tema, emoción, qué pasó y qué necesito (método Gottman)
+app.post('/api/issue', auth, async (req, res) => {
+  const user = req.user;
+  const couple = db.couples[user.code];
+  const partner = couple && partnerOf(user);
+  if (!partner) return fail(res, 400, 'no_partner');
+  const cat = Number(req.body.cat), feel = Number(req.body.feel);
+  if (!Number.isInteger(cat) || cat < 0 || cat >= N_ISS_CATS || !Number.isInteger(feel) || feel < 0 || feel >= N_FEELS) return fail(res, 400, 'invalid_message');
+  if (recentCount(couple.issues, user.id, DAY_MS) >= 10) return fail(res, 429, 'invalid_message');
+  const what = clean(req.body.what, 300), need = clean(req.body.need, 200);
+  const it = { id: crypto.randomBytes(6).toString('hex'), by: user.id, cat, feel, what, need, at: Date.now(), sorry: false, solved: false };
+  couple.issues = [...(couple.issues || []), it].slice(-200);
+  remember(couple, what, user); remember(couple, need, user);
+  save();
+  res.json(stateFor(user));
+  translatePending(2).catch(() => {});
+  if (canReceive(partner)) pushTo(partner, { title: 'Sahar 💬', body: I18N.t(langOf(partner), 'issPush', { p: user.name }) }).catch(() => {});
+});
+// Responder: «lo siento» (quien lo recibió), «resuelto» (cualquiera) o borrar (quien lo escribió)
+app.post('/api/issue/act', auth, async (req, res) => {
+  const user = req.user;
+  const couple = db.couples[user.code];
+  const partner = couple && partnerOf(user);
+  const it = couple && (couple.issues || []).find((x) => x.id === req.body.id);
+  if (!it) return fail(res, 400, 'invalid_message');
+  const act = req.body.act;
+  const author = db.users[it.by];
+  const catName = (lang) => `${I18N.ISS_CAT_EMOJI[it.cat]} ${I18N.t(lang, 'issCats.' + it.cat)}`;
+  if (act === 'sorry' && it.by !== user.id && !it.sorry) {
+    it.sorry = true; it.sorryAt = Date.now();
+    if (author && canReceive(author)) pushTo(author, { title: 'Sahar 💗', body: I18N.t(langOf(author), 'issSorryPush', { p: user.name }) }).catch(() => {});
+  } else if (act === 'solved' && !it.solved) {
+    it.solved = true; it.solvedAt = Date.now();
+    if (partner && canReceive(partner)) pushTo(partner, { title: 'Sahar 🕊️', body: I18N.t(langOf(partner), 'issSolvedPush', { p: user.name, c: catName(langOf(partner)) }) }).catch(() => {});
+  } else if (act === 'delete' && it.by === user.id) {
+    couple.issues = couple.issues.filter((x) => x !== it);
+  } else return fail(res, 400, 'invalid_message');
+  save();
+  res.json(stateFor(user));
+});
+
+// Frasco de gratitud
+app.post('/api/thanks', auth, async (req, res) => {
+  const user = req.user;
+  const couple = db.couples[user.code];
+  const partner = couple && partnerOf(user);
+  if (!partner) return fail(res, 400, 'no_partner');
+  const text = clean(req.body.text, 200);
+  if (!text) return fail(res, 400, 'invalid_message');
+  if (recentCount(couple.thanks, user.id, DAY_MS) >= 30) return fail(res, 429, 'invalid_message');
+  couple.thanks = [...(couple.thanks || []), { id: crypto.randomBytes(6).toString('hex'), by: user.id, text, at: Date.now() }].slice(-300);
+  remember(couple, text, user);
+  save();
+  res.json(stateFor(user));
+  translatePending(2).catch(() => {});
+  if (canReceive(partner)) pushTo(partner, { title: 'Sahar 🫙', body: I18N.t(langOf(partner), 'gratPush', { p: user.name, m: text }) }).catch(() => {});
+});
+
+// Regalar un vale (para compensar, para mimar o porque sí)
+app.post('/api/gift', auth, async (req, res) => {
+  const user = req.user;
+  const couple = db.couples[user.code];
+  const partner = couple && partnerOf(user);
+  if (!partner) return fail(res, 400, 'no_partner');
+  const card = Number(req.body.card);
+  if (!I18N.GIFT_CARDS.includes(card)) return fail(res, 400, 'invalid_message');
+  const gifted = (couple.cards || []).filter((c) => c.from === user.id && Date.now() - c.at < DAY_MS).length;
+  if (gifted >= 5) return fail(res, 429, 'invalid_message');
+  const note = clean(req.body.note, 140);
+  const issue = (couple.issues || []).find((x) => x.id === req.body.issue && x.by === partner.id);
+  const c = { id: crypto.randomBytes(6).toString('hex'), card, owner: partner.id, from: user.id, note, issue: issue ? issue.id : null, at: Date.now(), used: false };
+  couple.cards = [...(couple.cards || []), c].slice(-60);
+  if (issue) issue.gift = c.id;
+  remember(couple, note, user);
+  save();
+  res.json(stateFor(user));
+  translatePending(1).catch(() => {});
+  if (canReceive(partner)) pushTo(partner, { title: 'Sahar 🎁', body: I18N.t(langOf(partner), 'giftPush', { p: user.name, c: cardName(langOf(partner), card) }) + (note ? `\n«${note}»` : '') }).catch(() => {});
+});
+
+// 7 deseos para la próxima versión de la app
+app.post('/api/wishes', auth, async (req, res) => {
+  const user = req.user;
+  const couple = db.couples[user.code];
+  if (!couple) return fail(res, 400, 'no_partner');
+  const items = Array.isArray(req.body.items) ? req.body.items.slice(0, N_WISHES).map((x) => clean(x, 400)) : [];
+  while (items.length < N_WISHES) items.push('');
+  if (!items.some(Boolean)) return fail(res, 400, 'invalid_message');
+  couple.wishes = couple.wishes || {};
+  const first = !couple.wishes[user.id];
+  couple.wishes[user.id] = { items, at: Date.now(), lang: langOf(user) };
+  for (const w of items) remember(couple, w, user);
+  save();
+  res.json(stateFor(user));
+  translatePending(3).catch(() => {});
+  const partner = partnerOf(user);
+  if (first && partner && canReceive(partner)) pushTo(partner, { title: 'Sahar 💫', body: I18N.t(langOf(partner), 'wishPush', { p: user.name }) }).catch(() => {});
+});
+
+function harmonyState(couple, user, partner) {
+  const since = Date.now() - 30 * DAY_MS;
+  const issues = couple.issues || [];
+  const thanks = couple.thanks || [];
+  const cats = Array(N_ISS_CATS).fill(0);
+  for (const it of issues) cats[it.cat] = (cats[it.cat] || 0) + 1;
+  const w = couple.wishes || {};
+  return {
+    issues: issues.slice(-60).reverse().map((x) => ({ id: x.id, mine: x.by === user.id, cat: x.cat, feel: x.feel, what: x.what, need: x.need, at: x.at, sorry: !!x.sorry, solved: !!x.solved, gift: !!x.gift })),
+    issueCats: cats,
+    thanks: thanks.slice(-40).reverse().map((x) => ({ id: x.id, mine: x.by === user.id, text: x.text, at: x.at })),
+    ratio: { g: thanks.filter((x) => x.at > since).length, i: issues.filter((x) => x.at > since).length },
+    wishes: { mine: w[user.id] ? w[user.id].items : null, partner: partner && w[partner.id] ? w[partner.id].items : null, partnerAt: partner && w[partner.id] ? w[partner.id].at : null },
+  };
+}
+
+// ---------------------------------------------------------------------------
+// «Tira y afloja»: juego en vivo. Los dos tocan a la vez; el corazón se mueve
+// hacia quien toca más. Gana quien lo lleve a su lado (o quien vaya delante
+// al acabar el tiempo). El estado vive en memoria: solo se guarda el resultado.
+// ---------------------------------------------------------------------------
+const RACE = { wait: 120000, countdown: 3500, duration: 20000, target: 40, maxRate: 16, linger: 60000, prize: 2 };
+const races = {};
+function raceFinish(couple, r, now) {
+  r.status = 'done'; r.doneAt = now;
+  const [a, b] = couple.members;
+  const ca = r.counts[a] || 0, cb = r.counts[b] || 0;
+  r.winner = ca === cb ? 'tie' : ca > cb ? a : b;
+  if (r.winner !== 'tie') {
+    couple.points = couple.points || {};
+    couple.points[r.winner] = (couple.points[r.winner] || 0) + RACE.prize;
+    if (!couple.week || couple.week.key !== weekKey(new Date(now), couple.tz)) couple.week = { key: weekKey(new Date(now), couple.tz), pts: {} };
+    couple.week.pts[r.winner] = (couple.week.pts[r.winner] || 0) + RACE.prize;
+    couple.raceWins = couple.raceWins || {};
+    couple.raceWins[r.winner] = (couple.raceWins[r.winner] || 0) + 1;
+  }
+  save();
+}
+function raceTick(code, now = Date.now()) {
+  const r = races[code];
+  const couple = db.couples[code];
+  if (!r || !couple) return null;
+  if (r.status === 'waiting' && now - r.created > RACE.wait) { r.status = 'expired'; r.doneAt = now; }
+  if (r.status === 'live') {
+    const [a, b] = couple.members;
+    const diff = (r.counts[a] || 0) - (r.counts[b] || 0);
+    if (Math.abs(diff) >= RACE.target || now >= r.endAt) raceFinish(couple, r, now);
+  }
+  if ((r.status === 'done' || r.status === 'expired' || r.status === 'cancelled') && now - r.doneAt > RACE.linger) { delete races[code]; return null; }
+  return r;
+}
+function raceState(user, now = Date.now()) {
+  const couple = user.code && db.couples[user.code];
+  const partner = couple && partnerOf(user);
+  const wins = (couple && couple.raceWins) || {};
+  const base = { target: RACE.target, duration: RACE.duration, prize: RACE.prize, winsMe: wins[user.id] || 0, winsPartner: partner ? wins[partner.id] || 0 : 0 };
+  const r = couple && raceTick(user.code, now);
+  if (!r || !partner) return { ...base, id: null, status: 'none' };
+  return {
+    ...base, id: r.id, status: r.status, byMe: r.by === user.id,
+    startIn: r.startAt ? r.startAt - now : null, endIn: r.endAt ? r.endAt - now : null,
+    me: r.counts[user.id] || 0, partner: r.counts[partner.id] || 0,
+    winner: r.winner ? (r.winner === 'tie' ? 'tie' : r.winner === user.id ? 'me' : 'partner') : null,
+  };
+}
+app.get('/api/race', auth, (req, res) => res.json(raceState(req.user)));
+app.post('/api/race/start', auth, async (req, res) => {
+  const user = req.user;
+  const couple = db.couples[user.code];
+  const partner = couple && partnerOf(user);
+  if (!partner) return fail(res, 400, 'no_partner');
+  const r = raceTick(user.code);
+  if (r && (r.status === 'waiting' || r.status === 'live')) return res.json(raceState(user)); // ya hay una en marcha
+  races[user.code] = { id: crypto.randomBytes(6).toString('hex'), by: user.id, status: 'waiting', created: Date.now(), counts: {} };
+  res.json(raceState(user));
+  if (canReceive(partner)) pushTo(partner, { title: 'Sahar ⚡', body: I18N.t(langOf(partner), 'racePush', { p: user.name }), tag: 'sahar-race' }).catch(() => {});
+});
+app.post('/api/race/accept', auth, (req, res) => {
+  const user = req.user;
+  const r = raceTick(user.code);
+  if (!r || r.id !== req.body.id || r.status !== 'waiting' || r.by === user.id) return res.json(raceState(user));
+  const now = Date.now();
+  r.status = 'live'; r.startAt = now + RACE.countdown; r.endAt = r.startAt + RACE.duration;
+  res.json(raceState(user));
+});
+app.post('/api/race/cancel', auth, (req, res) => {
+  const user = req.user;
+  const r = raceTick(user.code);
+  if (r && r.id === req.body.id && r.status === 'waiting') { r.status = 'cancelled'; r.doneAt = Date.now(); r.cancelledBy = user.id; }
+  res.json(raceState(user));
+});
+app.post('/api/race/tap', auth, (req, res) => {
+  const user = req.user;
+  const now = Date.now();
+  const r = raceTick(user.code, now);
+  if (r && r.id === req.body.id && r.status === 'live' && now >= r.startAt) {
+    // Tope razonable de toques por segundo (contra trampas o errores)
+    const maxN = Math.ceil(((Math.min(now, r.endAt) - r.startAt) / 1000) * RACE.maxRate) + 3;
+    const n = Math.min(maxN, Math.max(0, Math.floor(Number(req.body.n) || 0)));
+    if (n > (r.counts[user.id] || 0)) r.counts[user.id] = n;
+    raceTick(user.code, now);
+  }
+  res.json(raceState(user));
 });
 
 // Responder la pregunta del día
@@ -964,7 +1223,26 @@ async function runReminders(now = new Date()) {
       sent += await pushTo(user, { title: 'Sahar 💗', body: I18N.t(langOf(user), 'reminderPush', { p: partner.name }) });
     }
   }
-  for (const couple of Object.values(db.couples)) settleWeek(couple, now);
+  // «Esto o aquello»: avisar por la tarde a quien aún no jugó si el otro ya jugó
+  for (const couple of Object.values(db.couples)) {
+    if (couple.members.length < 2) continue;
+    const h = hourIn(now, couple.tz);
+    if (h < 19 || h > 22) continue;
+    const today = dayKey(now, couple.tz);
+    const entry = (couple.tot || {})[today];
+    if (!entry || !entry.answers) continue;
+    couple.totReminded = couple.totReminded && couple.totReminded.day === today ? couple.totReminded : { day: today, ids: [] };
+    for (const id of couple.members) {
+      if (entry.answers[id] || couple.totReminded.ids.includes(id)) continue;
+      const other = couple.members.find((m) => m !== id);
+      if (!entry.answers[other]) continue;
+      const u = db.users[id];
+      if (!u || !canReceive(u)) continue;
+      couple.totReminded.ids.push(id);
+      sent += await pushTo(u, { title: 'Sahar 🎲', body: I18N.t(langOf(u), 'totRemind', { p: (db.users[other] || {}).name || '' }) });
+    }
+  }
+  for (const couple of Object.values(db.couples)) { settleTotBonus(couple, now); settleWeek(couple, now); }
   if (sent) save();
   return sent;
 }
@@ -1012,4 +1290,4 @@ if (require.main === module) {
     setInterval(() => translatePending(6).catch(() => {}), 20 * 60 * 1000);
   }).catch((e) => { console.error('No se pudieron cargar los datos:', e.message); process.exit(1); });
 }
-module.exports = { persianHolidays, upcomingPersian, questionIndex, MOODS, app, ready, streakInfo, recordDay, dayKey, prevDay, localize, runReminders, flush, translatePending, nextOccurrence, totPairs, weekKey, settleWeek, db: () => db };
+module.exports = { persianHolidays, upcomingPersian, questionIndex, MOODS, app, ready, streakInfo, recordDay, dayKey, prevDay, localize, runReminders, flush, translatePending, nextOccurrence, totPairs, weekKey, settleWeek, settleTotBonus, races, RACE, db: () => db };

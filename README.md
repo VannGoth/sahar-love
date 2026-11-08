@@ -18,6 +18,15 @@ Un toque en el corazón y a tu pareja le llega una notificación con un mensaje 
 - **Vales** 🎁: quien gane la semana se lleva un vale al azar (masaje, cena romántica, paseo, comodines…). Al canjearlo, al otro le llega el aviso.
 - **Logros de racha**: 3, 7, 14, 30, 50, 100, 200 y 365 días, con celebración. A los 7 días se desbloquea el tema Oro y a los 30, Galaxia.
 - **¿Sabías que…?**: una curiosidad bonita cada día. Tema nuevo por defecto: **Aurora**.
+- **Esto o aquello, más variado**: 60 preguntas (48 nuevas, sacadas de las listas más populares para parejas). Ya no se repite ninguna hasta que salen todas.
+- **Punto extra por constancia** 🌟: si un día solo juega uno de los dos, quien jugó se lleva 1 punto extra. Por la tarde le llega un aviso al que falta.
+- **Tira y afloja** ⚡: juego en vivo y competitivo. Los dos tocan a la vez para traer el corazón a su lado; quien gana suma 2 puntos.
+- **Pestaña Armonía** 💞:
+  - **Algo me hizo enojar**: se cuenta sin culpar (tema, emoción, qué pasó y qué necesito, según el método Gottman). Queda en un registro con «Lo siento», «Ya lo hablamos» y un gráfico de lo que más nos hace enojar.
+  - **Frasco de gratitud** 🫙 y **proporción mágica 5:1** (Gottman): gracias frente a enojos de los últimos 30 días.
+  - **Regalar un vale** 🎁 cuando quieras, también para compensar un enojo: 12 vales nuevos con respaldo científico (abrazo de 20 s, beso de 6 s, cita nueva, 36 preguntas, paseo de la mano…).
+  - **7 deseos para Sahar** 💫: cada uno escribe lo que quiere en la próxima versión; se puede copiar todo para la siguiente actualización.
+- **6 temas nuevos**: Sakura, Lavanda, Océano, Esmeralda, Melocotón y Rubí.
 
 ## 1. Publicarla en internet (unos 10 minutos)
 
