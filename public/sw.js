@@ -1,5 +1,5 @@
 // Sahar Love — service worker: notificaciones push y apertura rápida
-const CACHE = 'sahar-v8';
+const CACHE = 'sahar-v9';
 const SHELL = ['/', '/index.html', '/i18n.js', '/manifest.webmanifest', '/icon-192.png', '/icon-180.png'];
 
 self.addEventListener('install', (e) => {

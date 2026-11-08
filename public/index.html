@@ -56,6 +56,27 @@
   html[data-theme="isfahan"] body::before { content:""; position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.09;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='84' viewBox='0 0 84 84'%3E%3Cg fill='none' stroke='%23f3d27a' stroke-width='1.2'%3E%3Cpath d='M42 12l8.5 21.5L72 42l-21.5 8.5L42 72l-8.5-21.5L12 42l21.5-8.5z'/%3E%3Cpath d='M21 21h42v42H21z' transform='rotate(45 42 42)'/%3E%3Cpath d='M21 21h42v42H21z'/%3E%3Ccircle cx='42' cy='42' r='7'/%3E%3Cpath d='M0 0l12 12M84 0L72 12M0 84l12-12M84 84L72 72'/%3E%3C/g%3E%3C/svg%3E");
     background-size:84px 84px; }
+  html[data-theme="sakura"] { --bg-1:#1e0d16; --bg-2:#5a2440; --bg-3:#33121f; --red:#ff7eb6; --red-2:#e0559a; --red-3:#a3306b; --rose:#ffd1e6;
+    --gold-1:#fff7fb; --gold-2:#ffd6e8; --gold-3:#f7a8c8; --gold-4:#b8607f; --card:rgba(70,22,48,.55); --card-line:rgba(255,214,232,.28);
+    --muted:#f3d6e4; --muted-2:#b88aa1; --glow:255,126,182; --glowg:255,214,232; --orb-hi:#ffe0ef; --orb-lo:#4a0f2c; --bar:rgba(30,10,22,.8); --paper-1:#5a2440; --paper-2:#2a0d1c; }
+  html[data-theme="lavender"] { --bg-1:#120f22; --bg-2:#3b2f6b; --bg-3:#221a42; --red:#a78bfa; --red-2:#8b5cf6; --red-3:#5b21b6; --rose:#ddd6fe;
+    --gold-1:#faf7ff; --gold-2:#e9d5ff; --gold-3:#c4b5fd; --gold-4:#7c6bb8; --card:rgba(40,30,80,.55); --card-line:rgba(233,213,255,.26);
+    --muted:#ddd6f3; --muted-2:#9d93c4; --glow:167,139,250; --glowg:233,213,255; --orb-hi:#ede9fe; --orb-lo:#2e1065; --bar:rgba(18,14,36,.8); --paper-1:#3b2f6b; --paper-2:#1a1433; }
+  html[data-theme="ocean"] { --bg-1:#03121f; --bg-2:#0b3b5c; --bg-3:#06243a; --red:#38bdf8; --red-2:#0284c7; --red-3:#075985; --rose:#7dd3fc;
+    --gold-1:#f0fbff; --gold-2:#bae6fd; --gold-3:#7dd3fc; --gold-4:#0369a1; --card:rgba(6,40,66,.55); --card-line:rgba(186,230,253,.26);
+    --muted:#cde7f5; --muted-2:#7fa9c2; --glow:56,189,248; --glowg:186,230,253; --orb-hi:#d6f1ff; --orb-lo:#04263f; --bar:rgba(3,18,31,.8); --paper-1:#0b3b5c; --paper-2:#03182a; }
+  html[data-theme="emerald"] { --bg-1:#04140d; --bg-2:#0f4a32; --bg-3:#072a1d; --red:#34d399; --red-2:#059669; --red-3:#065f46; --rose:#a7f3d0;
+    --gold-1:#fffbea; --gold-2:#f3d27a; --gold-3:#d4af37; --gold-4:#9a7420; --card:rgba(8,52,36,.55); --card-line:rgba(243,210,122,.28);
+    --muted:#cfeee0; --muted-2:#84b8a1; --glow:52,211,153; --glowg:243,210,122; --orb-hi:#c9fbe6; --orb-lo:#03301f; --bar:rgba(4,20,13,.8); --paper-1:#0f4a32; --paper-2:#04190f; }
+  html[data-theme="peach"] { --bg-1:#1c0e0a; --bg-2:#5c2c1e; --bg-3:#351810; --red:#fb923c; --red-2:#f97362; --red-3:#c2410c; --rose:#ffc9a8;
+    --gold-1:#fff8f1; --gold-2:#ffd9bf; --gold-3:#ffb48a; --gold-4:#c2703d; --card:rgba(80,36,24,.55); --card-line:rgba(255,217,191,.28);
+    --muted:#f6dccd; --muted-2:#c09581; --glow:251,146,60; --glowg:255,217,191; --orb-hi:#ffe1c9; --orb-lo:#5a1e08; --bar:rgba(28,14,10,.8); --paper-1:#5c2c1e; --paper-2:#2a120b; }
+  html[data-theme="ruby"] { --bg-1:#16030a; --bg-2:#5a0a26; --bg-3:#320515; --red:#e11d48; --red-2:#9f1239; --red-3:#5f0f24; --rose:#fda4af;
+    --gold-1:#fff6e0; --gold-2:#f5d58a; --gold-3:#d9a93a; --gold-4:#8d6418; --card:rgba(70,8,30,.6); --card-line:rgba(245,213,138,.3);
+    --muted:#f0cfd6; --muted-2:#b07c88; --glow:190,18,60; --glowg:245,213,138; --orb-hi:#ff9fb3; --orb-lo:#3a0313; --bar:rgba(22,3,10,.8); --paper-1:#5a0a26; --paper-2:#24040f; }
+  /* Pétalos que caen en el tema Sakura */
+  html[data-theme="sakura"] body::after { content:""; position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.5;
+    background:radial-gradient(60% 40% at 80% 10%,rgba(255,182,213,.18),transparent 70%),radial-gradient(50% 35% at 10% 90%,rgba(255,214,232,.12),transparent 70%); }
   /* Tipos de toque: color del corazón */
   .orb-wrap[data-touch="kiss"]  { --red:#ec4899; --red-2:#be185d; --orb-hi:#ffb8dc; --orb-lo:#500724; --glow:236,72,153; }
   .orb-wrap[data-touch="hug"]   { --red:#f59e0b; --red-2:#c2410c; --orb-hi:#ffe2a8; --orb-lo:#5c2508; --glow:245,158,11; }
@@ -476,6 +497,89 @@
   @keyframes trophy { 0%{ transform:scale(0) rotate(-30deg); opacity:0 } 60%{ transform:scale(1.25) rotate(8deg); opacity:1 } 100%{ transform:none } }
   .status.sync { color:var(--gold-1); font-family:var(--font-display); font-size:24px; font-weight:700; animation:numpop .7s cubic-bezier(.2,.9,.3,1.5); }
 
+  /* ---------- Armonía ---------- */
+  .hcard h3, .race-card h3 { margin:0 0 8px; font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--gold-2); display:flex; align-items:center; gap:6px; }
+  html[dir="rtl"] .hcard h3, html[dir="rtl"] .race-card h3 { letter-spacing:0; font-size:15px; }
+  .hcard .intro, .race-card .intro { color:var(--muted); font-size:14.5px; line-height:1.45; margin:0 0 12px; }
+  .hcard .lbl { color:var(--gold-2); font-size:13px; font-weight:600; margin:10px 0 6px; }
+  .pills { display:flex; flex-wrap:wrap; gap:6px; }
+  .pill { border:1px solid var(--card-line); background:rgba(255,255,255,.04); color:var(--muted); border-radius:999px; padding:7px 12px; font-size:13.5px; font-weight:600; transition:all .2s; }
+  .pill.on { color:var(--gold-1); border-color:var(--gold-3); background:rgba(var(--glow),.28); transform:translateY(-1px); }
+  .hcard textarea.field { min-height:64px; resize:vertical; font:inherit; font-size:16px; }
+  .hcard .field { margin-bottom:8px; }
+  .hcard .btn { margin:6px 0 0; }
+  .iss { padding:14px; border-radius:18px; background:var(--card); border:1px solid var(--card-line); animation:rise .45s both; }
+  .iss + .iss { margin-top:10px; }
+  .iss.solved { opacity:.62; }
+  .iss .hd { display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-weight:600; color:var(--cream); }
+  .iss .hd small { color:var(--muted-2); font-weight:500; font-size:12.5px; margin-inline-start:auto; }
+  .iss p { margin:8px 0 0; line-height:1.45; overflow-wrap:anywhere; }
+  .iss .need { color:var(--gold-1); }
+  .iss .need b { color:var(--gold-2); font-weight:600; }
+  .iss .tags { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+  .iss .tag { font-size:12px; padding:3px 9px; border-radius:999px; border:1px solid var(--gold-3); color:var(--gold-1); background:rgba(var(--glowg),.1); }
+  .iss .acts { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
+  .iss .acts button { font-size:13px; color:var(--gold-1); background:rgba(255,255,255,.04); border:1px solid var(--card-line); border-radius:999px; padding:6px 12px; }
+  .iss .acts button.warm { background:linear-gradient(135deg,var(--red),var(--red-2)); border-color:transparent; color:#fff; }
+  .topcats { display:flex; flex-direction:column; gap:8px; }
+  .topcat { display:grid; grid-template-columns:auto 1fr auto; gap:8px; align-items:center; font-size:14px; }
+  .topcat .bar { height:8px; border-radius:999px; background:rgba(255,255,255,.08); overflow:hidden; }
+  .topcat .bar i { display:block; height:100%; background:linear-gradient(90deg,var(--red),var(--gold-2)); border-radius:999px; }
+  .ratio { display:flex; align-items:center; gap:14px; }
+  .ratio .big { font-family:var(--font-display); font-size:40px; font-weight:700; line-height:1; background:linear-gradient(180deg,var(--gold-1),var(--gold-3)); -webkit-background-clip:text; background-clip:text; color:transparent; white-space:nowrap; direction:ltr; }
+  .ratio p { margin:0; color:var(--muted); font-size:13.5px; line-height:1.45; }
+  .ratio-bar { height:10px; border-radius:999px; background:rgba(255,255,255,.08); overflow:hidden; margin:12px 0 6px; }
+  .ratio-bar i { display:block; height:100%; background:linear-gradient(90deg,var(--red),var(--gold-2)); transition:width .8s; }
+  .ratio-msg { color:var(--gold-1); font-weight:600; text-align:center; margin-top:6px; }
+  .thanks-list { display:flex; flex-direction:column; gap:8px; margin-top:12px; }
+  .thanks-list div { padding:10px 12px; border-radius:14px; background:rgba(255,255,255,.04); border:1px solid rgba(var(--glowg),.16); line-height:1.4; overflow-wrap:anywhere; }
+  .thanks-list small { display:block; color:var(--gold-2); font-size:12px; font-weight:600; margin-bottom:2px; }
+  .gift-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .gift { text-align:start; border:1px solid var(--card-line); background:rgba(255,255,255,.04); color:var(--cream); border-radius:16px; padding:10px; display:flex; flex-direction:column; gap:4px; transition:all .2s; }
+  .gift b { font-size:26px; font-weight:400; line-height:1; }
+  .gift span { font-size:13.5px; font-weight:600; line-height:1.25; }
+  .gift small { font-size:11.5px; color:var(--muted-2); line-height:1.3; }
+  .gift.on { border-color:var(--gold-2); background:rgba(var(--glow),.3); box-shadow:0 8px 20px rgba(var(--glow),.25); transform:translateY(-2px); }
+  .gift-for { margin:10px 0 0; padding:8px 12px; border-radius:12px; background:rgba(var(--glowg),.1); border:1px dashed var(--gold-3); color:var(--gold-1); font-size:13.5px; display:flex; justify-content:space-between; gap:8px; align-items:center; }
+  .gift-for button { background:none; border:0; color:var(--muted-2); font-size:18px; }
+  .voucher .vnote { font-size:13px; font-style:italic; opacity:.92; overflow-wrap:anywhere; }
+  .wish-q { color:var(--gold-2); font-size:13.5px; font-weight:600; margin:10px 0 4px; }
+  .wish-list { margin:0; padding-inline-start:20px; display:flex; flex-direction:column; gap:8px; }
+  .wish-list li { line-height:1.4; overflow-wrap:anywhere; }
+  .wish-list li small { display:block; color:var(--muted-2); font-size:12px; }
+  .wish-acts { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+  .wish-acts .chip-btn { font-size:13.5px; }
+  .race-card .wins { color:var(--muted-2); font-size:13px; text-align:center; margin-top:8px; }
+  /* Tira y afloja (pantalla del juego en vivo) */
+  .race { position:fixed; inset:0; z-index:64; display:flex; flex-direction:column; align-items:center; gap:10px; padding:calc(env(safe-area-inset-top) + 18px) 20px calc(env(safe-area-inset-bottom) + 18px);
+    background:radial-gradient(120% 70% at 50% 0%,var(--bg-2),transparent 70%),radial-gradient(120% 70% at 50% 100%,var(--bg-3),transparent 70%),var(--bg-1); animation:fadein .3s both; text-align:center; touch-action:manipulation; -webkit-user-select:none; user-select:none; }
+  .race .who2 { display:flex; align-items:center; justify-content:center; gap:10px; font-weight:600; color:var(--gold-1); font-size:16px; }
+  .race .who2 b { font-family:var(--font-display); font-size:30px; color:var(--cream); min-width:40px; }
+  .race .timer { width:min(360px,100%); height:6px; border-radius:999px; background:rgba(255,255,255,.1); overflow:hidden; }
+  .race .timer i { display:block; height:100%; background:linear-gradient(90deg,var(--gold-2),var(--red)); }
+  .race-track { position:relative; flex:1; width:min(120px,30vw); min-height:180px; border-radius:999px; border:1px solid var(--card-line);
+    background:linear-gradient(180deg,rgba(var(--glowg),.22),rgba(255,255,255,.03) 45%,rgba(255,255,255,.03) 55%,rgba(var(--glow),.32)); overflow:hidden; }
+  .race-track::before { content:""; position:absolute; left:10%; right:10%; top:50%; height:2px; background:var(--card-line); }
+  .race-track .goal { position:absolute; left:0; right:0; font-size:22px; }
+  .race-track .goal.top { top:6px; } .race-track .goal.bot { bottom:6px; }
+  .race-heart { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); font-size:58px; line-height:1; filter:drop-shadow(0 6px 18px rgba(var(--glow),.7)); transition:top .12s linear; }
+  .race-msg { min-height:34px; font-family:var(--font-display); font-size:26px; font-weight:700; color:var(--gold-1); }
+  html[dir="rtl"] .race-msg { font-size:21px; }
+  .race-msg.big { font-size:64px; animation:numpop .6s cubic-bezier(.2,.9,.3,1.5); }
+  .race-tap { width:170px; height:170px; border-radius:50%; border:0; font-size:28px; font-weight:800; letter-spacing:.06em; color:#fff; flex:none;
+    background:radial-gradient(circle at 34% 28%,var(--orb-hi) 0%,var(--red) 40%,var(--red-2) 65%,var(--orb-lo) 100%);
+    box-shadow:0 20px 50px rgba(var(--glow),.5), inset 0 -12px 26px rgba(0,0,0,.35); touch-action:manipulation; }
+  .race-tap:active { transform:scale(.93); }
+  .race-tap:disabled { filter:grayscale(.6) brightness(.7); }
+  .race-acts { display:flex; gap:10px; width:min(360px,100%); }
+  .race-acts .btn { margin:0; }
+  .toast { position:fixed; left:50%; bottom:calc(env(safe-area-inset-bottom) + var(--tab-h) + 30px); transform:translate(-50%,20px); opacity:0; z-index:70;
+    background:var(--bar,rgba(28,5,13,.92)); border:1px solid var(--gold-3); color:var(--gold-1); padding:10px 18px; border-radius:999px; font-size:14.5px; font-weight:600;
+    transition:opacity .3s, transform .3s; pointer-events:none; max-width:88vw; text-align:center; backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); }
+  .toast.show { opacity:1; transform:translate(-50%,0); }
+  .tab { font-size:11.5px; }
+  @media (max-height:680px) { .race-tap { width:130px; height:130px; font-size:22px; } .race-heart { font-size:46px; } }
+
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; }
   }
@@ -603,6 +707,10 @@
       <h3>🎲 <span data-i18n="totTitle"></span></h3>
       <div id="totBody"></div>
     </div>
+    <div class="card race-card" id="raceCard">
+      <h3>⚡ <span data-i18n="raceTitle"></span></h3>
+      <div id="raceBody"></div>
+    </div>
     <div class="card score" id="scoreCard">
       <h3>🏆 <span data-i18n="scoreTitle"></span></h3>
       <div id="scoreBody"></div>
@@ -610,6 +718,7 @@
     <div class="card cards" id="cardsCard">
       <h3>🎁 <span data-i18n="cardsTitle"></span></h3>
       <div id="cardsBody"></div>
+      <button class="chip-btn" id="toGiftBtn" style="margin-top:6px">🎁 <span data-i18n="giftTitle"></span></button>
     </div>
     <div class="card qcard" id="qCard">
       <h3>💭 <span data-i18n="qTitle"></span></h3>
@@ -676,6 +785,42 @@
     <button class="btn ghost" id="unlinkBtn" data-i18n="unlink" style="margin-top:28px;color:#fda4af;border-color:rgba(253,164,175,.35)"></button>
   </section>
 
+  <!-- Armonía: enojos con cariño, gratitud, vales regalados y deseos -->
+  <section id="usView" class="view hidden">
+    <div class="card hcard" id="ratioCard" style="margin-top:14px">
+      <h3>⚖️ <span data-i18n="ratioTitle"></span></h3>
+      <div id="ratioBody"></div>
+    </div>
+    <div class="card hcard" id="issCard">
+      <h3>💬 <span data-i18n="issTitle"></span></h3>
+      <p class="intro" data-i18n="issIntro"></p>
+      <div id="issForm"></div>
+    </div>
+    <div class="card hcard hidden" id="issTopCard">
+      <h3>📊 <span data-i18n="issTop"></span></h3>
+      <div id="issTop"></div>
+      <p class="score-note" style="margin:10px 0 0" data-i18n="issTopNote"></p>
+    </div>
+    <h2 data-i18n="issLog"></h2>
+    <div id="issList"></div>
+    <div class="card hcard" id="gratCard" style="margin-top:16px">
+      <h3>🫙 <span data-i18n="gratTitle"></span></h3>
+      <p class="intro" data-i18n="gratIntro"></p>
+      <div id="gratForm"></div>
+      <div class="thanks-list" id="gratList"></div>
+    </div>
+    <div class="card hcard" id="giftCard">
+      <h3>🎁 <span data-i18n="giftTitle"></span></h3>
+      <p class="intro" data-i18n="giftIntro"></p>
+      <div id="giftBody"></div>
+    </div>
+    <div class="card hcard" id="wishCard">
+      <h3>💫 <span data-i18n="wishTitle"></span></h3>
+      <p class="intro" data-i18n="wishIntro"></p>
+      <div id="wishBody"></div>
+    </div>
+  </section>
+
   <!-- Fechas especiales -->
   <section id="datesView" class="view hidden">
     <h2 data-i18n="datesTitle"></h2>
@@ -706,6 +851,11 @@
   <button class="tab on" data-tab="home">
     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.2l-1.3-1.2C5.6 15.4 2.4 12.5 2.4 8.9 2.4 6 4.7 3.7 7.6 3.7c1.7 0 3.3.8 4.4 2 1.1-1.2 2.7-2 4.4-2 2.9 0 5.2 2.3 5.2 5.2 0 3.6-3.2 6.5-8.3 11.1L12 21.2z"/></svg>
     <span data-i18n="tabHome"></span>
+  </button>
+  <button class="tab" data-tab="us">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M9 19.5l-.9-.8C4.6 15.6 2.5 13.7 2.5 11.3 2.5 9.4 4 7.9 5.9 7.9c1.1 0 2.2.5 3 1.3.8-.8 1.9-1.3 3-1.3"/><path d="M15 20.2l-1-.9c-3.6-3.2-5.9-5.3-5.9-7.9 0-2.1 1.6-3.7 3.7-3.7 1.2 0 2.4.6 3.2 1.4.8-.8 2-1.4 3.2-1.4 2.1 0 3.7 1.6 3.7 3.7 0 2.6-2.3 4.7-5.9 7.9l-1 .9z" fill="currentColor" fill-opacity=".25"/></svg>
+    <span data-i18n="tabUs"></span>
+    <span class="badge hidden" id="usBadge">!</span>
   </button>
   <button class="tab" data-tab="msgs">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/></svg>
@@ -741,6 +891,15 @@
     <button class="btn gold" id="celOk">💗</button>
   </div>
 </div>
+<div class="race hidden" id="raceOv">
+  <div class="who2"><span id="raceOppName"></span><b id="raceOppN">0</b></div>
+  <div class="timer"><i id="raceTimer" style="width:100%"></i></div>
+  <div class="race-track"><span class="goal top" id="raceGoalTop">🏁</span><div class="race-heart" id="raceHeart">💗</div><span class="goal bot">🏁</span></div>
+  <div class="race-msg" id="raceMsg"></div>
+  <button class="race-tap" id="raceTap"></button>
+  <div class="who2"><span data-i18n="you"></span><b id="raceMeN">0</b></div>
+  <div class="race-acts" id="raceActs"></div>
+</div>
 <div class="lightbox hidden" id="lightbox"><img alt="📷"></div>
 <div class="draw hidden" id="drawPad">
   <div class="bar" id="drawColors"></div>
@@ -758,7 +917,7 @@
 <label id="hapticLbl" aria-hidden="true"><input type="checkbox" switch tabindex="-1"></label>
 <script src="/i18n.js"></script>
 <script>
-const APP_VERSION = '2026-11-02-1';
+const APP_VERSION = '2026-11-08-1';
 let currentTheme = 'aurora';
 try {
   // Estreno del color nuevo: pasar una vez a «Aurora»; después se respeta lo que elijan
@@ -839,8 +998,8 @@ let pollTimer = null;
 let shownStreak = null;
 const isStandalone = window.navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-const VIEWS = ['loadingView', 'installView', 'nameView', 'coupleView', 'homeView', 'msgsView', 'datesView'];
-const TAB_VIEW = { home: 'homeView', msgs: 'msgsView', dates: 'datesView' };
+const VIEWS = ['loadingView', 'installView', 'nameView', 'coupleView', 'homeView', 'usView', 'msgsView', 'datesView'];
+const TAB_VIEW = { home: 'homeView', us: 'usView', msgs: 'msgsView', dates: 'datesView' };
 
 function show(name) {
   VIEWS.forEach((v) => {
@@ -848,7 +1007,7 @@ function show(name) {
     if (on && el.classList.contains('hidden')) { el.classList.remove('hidden'); el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; }
     else if (!on) el.classList.add('hidden');
   });
-  const inApp = name === 'homeView' || name === 'msgsView' || name === 'datesView';
+  const inApp = name === 'homeView' || name === 'usView' || name === 'msgsView' || name === 'datesView';
   $('tabbar').classList.toggle('hidden', !inApp);
   $('main').classList.toggle('with-tabs', inApp);
 }
@@ -879,6 +1038,8 @@ function render(fresh = true) {
   renderCards();
   renderFact();
   renderBadges();
+  renderRace();
+  renderHarmony();
   checkNewLove();
 }
 
@@ -1119,6 +1280,7 @@ document.querySelectorAll('.tab').forEach((b) => b.onclick = () => {
   show(TAB_VIEW[tab] || 'homeView');
   if (tab === 'msgs') { store.set('sahar_seen_list', String(Date.now())); updateBadge(); refresh(); }
   if (tab === 'dates') renderDates();
+  if (tab === 'us') { store.set('sahar_us_seen', String(Date.now())); renderHarmony(); }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
@@ -1329,8 +1491,8 @@ function renderTypes() {
 }
 
 /* ----- Temas de color ----- */
-const THEMES = { aurora: 'themeAurora', red: 'themeRed', rose: 'themeRose', night: 'themeNight', sunset: 'themeSunset', isfahan: 'themeIsfahan', gold: 'themeGold', galaxy: 'themeGalaxy' };
-const THEME_BG = { aurora: '#120720', red: '#14040a', rose: '#1f0b16', night: '#070b1d', sunset: '#1c0a14', isfahan: '#04161c', gold: '#120c03', galaxy: '#03020c' };
+const THEMES = { aurora: 'themeAurora', red: 'themeRed', rose: 'themeRose', sakura: 'themeSakura', lavender: 'themeLavender', night: 'themeNight', ocean: 'themeOcean', sunset: 'themeSunset', peach: 'themePeach', isfahan: 'themeIsfahan', emerald: 'themeEmerald', ruby: 'themeRuby', gold: 'themeGold', galaxy: 'themeGalaxy' };
+const THEME_BG = { aurora: '#120720', red: '#14040a', rose: '#1f0b16', sakura: '#1e0d16', lavender: '#120f22', night: '#070b1d', ocean: '#03121f', sunset: '#1c0a14', peach: '#1c0e0a', isfahan: '#04161c', emerald: '#04140d', ruby: '#16030a', gold: '#120c03', galaxy: '#03020c' };
 // Temas que se ganan con la racha (mejor racha de los dos)
 const THEME_UNLOCK = { gold: 7, galaxy: 30 };
 const bestOf = () => Math.max((state && state.bestStreak) || 0, (state && state.streak) || 0);
@@ -1481,6 +1643,7 @@ function renderTot() {
   if (!tt.partner) {
     body.append(totResults(tt, null));
     const w = document.createElement('div'); w.className = 'tot-wait'; w.textContent = t('totWait', { p }); body.append(w);
+    const bn = document.createElement('div'); bn.className = 'score-note'; bn.textContent = t('totBonusNote', { p }); body.append(bn);
     return;
   }
   body.append(totResults(tt, tt.partner));
@@ -1583,7 +1746,7 @@ function renderCards() {
   const fresh = cards.find((c) => c.mine && !c.used && c.at > seen);
   if (fresh) {
     store.set('sahar_cards_seen', String(Date.now()));
-    if (seen) celebrate(I.CARD_EMOJI[fresh.card], t('newCard'), (I.CARDS[lang] || I.CARDS.en)[fresh.card], '');
+    if (seen) celebrate(I.CARD_EMOJI[fresh.card], fresh.gift ? t('giftFrom', { p: state.partnerName || '' }) : t('newCard'), (I.CARDS[lang] || I.CARDS.en)[fresh.card], fresh.note ? `«${showMsg(fresh.note)}»` : '');
   }
   if (!cards.length) { const e = document.createElement('p'); e.className = 'score-note'; e.style.textAlign = 'start'; e.textContent = t('cardsEmpty'); body.append(e); return; }
   const row = document.createElement('div'); row.className = 'vouchers';
@@ -1591,8 +1754,10 @@ function renderCards() {
     const v = document.createElement('div'); v.className = 'voucher' + (c.used ? ' used' : '') + (c.mine ? '' : ' theirs');
     const em = document.createElement('div'); em.className = 'em'; em.textContent = I.CARD_EMOJI[c.card];
     const nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = (I.CARDS[lang] || I.CARDS.en)[c.card];
-    const who = document.createElement('div'); who.className = 'vwho'; who.textContent = c.mine ? t('cardsMine') : t('cardsPartner', { p: state.partnerName || '' });
+    const who = document.createElement('div'); who.className = 'vwho';
+    who.textContent = c.mine ? (c.gift ? t('giftFrom', { p: state.partnerName || '' }) : t('cardsMine')) : t('cardsPartner', { p: state.partnerName || '' }) + (c.fromMe ? ' · 🎁' : '');
     v.append(em, nm, who);
+    if (c.note) { const nt = document.createElement('div'); nt.className = 'vnote'; nt.textContent = `«${showMsg(c.note)}»`; v.append(nt); }
     if (c.used) { const st = document.createElement('div'); st.className = 'stamp'; st.textContent = t('cardUsed'); v.append(st); }
     if (c.mine && !c.used) {
       const u = document.createElement('button'); u.className = 'use'; u.textContent = t('cardUse');
@@ -1648,6 +1813,404 @@ function celebrate(emoji, title, sub, reward) {
   setTimeout(() => FX.fireworks(5), 300);
 }
 $('celOk').onclick = () => $('celebrate').classList.add('hidden');
+
+/* =================== Armonía =================== */
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const fmtDay = (ms) => { try { return new Intl.DateTimeFormat(I.LOCALES[lang], { day: 'numeric', month: 'short' }).format(new Date(ms)); } catch (_) { return new Date(ms).toLocaleDateString(); } };
+const issCat = (i) => `${I.ISS_CAT_EMOJI[i]} ${t('issCats.' + i)}`;
+const issFeel = (i) => `${I.FEEL_EMOJI[i]} ${t('issFeels.' + i)}`;
+const cardLabel = (i) => (I.CARDS[lang] || I.CARDS.en)[i];
+function toast(msg) {
+  let d = $('toast');
+  if (!d) { d = el('div', 'toast'); d.id = 'toast'; document.body.append(d); }
+  d.textContent = msg; d.classList.remove('show'); void d.offsetWidth; d.classList.add('show');
+  clearTimeout(d._t); d._t = setTimeout(() => d.classList.remove('show'), 2800);
+}
+const centerOf = (node) => { const r = node.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; };
+
+function renderHarmony() {
+  const h = state && state.harmony;
+  if (!h) return;
+  renderRatio(h); renderIssForm(); renderIssues(h); renderGrat(h); renderGift(); renderWishes(h);
+  // Aviso en la pestaña si hay algo nuevo de la pareja
+  const seen = Number(store.get('sahar_us_seen') || 0);
+  const fresh = h.issues.some((x) => !x.mine && x.at > seen) || h.thanks.some((x) => !x.mine && x.at > seen);
+  $('usBadge').classList.toggle('hidden', !(fresh && tab !== 'us'));
+}
+
+/* ----- Proporción 5:1 (Gottman) ----- */
+function renderRatio(h) {
+  const b = $('ratioBody'); b.innerHTML = '';
+  const { g, i } = h.ratio;
+  const row = el('div', 'ratio');
+  row.append(el('div', 'big', `${num(g)} : ${num(i)}`), el('p', null, t('ratioNote', { g: num(g), i: num(i) })));
+  const bar = el('div', 'ratio-bar'); const fill = el('i');
+  fill.style.width = `${Math.min(100, i ? (g / (5 * i)) * 100 : g ? 100 : 0)}%`; bar.append(fill);
+  b.append(row, bar, el('div', 'ratio-msg', i === 0 || g >= 5 * i ? t('ratioGood') : t('ratioLow')));
+}
+
+/* ----- Algo me hizo enojar: contado con suavidad ----- */
+let issSig = '';
+const issSel = { cat: null, feel: null };
+function renderIssForm() {
+  const f = $('issForm');
+  if (issSig === lang && f.childElementCount) return; // no borrar lo que se está escribiendo
+  issSig = lang;
+  const prevWhat = $('issWhat') ? $('issWhat').value : (store.get('sahar_iss_what') || '');
+  const prevNeed = $('issNeed') ? $('issNeed').value : (store.get('sahar_iss_need') || '');
+  f.innerHTML = '';
+  const pills = (n, label, key) => {
+    const wrap = el('div', 'pills');
+    for (let k = 0; k < n; k++) {
+      const b = el('button', 'pill' + (issSel[key] === k ? ' on' : ''), label(k));
+      b.onclick = () => { issSel[key] = issSel[key] === k ? null : k; wrap.querySelectorAll('.pill').forEach((x, j) => x.classList.toggle('on', j === issSel[key])); haptic(8); };
+      wrap.append(b);
+    }
+    return wrap;
+  };
+  const what = el('textarea', 'field'); what.id = 'issWhat'; what.maxLength = 300; what.placeholder = t('issWhatPh'); what.value = prevWhat;
+  what.oninput = () => store.set('sahar_iss_what', what.value);
+  const need = el('input', 'field'); need.id = 'issNeed'; need.maxLength = 200; need.placeholder = t('issNeedPh'); need.value = prevNeed;
+  need.oninput = () => store.set('sahar_iss_need', need.value);
+  const err = el('div', 'err');
+  const btn = el('button', 'btn', t('issSend'));
+  btn.onclick = async () => {
+    if (issSel.cat == null || issSel.feel == null) { err.textContent = t('issPick'); return; }
+    err.textContent = ''; btn.disabled = true;
+    try {
+      state = await api('/api/issue', 'POST', { cat: issSel.cat, feel: issSel.feel, what: what.value, need: need.value });
+      issSel.cat = issSel.feel = null; what.value = need.value = '';
+      store.set('sahar_iss_what', ''); store.set('sahar_iss_need', '');
+      issSig = ''; renderHarmony();
+      const [x, y] = centerOf(btn); FX.burst(x, y, 20, { colors: ['#a5b4fc', '#ffcba4', '#f9a8d4'], emoji: '🕊️' });
+    } catch (e) { btn.disabled = false; err.textContent = errText(e); }
+  };
+  f.append(el('div', 'lbl', t('issCat')), pills(I.ISS_CAT_EMOJI.length, issCat, 'cat'),
+    el('div', 'lbl', t('issFeel')), pills(I.FEEL_EMOJI.length, issFeel, 'feel'),
+    what, need, btn, err);
+}
+let issDelArmed = null;
+function renderIssues(h) {
+  // Lo que más nos hace enojar
+  const top = h.issueCats.map((n, i) => ({ n, i })).filter((x) => x.n > 0).sort((a, b) => b.n - a.n).slice(0, 5);
+  $('issTopCard').classList.toggle('hidden', !top.length);
+  const tb = $('issTop'); tb.innerHTML = '';
+  const max = top.length ? top[0].n : 1;
+  top.forEach((x) => {
+    const r = el('div', 'topcat'); const bar = el('div', 'bar'); const f = el('i'); f.style.width = `${(x.n / max) * 100}%`; bar.append(f);
+    r.append(el('span', null, issCat(x.i)), bar, el('b', null, num(x.n))); tb.append(r);
+  });
+  // Registro
+  const list = $('issList'); list.innerHTML = '';
+  if (!h.issues.length) { list.append(el('p', 'empty', t('issEmpty'))); return; }
+  const p = state.partnerName || '';
+  h.issues.slice(0, 30).forEach((x) => {
+    const d = el('div', 'iss' + (x.solved ? ' solved' : ''));
+    const hd = el('div', 'hd');
+    hd.append(el('span', null, `${x.mine ? t('you') : p} · ${issCat(x.cat)}`), el('small', null, fmtDay(x.at)));
+    d.append(hd);
+    if (x.what) d.append(el('p', null, showMsg(x.what)));
+    if (x.need) { const n = el('p', 'need'); n.append(el('b', null, `${t('issNeed')}: `), document.createTextNode(showMsg(x.need))); d.append(n); }
+    const tags = el('div', 'tags');
+    tags.append(el('span', 'tag', issFeel(x.feel)));
+    if (x.sorry) tags.append(el('span', 'tag', t('issSorry')));
+    if (x.gift) tags.append(el('span', 'tag', '🎁'));
+    if (x.solved) tags.append(el('span', 'tag', t('issSolved')));
+    d.append(tags);
+    const acts = el('div', 'acts');
+    const doAct = async (a, b) => {
+      b.disabled = true;
+      try {
+        state = await api('/api/issue/act', 'POST', { id: x.id, act: a });
+        if (a !== 'delete') { const [cx, cy] = centerOf(b); FX.burst(cx, cy, 24, { colors: ['#f9a8d4', '#ffcba4', '#fde68a'], emoji: a === 'sorry' ? '💗' : '🕊️' }); haptic([30, 40, 60]); }
+        renderHarmony();
+      } catch (e) { b.disabled = false; toast(errText(e)); }
+    };
+    const act = (label, cls, fn) => { const b = el('button', cls, label); b.onclick = () => fn(b); acts.append(b); };
+    if (!x.mine && !x.sorry) act(t('issSorry'), 'warm', (b) => doAct('sorry', b));
+    if (!x.mine && !x.gift && !x.solved) act(t('issGive'), '', () => openGift(x));
+    if (!x.solved) act(t('issMarkSolved'), '', (b) => doAct('solved', b));
+    if (x.mine) act('🗑', '', (b) => {
+      if (issDelArmed !== x.id) { issDelArmed = x.id; b.textContent = '🗑 ?'; setTimeout(() => { if (issDelArmed === x.id) { issDelArmed = null; b.textContent = '🗑'; } }, 3500); return; }
+      issDelArmed = null; doAct('delete', b);
+    });
+    d.append(acts); list.append(d);
+  });
+}
+
+/* ----- Frasco de gratitud ----- */
+let gratSig = '';
+function renderGrat(h) {
+  const f = $('gratForm');
+  if (gratSig !== lang || !f.childElementCount) {
+    gratSig = lang;
+    const prev = $('gratInput') ? $('gratInput').value : '';
+    f.innerHTML = '';
+    const row = el('div', 'add-row'); row.style.marginTop = '0';
+    const inp = el('input', 'field'); inp.id = 'gratInput'; inp.maxLength = 200; inp.placeholder = t('gratPh'); inp.value = prev; inp.autocomplete = 'off';
+    const btn = el('button', 'btn', '🫙');
+    const send = async () => {
+      const text = inp.value.trim(); if (!text) return inp.focus();
+      btn.disabled = true;
+      try {
+        state = await api('/api/thanks', 'POST', { text }); inp.value = '';
+        toast(t('gratSent')); FX.shower(1400, { colors: ['#fde68a', '#ffcba4', '#f9a8d4'], emoji: '💛' });
+        renderHarmony();
+      } catch (e) { toast(errText(e)); }
+      btn.disabled = false;
+    };
+    btn.onclick = send; inp.onkeydown = (e) => { if (e.key === 'Enter') send(); };
+    row.append(inp, btn); f.append(row);
+  }
+  const list = $('gratList'); list.innerHTML = '';
+  if (!h.thanks.length) { list.append(el('p', 'score-note', t('gratEmpty'))); return; }
+  const p = state.partnerName || '';
+  h.thanks.slice(0, 12).forEach((x) => {
+    const d = el('div'); d.append(el('small', null, `${x.mine ? t('you') : p} · ${fmtDay(x.at)}`), document.createTextNode(showMsg(x.text)));
+    list.append(d);
+  });
+}
+
+/* ----- Regalar un vale ----- */
+let giftSel = null, giftIssue = null, giftAll = false, giftSig = '';
+function openGift(issue) {
+  giftIssue = issue || null; giftSel = null;
+  if (tab !== 'us') document.querySelector('.tab[data-tab=us]').click();
+  renderGift();
+  setTimeout(() => $('giftCard').scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
+}
+function renderGift() {
+  const body = $('giftBody');
+  const sig = [lang, giftSel, giftIssue && giftIssue.id, giftAll].join('|');
+  if (sig === giftSig && body.childElementCount) return;
+  giftSig = sig;
+  const prevNote = $('giftNote') ? $('giftNote').value : '';
+  body.innerHTML = '';
+  if (giftIssue) {
+    const f = el('div', 'gift-for'); f.style.margin = '0 0 10px';
+    const x = el('button', null, '×'); x.onclick = () => { giftIssue = null; renderGift(); };
+    f.append(el('span', null, t('giftFor', { c: issCat(giftIssue.cat) })), x); body.append(f);
+  }
+  const grid = el('div', 'gift-grid');
+  const ids = giftAll ? I.GIFT_CARDS : I.GIFT_CARDS.slice(0, 8);
+  if (giftSel != null && !ids.includes(giftSel)) ids.push(giftSel);
+  ids.forEach((i) => {
+    const b = el('button', 'gift' + (i === giftSel ? ' on' : ''));
+    b.append(el('b', null, I.CARD_EMOJI[i]), el('span', null, cardLabel(i)));
+    const why = (I.CARD_WHY[lang] || I.CARD_WHY.en)[i];
+    if (why) b.append(el('small', null, '🔬 ' + why));
+    b.onclick = () => { giftSel = i; haptic(8); renderGift(); };
+    grid.append(b);
+  });
+  body.append(grid);
+  if (!giftAll) { const more = el('button', 'chip-btn', `＋ ${num(I.GIFT_CARDS.length - 8)}`); more.style.marginTop = '8px'; more.onclick = () => { giftAll = true; renderGift(); }; body.append(more); }
+  const note = el('input', 'field'); note.id = 'giftNote'; note.maxLength = 140; note.placeholder = t('giftNotePh'); note.value = prevNote; note.style.marginTop = '10px'; note.autocomplete = 'off';
+  const btn = el('button', 'btn gold', giftSel == null ? t('giftSend') : `${t('giftSend')} · ${I.CARD_EMOJI[giftSel]}`);
+  btn.disabled = giftSel == null;
+  btn.onclick = async () => {
+    btn.disabled = true;
+    try {
+      state = await api('/api/gift', 'POST', { card: giftSel, note: note.value, issue: giftIssue ? giftIssue.id : null });
+      const [x, y] = centerOf(btn); FX.burst(x, y, 60, { colors: ['#ff4f8b', '#ffcba4', '#fde68a'], emoji: I.CARD_EMOJI[giftSel] }); haptic([40, 40, 80]);
+      toast(t('giftSent'));
+      giftSel = null; giftIssue = null; note.value = ''; giftSig = '';
+      renderHarmony(); renderCards();
+    } catch (e) { btn.disabled = false; toast(errText(e)); }
+  };
+  body.append(note, btn);
+}
+$('toGiftBtn').onclick = () => openGift(null);
+
+/* ----- 7 deseos para Sahar ----- */
+let wishEditing = false, wishSig = '';
+function wishText(name, items) { return `${name}:\n` + items.map((a, k) => `${k + 1}. ${t('wishQs.' + k)}\n   → ${a || '—'}`).join('\n'); }
+function renderWishes(h) {
+  const w = h.wishes, body = $('wishBody');
+  const sig = [lang, JSON.stringify(w), wishEditing, JSON.stringify(state.trans || {}).length].join('|');
+  if (sig === wishSig && body.childElementCount) return;
+  wishSig = sig;
+  body.innerHTML = '';
+  const p = state.partnerName || '';
+  const showList = (items) => {
+    const ol = el('ol', 'wish-list');
+    items.forEach((a, k) => { const li = el('li'); li.append(el('small', null, t('wishQs.' + k)), document.createTextNode(a ? showMsg(a) : '—')); ol.append(li); });
+    return ol;
+  };
+  if (!w.mine || wishEditing) {
+    const tas = [];
+    for (let k = 0; k < 7; k++) {
+      body.append(el('div', 'wish-q', `${num(k + 1)}. ${t('wishQs.' + k)}`));
+      const ta = el('textarea', 'field'); ta.maxLength = 400; ta.rows = 2; ta.style.minHeight = '54px';
+      ta.value = w.mine && wishEditing ? w.mine[k] : (store.get('sahar_wish_' + k) || '');
+      ta.oninput = () => store.set('sahar_wish_' + k, ta.value);
+      tas.push(ta); body.append(ta);
+    }
+    const btn = el('button', 'btn gold', t('wishSave'));
+    btn.onclick = async () => {
+      const items = tas.map((x) => x.value.trim());
+      if (!items.some(Boolean)) return tas[0].focus();
+      btn.disabled = true;
+      try {
+        state = await api('/api/wishes', 'POST', { items });
+        for (let k = 0; k < 7; k++) store.set('sahar_wish_' + k, '');
+        wishEditing = false; wishSig = '';
+        toast(t('wishSaved')); FX.shower(2200, { colors: ['#fde68a', '#a5f3fc', '#f9a8d4'], emoji: '💫' });
+        renderHarmony();
+      } catch (e) { btn.disabled = false; toast(errText(e)); }
+    };
+    body.append(btn);
+    if (wishEditing) { const c = el('button', 'btn ghost', t('cancel')); c.onclick = () => { wishEditing = false; renderWishes(state.harmony); }; body.append(c); }
+  } else {
+    body.append(el('div', 'lbl', t('wishMine')), showList(w.mine));
+  }
+  body.append(el('div', 'lbl', t('wishOf', { p })));
+  if (w.partner) body.append(showList(w.partner)); else body.append(el('p', 'score-note', t('wishWaiting', { p })));
+  const acts = el('div', 'wish-acts');
+  if (w.mine && !wishEditing) { const e = el('button', 'chip-btn', `✏️ ${t('wishEdit')}`); e.onclick = () => { wishEditing = true; renderWishes(state.harmony); }; acts.append(e); }
+  if (w.mine || w.partner) {
+    const c = el('button', 'chip-btn', `📋 ${t('wishCopy')}`);
+    c.onclick = async () => {
+      const txt = [w.mine && wishText(state.name || t('you'), w.mine), w.partner && wishText(p, w.partner)].filter(Boolean).join('\n\n');
+      try { await navigator.clipboard.writeText(txt); toast(t('wishCopied')); } catch (_) { toast('📋 ✗'); }
+    };
+    acts.append(c);
+  }
+  body.append(acts);
+}
+
+/* =================== Tira y afloja (en vivo) =================== */
+let raceSt = null, raceOpen = false, raceN = 0, raceNId = null, raceDismissed = null, raceTimer = null, racePolling = false, raceCelebrated = null, raceActsSig = '';
+const raceClock = { start: 0, end: 0 };
+function renderRace() {
+  const r = state.race;
+  $('raceCard').classList.toggle('hidden', !r);
+  if (!r) return;
+  const p = state.partnerName || '';
+  const body = $('raceBody'); body.innerHTML = '';
+  body.append(el('p', 'intro', t('raceIntro')));
+  if (r.status === 'waiting' && !r.byMe) {
+    const a = el('button', 'btn gold', t('raceAccept')); a.onclick = () => raceAccept();
+    body.append(el('div', 'tot-step', t('raceInvite', { p })), a);
+  } else if (r.status === 'waiting' && r.byMe) {
+    const b = el('button', 'btn ghost', t('raceWaiting', { p })); b.onclick = () => openRace();
+    body.append(b);
+  } else {
+    const b = el('button', 'btn', t('raceChallenge', { p })); b.onclick = () => raceStart();
+    body.append(b);
+  }
+  body.append(el('div', 'wins', t('raceWins', { a: num(r.winsMe), b: num(r.winsPartner), p })));
+  raceUpdate(r);
+}
+function raceUpdate(r) {
+  if (!r) return;
+  raceSt = r;
+  if (r.id !== raceNId) { raceNId = r.id; raceN = 0; }
+  if (r.startIn != null) { raceClock.start = Date.now() + r.startIn; raceClock.end = Date.now() + r.endIn; }
+  if (!raceOpen && r.id && raceDismissed !== r.id) {
+    if ((r.status === 'waiting' && !r.byMe) || (r.status === 'live' && r.endIn > 0)) openRace();
+  }
+  if (raceOpen) drawRaceActs();
+}
+async function raceStart() {
+  try { const r = await api('/api/race/start', 'POST', {}); raceDismissed = null; raceUpdate(r); openRace(); }
+  catch (e) { toast(errText(e)); }
+}
+async function raceAccept() {
+  try { const r = await api('/api/race/accept', 'POST', { id: raceSt.id }); raceUpdate(r); openRace(); }
+  catch (e) { toast(errText(e)); }
+}
+async function raceCancel() {
+  try { const r = await api('/api/race/cancel', 'POST', { id: raceSt.id }); raceSt = r; } catch (_) {}
+  closeRace();
+}
+function openRace() {
+  if (raceOpen) return;
+  raceOpen = true; raceActsSig = '';
+  $('raceOv').classList.remove('hidden');
+  $('raceOppName').textContent = state.partnerName || '';
+  drawRaceActs();
+  clearTimeout(raceTimer); raceLoop();
+  requestAnimationFrame(raceFrame);
+}
+function closeRace() {
+  raceOpen = false; clearTimeout(raceTimer);
+  if (raceSt && raceSt.id) raceDismissed = raceSt.id;
+  $('raceOv').classList.add('hidden');
+  refresh();
+}
+function raceLoop() {
+  if (!raceOpen) return;
+  const live = raceSt && raceSt.status === 'live';
+  racePoll().finally(() => { if (raceOpen) raceTimer = setTimeout(raceLoop, live ? 180 : 900); });
+}
+async function racePoll() {
+  if (racePolling || !raceSt) return;
+  racePolling = true;
+  try {
+    const live = raceSt.status === 'live' && Date.now() >= raceClock.start - 300;
+    const r = live ? await api('/api/race/tap', 'POST', { id: raceSt.id, n: raceN }) : await api('/api/race');
+    raceUpdate(r);
+  } catch (_) {}
+  racePolling = false;
+}
+function drawRaceActs() {
+  const r = raceSt, p = state.partnerName || '';
+  const acts = $('raceActs'), msg = $('raceMsg');
+  const sig = [r.id, r.status, r.byMe, r.winner, lang].join('|');
+  if (sig === raceActsSig) return;
+  raceActsSig = sig;
+  acts.innerHTML = ''; msg.className = 'race-msg';
+  const btn = (label, cls, fn) => { const b = el('button', 'btn ' + cls, label); b.onclick = fn; acts.append(b); };
+  $('raceTap').textContent = t('raceTap');
+  if (r.status === 'waiting' && r.byMe) { msg.textContent = t('raceWaiting', { p }); btn(t('raceCancel'), 'ghost', raceCancel); }
+  else if (r.status === 'waiting') { msg.textContent = t('raceInvite', { p }); btn(t('raceDecline'), 'ghost', raceCancel); btn(t('raceAccept'), 'gold', raceAccept); }
+  else if (r.status === 'live') { msg.textContent = ''; }
+  else if (r.status === 'done') {
+    msg.textContent = r.winner === 'me' ? t('raceWin') : r.winner === 'partner' ? t('raceLose', { p }) : t('raceTie');
+    if (raceCelebrated !== r.id) {
+      raceCelebrated = r.id;
+      if (r.winner === 'me') { FX.fireworks(5); FX.shower(2600, { colors: ['#fde68a', '#ff4f8b', '#ffcba4'], emoji: '🏆' }); haptic([60, 40, 80, 40, 120]); }
+      else if (r.winner === 'tie') FX.shower(2200, { emoji: '💞' });
+      else FX.shower(1600, { emoji: '💗' });
+      refresh();
+    }
+    btn('✕', 'ghost', closeRace); btn(t('raceRematch'), 'gold', raceStart);
+  } else {
+    msg.textContent = r.status === 'expired' || r.status === 'cancelled' ? (r.byMe ? t('raceExpired', { p }) : '') : '';
+    btn('✕', 'ghost', closeRace);
+  }
+}
+function raceFrame() {
+  if (!raceOpen) return;
+  const r = raceSt, now = Date.now();
+  const live = r && r.status === 'live';
+  const me = live ? Math.max(raceN, r.me) : r ? r.me : 0, opp = r ? r.partner : 0;
+  $('raceMeN').textContent = num(me); $('raceOppN').textContent = num(opp);
+  const pos = r ? Math.max(-1, Math.min(1, (me - opp) / r.target)) : 0;
+  $('raceHeart').style.top = `${50 + pos * 40}%`;
+  const canTap = live && now >= raceClock.start && now < raceClock.end;
+  $('raceTap').disabled = !canTap;
+  const msg = $('raceMsg');
+  if (live) {
+    if (now < raceClock.start) { const s = Math.ceil((raceClock.start - now) / 1000); msg.className = 'race-msg big'; msg.textContent = s > 3 ? t('raceReady') : num(s); }
+    else if (now < raceClock.end) { msg.className = 'race-msg'; msg.textContent = t('raceGo'); }
+    $('raceTimer').style.width = `${Math.max(0, Math.min(100, ((raceClock.end - Math.max(now, raceClock.start)) / r.duration) * 100))}%`;
+  } else $('raceTimer').style.width = r && r.status === 'done' ? '0%' : '100%';
+  requestAnimationFrame(raceFrame);
+}
+$('raceTap').addEventListener('pointerdown', (e) => {
+  e.preventDefault();
+  const now = Date.now();
+  if (!raceSt || raceSt.status !== 'live' || now < raceClock.start || now >= raceClock.end) return;
+  raceN++;
+  haptic(6);
+  if (raceN % 3 === 0) { const [x, y] = centerOf($('raceTap')); FX.burst(x, y, 4); }
+});
+// Buscar retos nuevos mientras la app está abierta (además del aviso push)
+setInterval(() => {
+  if (document.hidden || raceOpen || !state || !state.partnerName) return;
+  api('/api/race').then((r) => { const was = state.race && state.race.status + state.race.id; state.race = r; if (was !== r.status + r.id) renderRace(); else raceUpdate(r); }).catch(() => {});
+}, 6000);
 
 /* ----- Mensaje directo y pregunta al azar ----- */
 $('directForm').onsubmit = (e) => {

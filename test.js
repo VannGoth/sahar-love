@@ -62,7 +62,17 @@ const { app, ready, streakInfo, recordDay, prevDay, runReminders, flush } = requ
   const DEFAULT_TEXTS = I.MESSAGES;
   // Todas las claves de cada idioma existen
   for (const l of I.LANGS) assert.strictEqual(I.QUESTIONS[l].length, 40, `preguntas ${l}`);
-  for (const l of I.LANGS) assert.ok(I.TOT[l].length === 12 && I.FACTS[l].length === 12 && I.CARDS[l].length === 12, `juegos ${l}`);
+  for (const l of I.LANGS) assert.ok(I.TOT[l].length === 60 && I.FACTS[l].length === 12 && I.CARDS[l].length === 24 && I.CARD_WHY[l].length === 24, `juegos ${l}`);
+  assert.ok(I.TOT_EMOJI.length === 60 && I.CARD_EMOJI.length === 24 && I.GIFT_CARDS.every((i) => i < 24) && !I.GIFT_CARDS.includes(11));
+  for (const l of I.LANGS) for (const [k, n] of [['issCats', 10], ['issFeels', 8], ['wishQs', 7]]) assert.strictEqual(I.STRINGS[l][k].length, n, `${k} ${l}`);
+  // «Esto o aquello»: 15 días seguidos sin repetir ninguna pregunta
+  {
+    const { totPairs } = require('./server');
+    let day = '2026-11-01'; const seen = new Set();
+    const start = Math.floor(Date.parse(day + 'T12:00:00Z') / 86400000);
+    for (let i = 0; i < 15; i++) { const d = new Date((start - (start % 15) + i) * 86400000 + 43200000).toISOString().slice(0, 10); for (const q of totPairs(d)) seen.add(q); }
+    assert.strictEqual(seen.size, 60, 'las 60 preguntas salen antes de repetir');
+  }
   assert.strictEqual(localize('?3', 'es'), I.QUESTIONS.es[3]);
   assert.strictEqual(localize('#morning', 'de'), I.STRINGS.de.morningBody);
   for (const v of I.HAFEZ) for (const l of I.LANGS) assert.ok(v[l] && v[l].length > 10, `hafez ${l}`);
@@ -221,6 +231,106 @@ const { app, ready, streakInfo, recordDay, prevDay, runReminders, flush } = requ
     assert.ok(pushes.slice(-2).some((x) => x.payload.body.includes('🌹')), 'aviso del logro');
     console.log('✓ esto o aquello, puntos, vales y logros');
 
+    // Punto extra: ayer solo jugó Carlos → +1 para él
+    {
+      const yest = S.prevDay(S.dayKey(new Date(), cp.tz));
+      cp.tot[yest] = { answers: { p1: { mine: [0, 0, 0, 0], guess: [0, 0, 0, 0] } }, pairs: [0, 1, 2, 3] };
+      const before1 = (cp.points || {}).p1 || 0;
+      const pp = pushes.length;
+      S.settleTotBonus(cp);
+      assert.strictEqual(cp.points.p1, before1 + 1, 'punto extra por constancia');
+      assert.strictEqual(cp.tot[yest].bonus, 'p1');
+      S.settleTotBonus(cp);
+      assert.strictEqual(cp.points.p1, before1 + 1, 'solo una vez');
+      await new Promise((r) => setTimeout(r, 100));
+      assert.ok(pushes.slice(pp).some((x) => x.payload.body.includes('Mina')), 'aviso del punto extra');
+      // Si jugaron los dos, no hay punto extra
+      const d2 = S.prevDay(yest);
+      cp.tot[d2] = { answers: { p1: { mine: [0, 0, 0, 0], guess: [0, 0, 0, 0] }, p2: { mine: [0, 0, 0, 0], guess: [0, 0, 0, 0] } }, scored: true };
+      S.settleTotBonus(cp);
+      assert.strictEqual(cp.points.p1, before1 + 1);
+    }
+    console.log('✓ punto extra por constancia');
+
+    // Armonía: contar un enojo, pedir perdón, compensar con un vale, gratitud y deseos
+    {
+      assert.strictEqual((await c2('POST', '/api/issue', { userId: 'p2', cat: 99, feel: 0 })).status, 400);
+      const pi = pushes.length;
+      let h = (await c2('POST', '/api/issue', { userId: 'p2', cat: 1, feel: 0, what: 'Estuviste con el móvil en la cena', need: 'Cenar sin pantallas' })).json.harmony;
+      assert.strictEqual(h.issues.length, 1);
+      assert.ok(h.issues[0].mine && h.issueCats[1] === 1 && h.ratio.i === 1);
+      await new Promise((r) => setTimeout(r, 100));
+      assert.ok(pushes.slice(pi).some((x) => x.endpoint.endsWith('/a') && x.payload.body.includes('Mina')), 'aviso a Carlos');
+      const iid = h.issues[0].id;
+      assert.strictEqual((await c2('POST', '/api/issue/act', { userId: 'p2', id: iid, act: 'sorry' })).status, 400, 'no puede disculparse por su propio enojo');
+      h = (await c2('POST', '/api/issue/act', { userId: 'p1', id: iid, act: 'sorry' })).json.harmony;
+      assert.ok(h.issues[0].sorry && !h.issues[0].mine);
+      // Vale regalado para compensar
+      assert.strictEqual((await c2('POST', '/api/gift', { userId: 'p1', card: 11 })).status, 400, '«gano una discusión» no se regala');
+      let g = (await c2('POST', '/api/gift', { userId: 'p1', card: 12, note: 'Perdón, mi amor', issue: iid })).json;
+      const gc = g.cards.find((c) => c.card === 12);
+      assert.ok(gc && !gc.mine && gc.fromMe && gc.note === 'Perdón, mi amor');
+      assert.ok(g.harmony.issues[0].gift);
+      g = (await c2('GET', '/api/state?userId=p2')).json;
+      assert.ok(g.cards.find((c) => c.card === 12 && c.mine && c.gift), 'Mina recibe el vale');
+      h = (await c2('POST', '/api/issue/act', { userId: 'p2', id: iid, act: 'solved' })).json.harmony;
+      assert.ok(h.issues[0].solved);
+      // Gratitud y proporción 5:1
+      for (let i = 0; i < 5; i++) h = (await c2('POST', '/api/thanks', { userId: 'p1', text: `Gracias por todo ${i}` })).json.harmony;
+      assert.deepStrictEqual(h.ratio, { g: 5, i: 1 });
+      assert.strictEqual((await c2('POST', '/api/thanks', { userId: 'p1', text: '   ' })).status, 400);
+      // Borrar: solo quien lo escribió
+      assert.strictEqual((await c2('POST', '/api/issue/act', { userId: 'p1', id: iid, act: 'delete' })).status, 400);
+      // 7 deseos
+      assert.strictEqual((await c2('POST', '/api/wishes', { userId: 'p2', items: ['', ''] })).status, 400);
+      const pw2 = pushes.length;
+      const w = (await c2('POST', '/api/wishes', { userId: 'p2', items: ['Un juego de preguntas', 'Más colores'] })).json.harmony.wishes;
+      assert.strictEqual(w.mine.length, 7);
+      assert.strictEqual(w.mine[1], 'Más colores');
+      assert.strictEqual((await c2('GET', '/api/state?userId=p1')).json.harmony.wishes.partner[0], 'Un juego de preguntas');
+      await new Promise((r) => setTimeout(r, 100));
+      assert.ok(pushes.slice(pw2).some((x) => x.endpoint.endsWith('/a')), 'aviso de deseos');
+    }
+    console.log('✓ armonía: enojos, vales regalados, gratitud y deseos');
+
+    // Tira y afloja en vivo
+    {
+      const pr0 = pushes.length;
+      let r = (await c2('POST', '/api/race/start', { userId: 'p1' })).json;
+      assert.ok(r.status === 'waiting' && r.byMe);
+      await new Promise((res) => setTimeout(res, 100));
+      assert.ok(pushes.slice(pr0).some((x) => x.endpoint.endsWith('/b') && x.payload.body.includes('Carlos')), 'aviso del reto');
+      let r2 = (await c2('GET', '/api/race?userId=p2')).json;
+      assert.ok(r2.status === 'waiting' && !r2.byMe);
+      r2 = (await c2('POST', '/api/race/accept', { userId: 'p2', id: r2.id })).json;
+      assert.strictEqual(r2.status, 'live');
+      assert.ok(r2.startIn > 2000, 'cuenta atrás');
+      // Toques antes de empezar no cuentan
+      r = (await c2('POST', '/api/race/tap', { userId: 'p1', id: r.id, n: 30 })).json;
+      assert.strictEqual(r.me, 0);
+      // Simular que ya pasaron 5 segundos de juego
+      const race = S.races[code2];
+      race.startAt = Date.now() - 5000; race.endAt = race.startAt + S.RACE.duration;
+      const ptsBefore = (await c2('GET', '/api/state?userId=p1')).json.score.me;
+      r2 = (await c2('POST', '/api/race/tap', { userId: 'p2', id: r.id, n: 6 })).json;
+      assert.strictEqual(r2.status, 'live');
+      r = (await c2('POST', '/api/race/tap', { userId: 'p1', id: r.id, n: 9999 })).json;
+      assert.ok(r.me <= 5 * S.RACE.maxRate + 4, 'tope de toques por segundo');
+      r2 = (await c2('POST', '/api/race/tap', { userId: 'p2', id: r.id, n: 10 })).json;
+      assert.strictEqual(r2.status, 'done');
+      assert.strictEqual(r2.winner, 'partner');
+      r = (await c2('GET', '/api/race?userId=p1')).json;
+      assert.ok(r.winner === 'me' && r.winsMe === 1);
+      assert.strictEqual((await c2('GET', '/api/state?userId=p1')).json.score.me, ptsBefore + S.RACE.prize, '+2 puntos al ganador');
+      // Cancelar un reto
+      r = (await c2('POST', '/api/race/start', { userId: 'p2' })).json;
+      assert.strictEqual(r.status, 'waiting');
+      r = (await c2('POST', '/api/race/cancel', { userId: 'p1', id: r.id })).json;
+      assert.strictEqual(r.status, 'cancelled');
+      cp.week.pts = {}; // que no influya en las pruebas de recordatorios de más abajo
+    }
+    console.log('✓ tira y afloja');
+
     // Fotos y audios
     const jpeg = crypto.randomBytes(2000).toString('base64');
     assert.strictEqual((await c2('POST', '/api/media', { userId: 'p1', kind: 'photo', mime: 'text/html', data: jpeg })).status, 400);
@@ -262,7 +372,7 @@ const { app, ready, streakInfo, recordDay, prevDay, runReminders, flush } = requ
     const asked = [];
     global.fetch = async (url, opts) => {
       if (String(url).startsWith('https://api.mymemory.translated.net/')) {
-        const u = new URL(url); asked.push(u.searchParams.get('langpair'));
+        const u = new URL(url); asked.push({ pair: u.searchParams.get('langpair'), q: u.searchParams.get('q') });
         const tgt = u.searchParams.get('langpair').split('|')[1];
         return new Response(JSON.stringify({ responseStatus: 200, responseData: { translatedText: `[${tgt}] ${u.searchParams.get('q')}` } }), { status: 200 });
       }
@@ -272,7 +382,8 @@ const { app, ready, streakInfo, recordDay, prevDay, runReminders, flush } = requ
     await new Promise((r) => setTimeout(r, 200));
     await S.translatePending(10);
     global.fetch = realFetch;
-    assert.ok(asked.every((p) => p.startsWith('es|')), 'traduce desde el idioma de quien lo escribió');
+    assert.ok(asked.filter((a) => a.q === 'Eres mi sol').every((a) => a.pair.startsWith('es|')), 'traduce desde el idioma de quien lo escribió');
+    assert.ok(asked.filter((a) => a.q === 'Más colores').every((a) => a.pair.startsWith('fa-IR|')), 'los deseos de Mina se traducen desde su idioma');
     const stFa = (await c2('GET', '/api/state?userId=p2')).json;
     assert.strictEqual(stFa.trans['Eres mi sol'], '[fa-IR] Eres mi sol');
     const stEs = (await c2('GET', '/api/state?userId=p1')).json;
