@@ -28,6 +28,20 @@ Un toque en el corazón y a tu pareja le llega una notificación con un mensaje 
   - **7 deseos para Sahar** 💫: cada uno escribe lo que quiere en la próxima versión; se puede copiar todo para la siguiente actualización.
 - **6 temas nuevos**: Sakura, Lavanda, Océano, Esmeralda, Melocotón y Rubí.
 
+### Versión «Deseos de Sahar» 💫
+- **Protector de racha** 🛡️: si un día se les olvida, un protector salva la racha solo. Empiezan con 2 y ganan 1 cada 7 días seguidos (máximo 3). Además, una sola vez, pueden **recuperar la racha que se perdió** (si el hueco es de 3 semanas o menos).
+- **Pestaña Juntos** ✨, con todo esto:
+  - **Plan de la semana**: cada semana, una receta para cocinar juntos y una salida o plan de diversión. Se puede pedir otra idea y marcar «Lo hicimos».
+  - **Juntos hacia la felicidad** 🌱: juego en equipo, sin perdedores. Cada semana hay 4 misiones (felicidad, éxito, satisfacción y orgullo). Cuando los dos cumplen una, crece su jardín. Si cumplen las 4, cada uno gana un vale.
+  - **Carrera de la suerte** 🏎️: carrera por turnos con dado. Gana la suerte, no la velocidad. Tiene casillas sorpresa (turbo, plátano, estrella, tornado, corazones) y viento a favor para quien va detrás. Cada uno elige su vehículo.
+  - **Memorama de nosotros** 🃏: cartas hechas con sus fotos. Cada día los dos juegan el mismo tablero y gana quien use menos movimientos.
+  - **Nuestras cartas** 🎴: cada foto es una carta coleccionable con brillo holográfico, rareza y estadísticas. Se le puede poner título.
+  - **Nuestro sueño** ✈️: Tokio, Seúl o Singapur. Tiene cuenta atrás, bote de ahorro y una lista de sitios futuristas para tachar.
+- **Vale nuevo**: «Cita sorpresa que tú planeas entera para nosotros» 🎉. Es el primero en «Regalar un vale».
+- **Planes y llamadas** 📞 con hora, en Fechas. Avisan con suavidad un rato antes, sin aviso la víspera, y el archivo de calendario incluye la hora.
+- **Nuestro cofre** 💫: recuerdos que se dejan, lecciones aprendidas y planes de futuro. En Inicio aparece uno cada día.
+- **Temas de temporada**: en diciembre la app se pone **Navidad** (rojo, nieve y guirnalda de luces). En el **mes de cumpleaños** de cada uno se pone el tema que esa persona eligió en Mensajes → Ajustes. Hay también un tema nuevo, **Neón Tokio**.
+
 ## 1. Publicarla en internet (unos 10 minutos)
 
 En iPhone, las notificaciones solo funcionan si la app está publicada con **HTTPS**. La opción más sencilla es [Render.com](https://render.com):

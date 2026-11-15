@@ -549,7 +549,7 @@
   .wish-list li small { display:block; color:var(--muted-2); font-size:12px; }
   .wish-acts { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
   .wish-acts .chip-btn { font-size:13.5px; }
-  .race-card .wins { color:var(--muted-2); font-size:13px; text-align:center; margin-top:8px; }
+  .race-card .wins, .hcard .wins { color:var(--muted-2); font-size:13px; text-align:center; margin-top:8px; }
   /* Tira y afloja (pantalla del juego en vivo) */
   .race { position:fixed; inset:0; z-index:64; display:flex; flex-direction:column; align-items:center; gap:10px; padding:calc(env(safe-area-inset-top) + 18px) 20px calc(env(safe-area-inset-bottom) + 18px);
     background:radial-gradient(120% 70% at 50% 0%,var(--bg-2),transparent 70%),radial-gradient(120% 70% at 50% 100%,var(--bg-3),transparent 70%),var(--bg-1); animation:fadein .3s both; text-align:center; touch-action:manipulation; -webkit-user-select:none; user-select:none; }
@@ -578,6 +578,131 @@
     transition:opacity .3s, transform .3s; pointer-events:none; max-width:88vw; text-align:center; backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); }
   .toast.show { opacity:1; transform:translate(-50%,0); }
   .tab { font-size:11.5px; }
+
+  /* ---------- Navidad (diciembre) ---------- */
+  html[data-theme="xmas"] { --bg-1:#160307; --bg-2:#6b0a16; --bg-3:#0b2e18; --red:#e3262f; --red-2:#a3121c; --red-3:#14532d; --rose:#fca5a5;
+    --gold-1:#fffaf0; --gold-2:#f6d27a; --gold-3:#d4a72c; --gold-4:#8a6512; --card:rgba(78,8,20,.6); --card-line:rgba(246,210,122,.32);
+    --muted:#f5d6d6; --muted-2:#c08c8c; --glow:227,38,47; --glowg:246,210,122; --orb-hi:#ffb3b3; --orb-lo:#3d0508; --bar:rgba(22,3,7,.82); --paper-1:#6b0a16; --paper-2:#2a0408; }
+  html[data-theme="xmas"] body::before { content:""; position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.08;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90' viewBox='0 0 90 90'%3E%3Cg fill='none' stroke='%23fff' stroke-width='1.4' stroke-linecap='round'%3E%3Cpath d='M22 10v24M10 22h24M13.5 13.5l17 17M30.5 13.5l-17 17'/%3E%3Cpath d='M68 52l10 18H58z M68 46l14 26H54z'/%3E%3C/g%3E%3Cpath d='M68 74v6' stroke='%23fff' stroke-width='2'/%3E%3Ccircle cx='60' cy='18' r='3' fill='%23fff'/%3E%3Ccircle cx='20' cy='68' r='2' fill='%23fff'/%3E%3C/svg%3E"); background-size:90px 90px; }
+  /* Guirnalda de luces arriba */
+  html[data-theme="xmas"] body::after { content:""; position:fixed; left:0; right:0; top:0; height:calc(env(safe-area-inset-top) + 14px); z-index:30; pointer-events:none;
+    background:radial-gradient(circle at 12px calc(100% - 6px),#ff4d4d 4px,transparent 5px) 0 0/48px 100%,radial-gradient(circle at 36px calc(100% - 6px),#4ade80 4px,transparent 5px) 0 0/48px 100%,radial-gradient(circle at 24px calc(100% - 10px),#fde68a 3px,transparent 4px) 0 0/48px 100%;
+    animation:twinkle 1.6s ease-in-out infinite; }
+  @keyframes twinkle { 0%,100%{opacity:.75} 50%{opacity:1; filter:brightness(1.4)} }
+  /* ---------- Neón Tokio ---------- */
+  html[data-theme="neo"] { --bg-1:#05010f; --bg-2:#2a0a4a; --bg-3:#001a2a; --red:#ff2bd6; --red-2:#7c3aed; --red-3:#0891b2; --rose:#7df9ff;
+    --gold-1:#f0fdff; --gold-2:#7df9ff; --gold-3:#22d3ee; --gold-4:#0e7490; --card:rgba(20,8,48,.6); --card-line:rgba(125,249,255,.3);
+    --muted:#d8d0ff; --muted-2:#8f86c4; --glow:255,43,214; --glowg:125,249,255; --orb-hi:#ffc2f4; --orb-lo:#1a0540; --bar:rgba(5,1,15,.82); --paper-1:#2a0a4a; --paper-2:#05010f; }
+  html[data-theme="neo"] body::before { content:""; position:fixed; left:-50%; right:-50%; bottom:0; height:45vh; z-index:0; pointer-events:none; opacity:.35;
+    background:repeating-linear-gradient(90deg,rgba(125,249,255,.5) 0 1px,transparent 1px 60px),repeating-linear-gradient(0deg,rgba(255,43,214,.5) 0 1px,transparent 1px 40px);
+    transform:perspective(300px) rotateX(60deg); transform-origin:bottom; -webkit-mask:linear-gradient(transparent,#000 70%); mask:linear-gradient(transparent,#000 70%); }
+  .season { margin:8px auto 0; width:fit-content; max-width:100%; font-size:13.5px; color:var(--gold-1); padding:5px 14px; border-radius:999px; background:rgba(var(--glowg),.12); border:1px solid var(--card-line); text-align:center; }
+
+  /* ---------- Protector de racha ---------- */
+  .shield-row { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:12px; color:var(--muted-2); font-size:13px; line-height:1.4; }
+  .shield-row .sh { font-size:20px; }
+  .shield-row .sh.off { filter:grayscale(1) opacity(.3); }
+  .shield-row b { color:var(--gold-1); font-weight:600; margin-inline-end:4px; }
+  .rescue { margin-top:12px; padding:12px; border-radius:16px; border:1px dashed var(--gold-3); background:rgba(var(--glowg),.08); text-align:center; }
+  .rescue p { margin:0 0 8px; color:var(--muted); font-size:13.5px; }
+  .rescue .btn { margin:0; }
+
+  /* ---------- Juntos ---------- */
+  .idea { display:flex; gap:12px; align-items:center; padding:12px; border-radius:16px; background:rgba(255,255,255,.04); border:1px solid rgba(var(--glowg),.16); }
+  .idea + .idea { margin-top:10px; }
+  .idea .em { font-size:36px; line-height:1; flex:none; }
+  .idea .tx { flex:1; min-width:0; }
+  .idea small { display:block; color:var(--gold-2); font-size:12px; font-weight:600; margin-bottom:2px; }
+  .idea .nm { font-weight:600; line-height:1.3; }
+  .idea.done { border-color:var(--gold-3); background:rgba(var(--glowg),.1); }
+  .idea-acts { display:flex; gap:6px; margin-top:8px; flex-wrap:wrap; }
+  .idea-acts button, .mission button { font-size:13px; color:var(--gold-1); background:rgba(255,255,255,.04); border:1px solid var(--card-line); border-radius:999px; padding:6px 12px; }
+  .idea-acts button.warm, .mission button.warm { background:linear-gradient(135deg,var(--red),var(--red-2)); border-color:transparent; color:#fff; }
+  .wk-count { text-align:center; color:var(--muted-2); font-size:13px; margin-top:10px; }
+  .garden { display:flex; align-items:center; gap:14px; margin-bottom:12px; }
+  .garden .plant { font-size:54px; line-height:1; filter:drop-shadow(0 6px 18px rgba(var(--glowg),.45)); animation:beat 3s ease-in-out infinite; }
+  .garden .lv { flex:1; }
+  .garden .lv b { display:block; color:var(--gold-1); font-family:var(--font-display); font-size:21px; }
+  .pillars { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-top:6px; }
+  .pillars div { text-align:center; font-size:11px; color:var(--muted-2); }
+  .pillars div b { display:block; font-size:16px; color:var(--gold-1); }
+  .mission { display:grid; grid-template-columns:auto 1fr; gap:10px; align-items:start; padding:10px 12px; border-radius:14px; background:rgba(255,255,255,.04); border:1px solid rgba(var(--glowg),.14); }
+  .mission + .mission { margin-top:8px; }
+  .mission > .em { font-size:26px; line-height:1.2; }
+  .mission small { display:block; color:var(--gold-2); font-size:11.5px; font-weight:600; }
+  .mission p { margin:2px 0 6px; line-height:1.35; font-size:14.5px; }
+  .mission .st { display:flex; gap:6px; align-items:center; flex-wrap:wrap; font-size:12.5px; color:var(--muted-2); }
+  .mission.ok { border-color:var(--gold-3); background:rgba(var(--glowg),.1); }
+  .board { display:grid; grid-template-columns:repeat(6,1fr); gap:4px; margin:4px 0 10px; direction:ltr; }
+  .cell { aspect-ratio:1; border-radius:10px; background:rgba(255,255,255,.04); border:1px solid rgba(var(--glowg),.12); position:relative; display:grid; place-items:center; font-size:15px; }
+  .cell .n { position:absolute; top:2px; left:4px; font-size:8.5px; color:var(--muted-2); }
+  .cell.start, .cell.goal { background:rgba(var(--glowg),.14); border-color:var(--gold-3); }
+  .cell .tok { position:absolute; font-size:22px; line-height:1; transition:transform .25s; filter:drop-shadow(0 3px 6px rgba(0,0,0,.5)); }
+  .cell .tok.a { transform:translate(-22%,-12%); } .cell .tok.b { transform:translate(22%,14%); }
+  .cell .tok.hop { animation:hop .35s ease-out; }
+  @keyframes hop { 0%{translate:0 0} 50%{translate:0 -10px} 100%{translate:0 0} }
+  .dice-row { display:flex; align-items:center; gap:12px; }
+  .dice-face { font-size:46px; line-height:1; width:56px; text-align:center; }
+  .dice-face.roll { animation:diceroll .7s cubic-bezier(.2,.9,.3,1.2); }
+  @keyframes diceroll { 0%{transform:rotate(0) scale(.6)} 60%{transform:rotate(540deg) scale(1.2)} 100%{transform:rotate(720deg) scale(1)} }
+  .dice-row .btn { margin:0; flex:1; }
+  .dice-log { margin-top:8px; color:var(--muted); font-size:13px; line-height:1.5; min-height:20px; }
+  .racers { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; align-items:center; }
+  .racers span { color:var(--muted-2); font-size:12.5px; margin-inline-end:4px; }
+  .racers button { width:38px; height:38px; border-radius:12px; border:1px solid var(--card-line); background:rgba(255,255,255,.04); font-size:20px; }
+  .racers button.on { border-color:var(--gold-2); background:rgba(var(--glow),.3); }
+  /* Memorama */
+  .memo-ov { position:fixed; inset:0; z-index:64; display:flex; flex-direction:column; align-items:center; gap:14px; padding:calc(env(safe-area-inset-top) + 16px) 16px calc(env(safe-area-inset-bottom) + 16px);
+    background:radial-gradient(120% 70% at 50% 0%,var(--bg-2),transparent 70%),var(--bg-1); animation:fadein .3s both; }
+  .memo-top { display:flex; justify-content:space-between; align-items:center; width:min(420px,100%); color:var(--gold-1); font-weight:600; }
+  .memo-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; width:min(420px,100%); }
+  .mc { aspect-ratio:3/4; perspective:700px; border:0; background:none; padding:0; }
+  .mc .in, .tcard .in { position:relative; width:100%; height:100%; transition:transform .5s cubic-bezier(.2,.8,.2,1); transform-style:preserve-3d; }
+  .mc.up .in, .tcard.flip .in { transform:rotateY(180deg); }
+  .mc .f, .mc .b, .tcard .f, .tcard .b { position:absolute; inset:0; border-radius:12px; backface-visibility:hidden; -webkit-backface-visibility:hidden; overflow:hidden; }
+  .mc .b { display:grid; place-items:center; font-family:"Great Vibes",cursive; font-size:24px; color:var(--gold-1); border:2px solid var(--gold-3);
+    background:radial-gradient(circle at 50% 40%,rgba(var(--glowg),.35),transparent 60%),repeating-linear-gradient(45deg,var(--red-2) 0 8px,var(--red-3) 8px 16px); }
+  .mc .f { transform:rotateY(180deg); background:var(--cream); border:3px solid var(--gold-2); display:grid; place-items:center; font-size:40px; }
+  .mc .f img, .tcard .f img { width:100%; height:100%; object-fit:cover; display:block; }
+  .mc.ok .f { box-shadow:0 0 0 3px var(--gold-1), 0 0 24px rgba(var(--glowg),.8); }
+  .mc.ok { animation:numpop .5s; }
+  /* Cartas coleccionables */
+  .coll { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+  .tcard { aspect-ratio:5/7; perspective:900px; --r:#cbd5e1; --mx:50%; --my:50%; }
+  .tcard.r1 { --r:#60a5fa; } .tcard.r2 { --r:#c084fc; } .tcard.r3 { --r:#fbbf24; }
+  .tcard .f { border:3px solid var(--r); background:#000; box-shadow:0 8px 24px rgba(0,0,0,.4); }
+  .tcard .f::after { content:""; position:absolute; inset:0; pointer-events:none; mix-blend-mode:color-dodge; opacity:.55;
+    background:radial-gradient(circle at var(--mx) var(--my),rgba(255,255,255,.55),transparent 45%),linear-gradient(115deg,transparent 20%,rgba(255,0,170,.35) 35%,rgba(0,255,255,.35) 50%,rgba(255,230,0,.35) 65%,transparent 80%);
+    background-size:100% 100%,250% 250%; background-position:center, var(--mx) var(--my); }
+  .tcard.r0 .f::after { opacity:.25; }
+  .tcard .ttl { position:absolute; left:0; right:0; top:0; padding:6px 8px; font-size:12px; font-weight:700; color:#fff; background:linear-gradient(180deg,rgba(0,0,0,.65),transparent); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tcard .rar { position:absolute; left:6px; bottom:6px; font-size:10.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:#111; background:var(--r); border-radius:999px; padding:2px 8px; }
+  .tcard .b { transform:rotateY(180deg); border:3px solid var(--r); background:linear-gradient(160deg,var(--paper-1,#4a0b1f),var(--paper-2,#2a0611)); padding:10px; display:flex; flex-direction:column; gap:6px; }
+  .tcard .b .rar { position:static; align-self:flex-start; }
+  .stat-bar { display:grid; grid-template-columns:auto 1fr; gap:6px; align-items:center; font-size:11.5px; color:var(--muted); }
+  .stat-bar i { display:block; height:6px; border-radius:999px; background:linear-gradient(90deg,var(--r),var(--gold-1)); }
+  .tcard .b input { width:100%; font:inherit; font-size:14px; padding:6px 8px; border-radius:10px; border:1px solid var(--card-line); background:rgba(0,0,0,.3); color:var(--cream); margin-top:auto; }
+  .tcard .b button { font-size:12.5px; padding:6px; border-radius:10px; border:0; background:var(--r); color:#111; font-weight:700; }
+  /* Sueño */
+  .dream-cities { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+  .dream .count { text-align:center; color:var(--gold-1); font-family:var(--font-display); font-size:22px; margin:6px 0; }
+  .dream .row2 { display:flex; gap:8px; align-items:center; }
+  .dream .row2 label { color:var(--muted); font-size:13px; flex:1; }
+  .dream .row2 input { flex:1; min-width:0; margin:0; padding:10px 12px; font-size:16px; color-scheme:dark; }
+  .spots { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:8px; }
+  .spot { text-align:start; border:1px solid var(--card-line); background:rgba(255,255,255,.04); color:var(--cream); border-radius:14px; padding:8px 10px; font-size:13px; line-height:1.3; }
+  .spot b { display:block; font-weight:600; }
+  .spot small { color:var(--muted-2); font-size:11.5px; }
+  .spot.on { border-color:var(--gold-2); background:rgba(var(--glowg),.14); }
+  .spot.on b::after { content:" ✓"; color:var(--gold-2); }
+  /* Cofre */
+  .chest-list { display:flex; flex-direction:column; gap:8px; margin-top:12px; }
+  .chest-list div { position:relative; padding:10px 12px; border-radius:14px; background:rgba(255,255,255,.04); border:1px solid rgba(var(--glowg),.16); line-height:1.45; overflow-wrap:anywhere; }
+  .chest-list small { display:block; color:var(--gold-2); font-size:12px; font-weight:600; margin-bottom:2px; }
+  .chest-list button { position:absolute; top:6px; inset-inline-end:6px; background:none; border:0; color:var(--muted-2); font-size:14px; }
+  .tabbar { gap:2px; padding:6px; }
+  .tab { font-size:10.5px; border-radius:18px; }
   @media (max-height:680px) { .race-tap { width:130px; height:130px; font-size:22px; } .race-heart { font-size:46px; } }
 
   @media (prefers-reduced-motion: reduce) {
@@ -655,6 +780,7 @@
   <section id="homeView" class="view hidden" style="display:flex;flex-direction:column;flex:1">
     <div class="who" id="whoText"></div>
     <div class="together hidden" id="togetherText"></div>
+    <div class="season hidden" id="seasonBanner"></div>
     <div class="stage">
       <div class="types" id="typeRow"></div>
       <div class="orb-wrap" data-touch="heart">
@@ -702,14 +828,12 @@
       <p class="streak-hint" data-i18n="streakHint"></p>
       <div class="badge-row" id="badgeRow"></div>
       <div class="ms-next" id="msNext"></div>
+      <div class="shield-row" id="shieldRow"></div>
+      <div id="rescueBox"></div>
     </div>
     <div class="card tot" id="totCard">
       <h3>🎲 <span data-i18n="totTitle"></span></h3>
       <div id="totBody"></div>
-    </div>
-    <div class="card race-card" id="raceCard">
-      <h3>⚡ <span data-i18n="raceTitle"></span></h3>
-      <div id="raceBody"></div>
     </div>
     <div class="card score" id="scoreCard">
       <h3>🏆 <span data-i18n="scoreTitle"></span></h3>
@@ -733,6 +857,10 @@
     <div class="card fact" id="factCard">
       <h3>💡 <span data-i18n="factTitle"></span></h3>
       <p id="factText"></p>
+    </div>
+    <div class="card fact hidden" id="chestTodayCard">
+      <h3>💫 <span data-i18n="chestToday"></span></h3>
+      <p id="chestTodayText"></p>
     </div>
     <div class="card hafez" id="hafezCard">
       <h3>🌹 <span data-i18n="hafezTitle"></span></h3>
@@ -765,6 +893,15 @@
         <label for="themeSel">🎨 <span data-i18n="themeLbl"></span></label>
         <select id="themeSel"></select>
       </div>
+      <div class="set-row">
+        <label for="birthMonth" data-i18n="birthMonth"></label>
+        <select id="birthMonth"></select>
+      </div>
+      <div class="set-row">
+        <label for="birthTheme" data-i18n="birthTheme"></label>
+        <select id="birthTheme"></select>
+      </div>
+      <p class="score-note" style="text-align:start;margin:4px 0 8px" data-i18n="seasonNote"></p>
       <div class="set-row">
         <label for="extraChk" data-i18n="extraVib"></label>
         <span class="switch"><input type="checkbox" id="extraChk"><i></i></span>
@@ -831,6 +968,10 @@
         <select id="dateType" class="field"></select>
       </div>
       <div class="set-row" style="padding-top:0">
+        <label for="dateTime" data-i18n="timeOpt"></label>
+        <input type="time" id="dateTime">
+      </div>
+      <div class="set-row" style="padding-top:0">
         <label for="dateYearly" data-i18n="yearly"></label>
         <span class="switch"><input type="checkbox" id="dateYearly" checked><i></i></span>
       </div>
@@ -844,6 +985,50 @@
       </div>
     </div>
     <ul class="list" id="dateList" style="margin-top:16px"></ul>
+    <div class="card hcard" id="chestCard" style="margin-top:16px">
+      <h3>💫 <span data-i18n="chestTitle"></span></h3>
+      <p class="intro" data-i18n="chestIntro"></p>
+      <div id="chestForm"></div>
+      <div class="chest-list" id="chestList"></div>
+    </div>
+  </section>
+
+  <!-- Juntos: plan de la semana, juegos y nuestro sueño -->
+  <section id="togetherView" class="view hidden">
+    <div class="card hcard" id="weekCard" style="margin-top:14px">
+      <h3>🗓️ <span data-i18n="weekTitle"></span></h3>
+      <p class="intro" data-i18n="weekIntro"></p>
+      <div id="weekBody"></div>
+    </div>
+    <div class="card hcard" id="missCard">
+      <h3>🌱 <span data-i18n="missTitle"></span></h3>
+      <p class="intro" data-i18n="missIntro"></p>
+      <div id="missBody"></div>
+    </div>
+    <div class="card hcard" id="diceCard">
+      <h3>🏎️ <span data-i18n="diceTitle"></span></h3>
+      <p class="intro" data-i18n="diceIntro"></p>
+      <div id="diceBody"></div>
+    </div>
+    <div class="card hcard" id="memoCard">
+      <h3>🃏 <span data-i18n="memoTitle"></span></h3>
+      <p class="intro" data-i18n="memoIntro"></p>
+      <div id="memoBody"></div>
+    </div>
+    <div class="card hcard" id="collCard">
+      <h3>🎴 <span data-i18n="collTitle"></span></h3>
+      <p class="intro" data-i18n="collIntro"></p>
+      <div id="collBody"></div>
+    </div>
+    <div class="card race-card" id="raceCard">
+      <h3>⚡ <span data-i18n="raceTitle"></span></h3>
+      <div id="raceBody"></div>
+    </div>
+    <div class="card hcard dream" id="dreamCard">
+      <h3>✈️ <span data-i18n="dreamTitle"></span></h3>
+      <p class="intro" data-i18n="dreamIntro"></p>
+      <div id="dreamBody"></div>
+    </div>
   </section>
 </main>
 
@@ -856,6 +1041,11 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M9 19.5l-.9-.8C4.6 15.6 2.5 13.7 2.5 11.3 2.5 9.4 4 7.9 5.9 7.9c1.1 0 2.2.5 3 1.3.8-.8 1.9-1.3 3-1.3"/><path d="M15 20.2l-1-.9c-3.6-3.2-5.9-5.3-5.9-7.9 0-2.1 1.6-3.7 3.7-3.7 1.2 0 2.4.6 3.2 1.4.8-.8 2-1.4 3.2-1.4 2.1 0 3.7 1.6 3.7 3.7 0 2.6-2.3 4.7-5.9 7.9l-1 .9z" fill="currentColor" fill-opacity=".25"/></svg>
     <span data-i18n="tabUs"></span>
     <span class="badge hidden" id="usBadge">!</span>
+  </button>
+  <button class="tab" data-tab="together">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 2.8l2.1 5.6 5.6 2.1-5.6 2.1L12 18.2l-2.1-5.6-5.6-2.1 5.6-2.1z" fill="currentColor" fill-opacity=".25"/><path d="M19 15.5l.9 2.3 2.3.9-2.3.9-.9 2.3-.9-2.3-2.3-.9 2.3-.9z"/></svg>
+    <span data-i18n="tabTogether"></span>
+    <span class="badge hidden" id="togBadge">!</span>
   </button>
   <button class="tab" data-tab="msgs">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/></svg>
@@ -900,6 +1090,11 @@
   <div class="who2"><span data-i18n="you"></span><b id="raceMeN">0</b></div>
   <div class="race-acts" id="raceActs"></div>
 </div>
+<div class="memo-ov hidden" id="memoOv">
+  <div class="memo-top"><span id="memoMoves"></span><button class="chip-btn" id="memoClose">✕</button></div>
+  <div class="memo-grid" id="memoGrid"></div>
+  <div class="race-msg" id="memoMsg"></div>
+</div>
 <div class="lightbox hidden" id="lightbox"><img alt="📷"></div>
 <div class="draw hidden" id="drawPad">
   <div class="bar" id="drawColors"></div>
@@ -917,7 +1112,7 @@
 <label id="hapticLbl" aria-hidden="true"><input type="checkbox" switch tabindex="-1"></label>
 <script src="/i18n.js"></script>
 <script>
-const APP_VERSION = '2026-11-08-1';
+const APP_VERSION = '2026-11-15-1';
 let currentTheme = 'aurora';
 try {
   // Estreno del color nuevo: pasar una vez a «Aurora»; después se respeta lo que elijan
@@ -998,8 +1193,8 @@ let pollTimer = null;
 let shownStreak = null;
 const isStandalone = window.navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-const VIEWS = ['loadingView', 'installView', 'nameView', 'coupleView', 'homeView', 'usView', 'msgsView', 'datesView'];
-const TAB_VIEW = { home: 'homeView', us: 'usView', msgs: 'msgsView', dates: 'datesView' };
+const VIEWS = ['loadingView', 'installView', 'nameView', 'coupleView', 'homeView', 'usView', 'togetherView', 'msgsView', 'datesView'];
+const TAB_VIEW = { home: 'homeView', us: 'usView', together: 'togetherView', msgs: 'msgsView', dates: 'datesView' };
 
 function show(name) {
   VIEWS.forEach((v) => {
@@ -1007,7 +1202,7 @@ function show(name) {
     if (on && el.classList.contains('hidden')) { el.classList.remove('hidden'); el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; }
     else if (!on) el.classList.add('hidden');
   });
-  const inApp = name === 'homeView' || name === 'usView' || name === 'msgsView' || name === 'datesView';
+  const inApp = Object.values(TAB_VIEW).includes(name);
   $('tabbar').classList.toggle('hidden', !inApp);
   $('main').classList.toggle('with-tabs', inApp);
 }
@@ -1040,6 +1235,7 @@ function render(fresh = true) {
   renderBadges();
   renderRace();
   renderHarmony();
+  renderWishes2();
   checkNewLove();
 }
 
@@ -1281,6 +1477,7 @@ document.querySelectorAll('.tab').forEach((b) => b.onclick = () => {
   if (tab === 'msgs') { store.set('sahar_seen_list', String(Date.now())); updateBadge(); refresh(); }
   if (tab === 'dates') renderDates();
   if (tab === 'us') { store.set('sahar_us_seen', String(Date.now())); renderHarmony(); }
+  if (tab === 'together') { store.set('sahar_tog_seen', String(Date.now())); renderWishes2(); }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
@@ -1397,8 +1594,8 @@ async function savePrefs(patch) {
 $('extraChk').onchange = () => savePrefs({ extra: $('extraChk').checked });
 
 /* ----- Fechas especiales ----- */
-const DATE_ICONS = { birthday: '🎂', anniv: '💍', date: '🥂', other: '⭐' };
-const DATE_LABEL = { birthday: 'dtBirthday', anniv: 'dtAnniv', date: 'dtDate', other: 'dtOther' };
+const DATE_ICONS = { birthday: '🎂', anniv: '💍', date: '🥂', call: '📞', plan: '🗓️', other: '⭐' };
+const DATE_LABEL = { birthday: 'dtBirthday', anniv: 'dtAnniv', date: 'dtDate', call: 'dtCall', plan: 'dtPlan', other: 'dtOther' };
 function todayKey() { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); }
 function nextOcc(d, today) {
   if (!d.yearly) return d.date;
@@ -1431,7 +1628,7 @@ function renderDates() {
     const b = document.createElement('b'); b.textContent = d.name;
     const sm = document.createElement('small');
     let ds; try { ds = new Intl.DateTimeFormat(I.LOCALES[lang], { day: 'numeric', month: 'long', ...(d.yearly ? {} : { year: 'numeric' }) }).format(new Date(d.occ + 'T12:00:00')); } catch (_) { ds = d.occ; }
-    sm.textContent = d.persian ? `${ds} · ${jalali(d.occ)}` : `${t(DATE_LABEL[d.type] || 'dtOther')} · ${ds}${d.yearly ? ' · 🔁' : ''} · ${jalali(d.occ)}`;
+    sm.textContent = d.persian ? `${ds} · ${jalali(d.occ)}` : `${t(DATE_LABEL[d.type] || 'dtOther')} · ${ds}${d.time ? ' · ' + d.time : ''}${d.yearly ? ' · 🔁' : ''} · ${jalali(d.occ)}`;
     main.append(b, sm);
     const left = document.createElement('div'); left.className = 'date-left';
     if (d.left <= 0) { left.classList.add('today'); left.innerHTML = ''; const bb = document.createElement('b'); bb.textContent = t('todayIs'); left.append(bb); }
@@ -1453,8 +1650,8 @@ $('dateAdd').onclick = async () => {
   if (!name) return $('dateName').focus();
   if (!date) return $('dateDate').focus();
   try {
-    state = await api('/api/dates', 'POST', { name, date, type: $('dateType').value, yearly: $('dateYearly').checked });
-    $('dateName').value = ''; $('dateDate').value = ''; $('dateErr').textContent = '';
+    state = await api('/api/dates', 'POST', { name, date, type: $('dateType').value, yearly: $('dateYearly').checked, time: $('dateTime').value || undefined });
+    $('dateName').value = ''; $('dateDate').value = ''; $('dateTime').value = ''; $('dateErr').textContent = '';
     renderDates(); FX.shower(1000);
   } catch (e) { $('dateErr').textContent = errText(e); }
 };
@@ -1491,8 +1688,8 @@ function renderTypes() {
 }
 
 /* ----- Temas de color ----- */
-const THEMES = { aurora: 'themeAurora', red: 'themeRed', rose: 'themeRose', sakura: 'themeSakura', lavender: 'themeLavender', night: 'themeNight', ocean: 'themeOcean', sunset: 'themeSunset', peach: 'themePeach', isfahan: 'themeIsfahan', emerald: 'themeEmerald', ruby: 'themeRuby', gold: 'themeGold', galaxy: 'themeGalaxy' };
-const THEME_BG = { aurora: '#120720', red: '#14040a', rose: '#1f0b16', sakura: '#1e0d16', lavender: '#120f22', night: '#070b1d', ocean: '#03121f', sunset: '#1c0a14', peach: '#1c0e0a', isfahan: '#04161c', emerald: '#04140d', ruby: '#16030a', gold: '#120c03', galaxy: '#03020c' };
+const THEMES = { aurora: 'themeAurora', xmas: 'themeXmas', neo: 'themeNeo', red: 'themeRed', rose: 'themeRose', sakura: 'themeSakura', lavender: 'themeLavender', night: 'themeNight', ocean: 'themeOcean', sunset: 'themeSunset', peach: 'themePeach', isfahan: 'themeIsfahan', emerald: 'themeEmerald', ruby: 'themeRuby', gold: 'themeGold', galaxy: 'themeGalaxy' };
+const THEME_BG = { aurora: '#120720', xmas: '#160307', neo: '#05010f', red: '#14040a', rose: '#1f0b16', sakura: '#1e0d16', lavender: '#120f22', night: '#070b1d', ocean: '#03121f', sunset: '#1c0a14', peach: '#1c0e0a', isfahan: '#04161c', emerald: '#04140d', ruby: '#16030a', gold: '#120c03', galaxy: '#03020c' };
 // Temas que se ganan con la racha (mejor racha de los dos)
 const THEME_UNLOCK = { gold: 7, galaxy: 30 };
 const bestOf = () => Math.max((state && state.bestStreak) || 0, (state && state.streak) || 0);
@@ -2212,6 +2409,500 @@ setInterval(() => {
   api('/api/race').then((r) => { const was = state.race && state.race.status + state.race.id; state.race = r; if (was !== r.status + r.id) renderRace(); else raceUpdate(r); }).catch(() => {});
 }, 6000);
 
+/* =================== Deseos de Sahar =================== */
+function renderWishes2() {
+  if (!state || !state.weekly) return;
+  renderShield(); renderSeason(); renderBirth(); renderChest(); renderChestToday();
+  renderWeekly(); renderMissions(); renderDice(); renderMemo(); renderColl(); renderDream();
+  // Aviso en la pestaña «Juntos»: te toca en la carrera o tu pareja ya jugó el memorama
+  const seen = Number(store.get('sahar_tog_seen') || 0);
+  const d = state.dice, m = state.memo;
+  const fresh = (d && d.status === 'live' && d.myTurn) || (m && m.partnerPlayed && m.mine == null && seen < Date.now() - 60000);
+  $('togBadge').classList.toggle('hidden', !(fresh && tab !== 'together'));
+}
+const listOf = (obj) => obj[lang] || obj.en;
+// Número estable a partir de un texto
+const hashStr = (str) => { let h = 2166136261; for (const ch of String(str)) h = Math.imul(h ^ ch.codePointAt(0), 16777619) >>> 0; return h; };
+// Generador aleatorio con semilla (el mismo para los dos teléfonos)
+const seeded = (seed) => () => { seed |= 0; seed = (seed + 0x6D2B79F5) | 0; let x = Math.imul(seed ^ (seed >>> 15), 1 | seed); x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x; return ((x ^ (x >>> 14)) >>> 0) / 4294967296; };
+
+/* ----- Protector de racha ----- */
+let rescueBusy = false;
+function renderShield() {
+  const row = $('shieldRow'); row.innerHTML = '';
+  row.append(el('b', null, `🛡️ ${t('shieldTitle')}`));
+  for (let i = 0; i < state.shieldMax; i++) row.append(el('span', 'sh' + (i < state.shields ? '' : ' off'), '🛡️'));
+  row.append(el('div', null, t('shieldInfo', { m: num(state.shieldMax) })));
+  const box = $('rescueBox'); box.innerHTML = '';
+  if (state.rescue) {
+    const r = el('div', 'rescue');
+    const b = el('button', 'btn gold', t('rescueBtn', { n: num(state.rescue) }));
+    b.onclick = async () => {
+      if (rescueBusy) return; rescueBusy = true; b.disabled = true;
+      try {
+        state = await api('/api/streak/rescue', 'POST', {});
+        render(false);
+        celebrate('🛡️', t('rescueDone'), t('msTitle', { n: num(state.streak), days: I.plural(lang, state.streak, I.STRINGS[lang].days) }), '');
+      } catch (e) { b.disabled = false; toast(errText(e)); }
+      rescueBusy = false;
+    };
+    r.append(el('p', null, t('rescueInfo')), b); box.append(r);
+  }
+}
+
+/* ----- Temas de temporada: Navidad en diciembre y el mes de cumpleaños ----- */
+function seasonNow() {
+  const now = new Date(), m = now.getMonth() + 1, y = now.getFullYear();
+  const b = state && state.birth;
+  if (b) for (const [who, x] of [['me', b.me], ['partner', b.partner]]) {
+    if (x && x.month === m && x.theme && THEMES[x.theme]) return { key: `bday-${who}-${y}-${m}`, theme: x.theme, banner: t('birthBanner', { p: who === 'me' ? (state.name || t('you')) : (state.partnerName || '') }) };
+  }
+  if (m === 12) return { key: `xmas-${y}`, theme: 'xmas', banner: t('xmasBanner') };
+  return null;
+}
+function renderSeason() {
+  const s = seasonNow();
+  const cur = store.get('sahar_season') || '';
+  if (s && s.key !== cur) {
+    // Al empezar la temporada se pone su tema (si luego eligen otro, se respeta)
+    if (!cur) store.set('sahar_theme_prev', currentTheme);
+    applyTheme(s.theme); store.set('sahar_theme', currentTheme); store.set('sahar_season', s.key);
+    FX.shower(2200, s.theme === 'xmas' ? { colors: ['#e3262f', '#22c55e', '#fde68a'], emoji: '🎄' } : { emoji: '🎂' });
+  } else if (!s && cur) {
+    applyTheme(store.get('sahar_theme_prev') || 'aurora'); store.set('sahar_theme', currentTheme); store.set('sahar_season', '');
+  }
+  const bn = $('seasonBanner');
+  bn.classList.toggle('hidden', !s); bn.textContent = s ? s.banner : '';
+}
+function renderBirth() {
+  const ms = $('birthMonth'), ts = $('birthTheme');
+  const me = (state.birth && state.birth.me) || {};
+  if (ms.dataset.lang !== lang) {
+    ms.innerHTML = ''; ts.innerHTML = '';
+    ms.append(new Option('—', ''));
+    for (let i = 1; i <= 12; i++) {
+      let name; try { name = new Intl.DateTimeFormat(I.LOCALES[lang], { month: 'long' }).format(new Date(2026, i - 1, 15)); } catch (_) { name = String(i); }
+      ms.append(new Option(name, String(i)));
+    }
+    ts.append(new Option('—', ''));
+    Object.entries(THEMES).forEach(([k, lbl]) => ts.append(new Option(t(lbl), k)));
+    ms.dataset.lang = lang;
+  }
+  if (document.activeElement !== ms) ms.value = me.month ? String(me.month) : '';
+  if (document.activeElement !== ts) ts.value = me.theme || '';
+}
+async function saveBirth() {
+  try { state = await api('/api/birth', 'POST', { month: Number($('birthMonth').value) || null, theme: $('birthTheme').value || null }); renderSeason(); renderBirth(); toast('🎂 ✓'); }
+  catch (e) { toast(errText(e)); }
+}
+$('birthMonth').onchange = saveBirth;
+$('birthTheme').onchange = saveBirth;
+
+/* ----- Cofre: recuerdos, lecciones y futuro ----- */
+const CHEST_EMOJI = ['💭', '🌱', '✨'];
+let chestKind = 0, chestSig = '';
+function renderChest() {
+  const f = $('chestForm');
+  if (chestSig !== lang || !f.childElementCount) {
+    chestSig = lang;
+    const prev = $('chestInput') ? $('chestInput').value : (store.get('sahar_chest_draft') || '');
+    f.innerHTML = '';
+    const pills = el('div', 'pills');
+    CHEST_EMOJI.forEach((e, k) => {
+      const b = el('button', 'pill' + (k === chestKind ? ' on' : ''), `${e} ${t('chestKinds.' + k)}`);
+      b.onclick = () => { chestKind = k; pills.querySelectorAll('.pill').forEach((x, j) => x.classList.toggle('on', j === k)); haptic(8); };
+      pills.append(b);
+    });
+    const ta = el('textarea', 'field'); ta.id = 'chestInput'; ta.maxLength = 300; ta.placeholder = t('chestPh'); ta.value = prev; ta.style.marginTop = '10px';
+    ta.oninput = () => store.set('sahar_chest_draft', ta.value);
+    const btn = el('button', 'btn gold', t('chestAdd'));
+    btn.onclick = async () => {
+      const text = ta.value.trim(); if (!text) return ta.focus();
+      btn.disabled = true;
+      try {
+        state = await api('/api/chest', 'POST', { kind: chestKind, text });
+        ta.value = ''; store.set('sahar_chest_draft', '');
+        FX.shower(1500, { colors: ['#fde68a', '#a5f3fc', '#f9a8d4'], emoji: CHEST_EMOJI[chestKind] });
+        renderChest();
+      } catch (e) { toast(errText(e)); }
+      btn.disabled = false;
+    };
+    f.append(pills, ta, btn);
+  }
+  const list = $('chestList'); list.innerHTML = '';
+  if (!state.chest.length) { list.append(el('p', 'score-note', t('chestEmpty'))); return; }
+  const p = state.partnerName || '';
+  state.chest.slice(0, 40).forEach((x) => {
+    const d = el('div');
+    d.append(el('small', null, `${CHEST_EMOJI[x.kind]} ${t('chestKinds.' + x.kind)} · ${x.mine ? t('you') : p} · ${fmtDay(x.at)}`), document.createTextNode(showMsg(x.text)));
+    if (x.mine) {
+      const del = el('button', null, '🗑');
+      del.onclick = async () => {
+        if (del.textContent !== '🗑 ?') { del.textContent = '🗑 ?'; setTimeout(() => { del.textContent = '🗑'; }, 3000); return; }
+        try { state = await api('/api/chest', 'DELETE', { id: x.id }); renderChest(); renderChestToday(); } catch (e) { toast(errText(e)); }
+      };
+      d.append(del);
+    }
+    list.append(d);
+  });
+}
+// En inicio, un recuerdo del cofre al día (sin presión: solo para recordarlo)
+function renderChestToday() {
+  const c = state.chest || [];
+  $('chestTodayCard').classList.toggle('hidden', !c.length);
+  if (!c.length) return;
+  const x = c[hashStr(todayKey()) % c.length];
+  $('chestTodayText').textContent = `${CHEST_EMOJI[x.kind]} ${showMsg(x.text)}`;
+}
+
+/* ----- Plan de la semana ----- */
+function renderWeekly() {
+  const w = state.weekly, body = $('weekBody'); body.innerHTML = '';
+  const idea = (kind) => {
+    const done = w[kind + 'Done'];
+    const i = w[kind];
+    const emo = (kind === 'cook' ? I.COOK_EMOJI : I.OUT_EMOJI)[i];
+    const name = listOf(kind === 'cook' ? I.COOK : I.OUT)[i];
+    const d = el('div', 'idea' + (done ? ' done' : ''));
+    const tx = el('div', 'tx');
+    tx.append(el('small', null, kind === 'cook' ? `🍳 ${t('weekCook')}` : `🎡 ${t('weekOut')}`), el('div', 'nm', name + (done ? ' ✓' : '')));
+    if (!done) {
+      const acts = el('div', 'idea-acts');
+      const ok = el('button', 'warm', t('weekDone'));
+      ok.onclick = async () => {
+        ok.disabled = true;
+        try { state = await api('/api/weekly', 'POST', { kind, act: 'done' }); const [x, y] = centerOf(d); FX.burst(x, y, 40, { colors: ['#ff4f8b', '#ffcba4', '#fde68a'], emoji: emo }); haptic([30, 40, 60]); renderWeekly(); }
+        catch (e) { ok.disabled = false; toast(errText(e)); }
+      };
+      const other = el('button', null, `🔄 ${t('weekOther')}`);
+      other.onclick = async () => { other.disabled = true; try { state = await api('/api/weekly', 'POST', { kind, act: 'other' }); renderWeekly(); } catch (e) { other.disabled = false; toast(errText(e)); } };
+      acts.append(ok, other); tx.append(acts);
+    }
+    d.append(el('div', 'em', emo), tx);
+    return d;
+  };
+  body.append(idea('cook'), idea('out'), el('div', 'wk-count', t('weekCount', { a: num(w.count.cook || 0), b: num(w.count.out || 0) })));
+}
+
+/* ----- Juntos hacia la felicidad (misiones en equipo) ----- */
+const GARDEN = [['🌰', 0], ['🌱', 2], ['🌿', 5], ['🪴', 10], ['🌳', 18], ['🌸', 30], ['🍎', 46], ['🏡', 66]];
+function renderMissions() {
+  const m = state.miss, body = $('missBody'); body.innerHTML = '';
+  const p = state.partnerName || '';
+  let lv = 0; GARDEN.forEach(([, n], i) => { if (m.total >= n) lv = i; });
+  const names = I.STRINGS[lang].missGarden || I.STRINGS.en.missGarden;
+  const g = el('div', 'garden');
+  const lvBox = el('div', 'lv');
+  lvBox.append(el('b', null, t('missLevel', { n: num(lv + 1), x: names[Math.min(lv, names.length - 1)] })));
+  const next = GARDEN[lv + 1];
+  const bar = el('div', 'ratio-bar'); const fill = el('i');
+  fill.style.width = next ? `${((m.total - GARDEN[lv][1]) / (next[1] - GARDEN[lv][1])) * 100}%` : '100%'; bar.append(fill);
+  lvBox.append(bar);
+  const pil = el('div', 'pillars');
+  I.PILLAR_EMOJI.forEach((e, k) => { const d = el('div'); d.append(el('b', null, `${e} ${num(m.pillars[k] || 0)}`), document.createTextNode(t('missPillars.' + k))); pil.append(d); });
+  lvBox.append(pil);
+  g.append(el('div', 'plant', GARDEN[lv][0]), lvBox);
+  body.append(g);
+  const list = listOf(I.MISSIONS);
+  m.picks.forEach((pick, k) => {
+    const both = m.me[k] && m.partner[k];
+    const row = el('div', 'mission' + (both ? ' ok' : ''));
+    const tx = el('div');
+    tx.append(el('small', null, t('missPillars.' + k)), el('p', null, list[k][pick]));
+    const st = el('div', 'st');
+    if (both) st.append(el('span', null, `✨ ${t('missBoth')}`));
+    else {
+      if (!m.me[k]) {
+        const b = el('button', 'warm', t('missDone'));
+        b.onclick = async () => {
+          b.disabled = true;
+          try {
+            const was = state.miss.all;
+            state = await api('/api/mission', 'POST', { p: k });
+            const [x, y] = centerOf(row); FX.burst(x, y, 34, { colors: ['#86efac', '#fde68a', '#f9a8d4'], emoji: I.PILLAR_EMOJI[k] }); haptic([30, 40, 60]);
+            if (!was && state.miss.all) celebrate('🌳', t('missBoth'), t('missWeekAll'), '');
+            renderMissions(); renderCards();
+          } catch (e) { b.disabled = false; toast(errText(e)); }
+        };
+        st.append(b);
+      } else st.append(el('span', null, `${t('you')} ✓`));
+      st.append(el('span', null, m.partner[k] ? `${p} ✓` : `· ${t('missWait', { p })}`));
+    }
+    tx.append(st);
+    row.append(el('div', 'em', I.PILLAR_EMOJI[k]), tx);
+    body.append(row);
+  });
+  if (m.all) body.append(el('div', 'wk-count', `🎁 ${t('missWeekAll')}`));
+}
+
+/* ----- Carrera de la suerte (dado por turnos) ----- */
+const DICE_FACES = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+const SQ_ICON = { turbo: '⚡', slip: '🍌', star: '⭐', swap: '🌀', heart: '💗' };
+let diceShown = { id: null, n: 0 }, diceBusy = false, dicePoll = null;
+function renderDice() {
+  const d = state.dice, body = $('diceBody'); body.innerHTML = '';
+  const p = state.partnerName || '';
+  if (d.id) {
+    // Tablero en zigzag de 6 columnas
+    const board = el('div', 'board');
+    const cols = 6, rows = Math.ceil(d.len / cols);
+    const cells = [];
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) cells.push(r % 2 ? r * cols + (cols - 1 - c) : r * cols + c);
+    const lastLog = d.log[d.log.length - 1];
+    const fresh = d.log.length !== diceShown.n || d.id !== diceShown.id;
+    cells.forEach((i) => {
+      const cell = el('div', 'cell' + (i === 0 ? ' start' : i === d.len - 1 ? ' goal' : ''));
+      cell.append(el('span', 'n', String(i)));
+      if (i === d.len - 1) cell.append(el('span', 'sp', '🏁'));
+      else if (d.board[i]) cell.append(el('span', 'sp', SQ_ICON[d.board[i]] || ''));
+      if (d.me === i) { const tk = el('span', 'tok a' + (fresh && lastLog && lastLog.by === 'me' ? ' hop' : ''), d.racer); cell.append(tk); }
+      if (d.partner === i) { const tk = el('span', 'tok b' + (fresh && lastLog && lastLog.by === 'partner' ? ' hop' : ''), d.partnerRacer); cell.append(tk); }
+      board.append(cell);
+    });
+    body.append(board);
+    const row = el('div', 'dice-row');
+    const face = el('div', 'dice-face' + (fresh && lastLog ? ' roll' : ''), lastLog ? DICE_FACES[lastLog.roll - 1] : '🎲');
+    row.append(face);
+    if (d.status === 'live') {
+      if (d.myTurn) {
+        const b = el('button', 'btn gold', `${t('diceYourTurn')} · ${t('diceRoll')}`);
+        b.onclick = diceRoll;
+        row.append(b);
+      } else row.append(el('div', 'tot-wait', t('diceTheirTurn', { p })));
+    } else {
+      const msg = d.status === 'done' ? (d.winner === 'me' ? t('diceWin') : t('diceLose', { p })) : '';
+      const b = el('button', 'btn', t('diceStart', { p })); b.onclick = diceStart;
+      const col = el('div'); col.style.flex = '1';
+      if (msg) col.append(el('div', 'tot-step', msg));
+      col.append(b); row.append(col);
+    }
+    body.append(row);
+    // Qué pasó en la última tirada
+    if (lastLog) {
+      const who = lastLog.by === 'me' ? t('you') : p;
+      let txt = `${who}: ${DICE_FACES[lastLog.roll - 1]} ${num(lastLog.roll)}`;
+      if (lastLog.wind) txt += ` · ${t('diceSq.wind')}`;
+      if (lastLog.effect) txt += ` · ${t('diceSq.' + lastLog.effect)}`;
+      body.append(el('div', 'dice-log', txt));
+    }
+    if (fresh && diceShown.id === d.id && lastLog) {
+      if (d.status === 'done' && d.winner === 'me') { FX.fireworks(5); FX.shower(2400, { colors: ['#fde68a', '#ff4f8b'], emoji: '🏆' }); haptic([60, 40, 80, 40, 120]); }
+      else if (lastLog.effect) { const [x, y] = centerOf(board); FX.burst(x, y, 24, { emoji: SQ_ICON[lastLog.effect] || '✨' }); }
+    }
+    diceShown = { id: d.id, n: d.log.length };
+    if (d.status === 'live') {
+      const q = el('button', 'chip-btn', `🏳️ ${t('diceQuit')}`); q.style.marginTop = '8px';
+      q.onclick = async () => {
+        if (q.dataset.armed !== '1') { q.dataset.armed = '1'; q.textContent = `🏳️ ${t('cardConfirm')}`; return; }
+        try { state = await api('/api/dice/quit', 'POST', { id: d.id }); renderDice(); } catch (e) { toast(errText(e)); }
+      };
+      body.append(q);
+    }
+  } else {
+    const b = el('button', 'btn gold', t('diceStart', { p })); b.onclick = diceStart; body.append(b);
+  }
+  // Elegir vehículo
+  const rc = el('div', 'racers');
+  rc.append(el('span', null, t('diceRacer')));
+  I.RACERS.forEach((r) => {
+    const b = el('button', r === d.racer ? 'on' : '', r);
+    b.onclick = async () => { try { state = await api('/api/racer', 'POST', { racer: r }); renderDice(); } catch (e) { toast(errText(e)); } };
+    rc.append(b);
+  });
+  body.append(rc, el('div', 'wins', t('diceWins', { a: num(d.winsMe), b: num(d.winsPartner), p })));
+  // Mientras se mira la carrera y es el turno del otro, preguntar seguido
+  clearTimeout(dicePoll);
+  if (d.status === 'live' && !d.myTurn && tab === 'together' && !document.hidden) dicePoll = setTimeout(refresh, 4000);
+}
+async function diceStart() {
+  try { state = await api('/api/dice/start', 'POST', {}); renderDice(); FX.shower(1200, { emoji: state.dice.racer }); }
+  catch (e) { toast(errText(e)); }
+}
+async function diceRoll() {
+  if (diceBusy) return; diceBusy = true;
+  haptic([20, 30, 20]);
+  try { state = await api('/api/dice/roll', 'POST', { id: state.dice.id }); renderDice(); renderScore(); }
+  catch (e) { toast(errText(e)); }
+  diceBusy = false;
+}
+
+/* ----- Memorama con sus fotos ----- */
+const MEMO_EMOJI = ['💗', '🌹', '✨', '🌙', '☀️', '🍓', '🦋', '🎀'];
+let memo = null;
+function renderMemo() {
+  const m = state.memo, body = $('memoBody'); body.innerHTML = '';
+  const p = state.partnerName || '';
+  if (m.mine == null) {
+    if (m.partnerPlayed) body.append(el('div', 'q-answer wait', t('qLocked', { p })));
+    const b = el('button', 'btn gold', `🃏 ${t('memoPlay')}`); b.onclick = memoOpen; body.append(b);
+    if ((state.album || []).length < m.pairs) body.append(el('p', 'score-note', t('memoFewPhotos')));
+  } else {
+    body.append(el('div', 'tot-sum', `${t('you')}: ${t('memoMoves', { n: num(m.mine) })}`));
+    if (m.partner == null) body.append(el('div', 'tot-wait', t('memoWait', { p })));
+    else {
+      body.append(el('div', 'tot-sum', `${p}: ${t('memoMoves', { n: num(m.partner) })}`));
+      body.append(el('div', 'score-lead', m.mine === m.partner ? t('memoTie') : m.mine < m.partner ? t('memoWin') : t('memoLose', { p })));
+    }
+  }
+}
+function memoDeck() {
+  const m = state.memo;
+  const rnd = seeded(m.seed);
+  // Las fotos de la pareja (mismo orden en los dos teléfonos), barajadas con la semilla del día
+  const photos = [...(state.album || [])].map((x) => x.id).sort();
+  for (let i = photos.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [photos[i], photos[j]] = [photos[j], photos[i]]; }
+  const faces = photos.slice(0, m.pairs).map((id) => ({ photo: id }));
+  for (let k = 0; faces.length < m.pairs; k++) faces.push({ emoji: MEMO_EMOJI[k] });
+  const deck = faces.flatMap((f, i) => [{ ...f, pair: i }, { ...f, pair: i }]);
+  for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; }
+  return deck;
+}
+function memoOpen() {
+  memo = { deck: memoDeck(), open: [], found: 0, moves: 0, lock: false };
+  const grid = $('memoGrid'); grid.innerHTML = '';
+  $('memoMsg').textContent = '';
+  memo.deck.forEach((c, i) => {
+    const b = el('button', 'mc');
+    const inn = el('div', 'in'), back = el('div', 'b', 'S'), front = el('div', 'f');
+    if (c.photo) { const im = el('img'); im.alt = '📷'; fetchMedia(c.photo).then((u) => { im.src = u; }).catch(() => { front.textContent = '💗'; }); front.append(im); }
+    else front.textContent = c.emoji;
+    inn.append(back, front); b.append(inn);
+    b.onclick = () => memoFlip(i, b);
+    c.node = b;
+    grid.append(b);
+  });
+  $('memoMoves').textContent = t('memoMoves', { n: num(0) });
+  $('memoOv').classList.remove('hidden');
+}
+function memoFlip(i, b) {
+  const c = memo.deck[i];
+  if (memo.lock || c.done || memo.open.includes(i)) return;
+  b.classList.add('up'); haptic(8);
+  memo.open.push(i);
+  if (memo.open.length < 2) return;
+  memo.moves++;
+  $('memoMoves').textContent = t('memoMoves', { n: num(memo.moves) });
+  const [a, z] = memo.open.map((k) => memo.deck[k]);
+  if (a.pair === z.pair) {
+    a.done = z.done = true; memo.open = []; memo.found++;
+    a.node.classList.add('ok'); z.node.classList.add('ok');
+    const [x, y] = centerOf(b); FX.burst(x, y, 18, { emoji: '💗' }); haptic([20, 30, 40]);
+    if (memo.found === state.memo.pairs) memoDone();
+  } else {
+    memo.lock = true;
+    const M = memo;
+    setTimeout(() => { a.node.classList.remove('up'); z.node.classList.remove('up'); M.open = []; M.lock = false; }, 850);
+  }
+}
+async function memoDone() {
+  $('memoMsg').textContent = t('memoDone', { n: num(memo.moves) });
+  FX.fireworks(4); FX.shower(2200, { emoji: '🃏' });
+  try { state = await api('/api/memo', 'POST', { moves: memo.moves }); renderMemo(); renderScore(); }
+  catch (e) { toast(errText(e)); }
+}
+$('memoClose').onclick = () => { $('memoOv').classList.add('hidden'); memo = null; };
+
+/* ----- Nuestras cartas: cada foto es una carta coleccionable ----- */
+let collAll = false, collEditing = null;
+function cardInfo(id) {
+  const h = hashStr(id);
+  const r = h % 100;
+  const rarity = r < 50 ? 0 : r < 78 ? 1 : r < 93 ? 2 : 3;
+  const stats = [0, 1, 2, 3].map((k) => 40 + ((h >>> (k * 6)) % 41) + rarity * 6);
+  return { rarity, stats: stats.map((s) => Math.min(99, s)) };
+}
+function renderColl() {
+  const body = $('collBody');
+  if (collEditing && body.contains(document.activeElement)) return; // no borrar lo que se escribe
+  body.innerHTML = '';
+  const album = state.album || [];
+  if (!album.length) { body.append(el('p', 'score-note', t('collEmpty'))); return; }
+  const grid = el('div', 'coll');
+  const rarNames = I.STRINGS[lang].collRarity || I.STRINGS.en.collRarity;
+  album.slice(0, collAll ? 60 : 6).forEach((ph) => {
+    const info = cardInfo(ph.id);
+    const card = el('div', `tcard r${info.rarity}` + (collEditing === ph.id ? ' flip' : ''));
+    const inn = el('div', 'in');
+    const f = el('div', 'f');
+    const im = el('img'); im.alt = '📷'; im.loading = 'lazy'; f.append(im);
+    fetchMedia(ph.id).then((u) => { im.src = u; }).catch(() => {});
+    f.append(el('div', 'ttl', ph.title || fmtDay(ph.at)), el('span', 'rar', `${'★'.repeat(info.rarity + 1)} ${rarNames[info.rarity]}`));
+    const bk = el('div', 'b');
+    bk.append(el('span', 'rar', `${'★'.repeat(info.rarity + 1)} ${rarNames[info.rarity]}`));
+    info.stats.forEach((s, k) => { const sb = el('div', 'stat-bar'); const bar = el('i'); bar.style.width = s + '%'; sb.append(el('span', null, `${['💗', '😂', '✨', '🧭'][k]} ${t('collStats.' + k)} ${num(s)}`), bar); bk.append(sb); });
+    const inp = el('input'); inp.maxLength = 40; inp.placeholder = t('collTitlePh'); inp.value = ph.title || '';
+    inp.onclick = (e) => e.stopPropagation();
+    const sv = el('button', null, t('collSave'));
+    sv.onclick = async (e) => {
+      e.stopPropagation();
+      try { state = await api('/api/photo/title', 'POST', { id: ph.id, title: inp.value }); collEditing = null; renderColl(); toast('🎴 ✓'); } catch (err) { toast(errText(err)); }
+    };
+    bk.append(inp, sv);
+    inn.append(f, bk); card.append(inn);
+    card.onclick = () => { collEditing = collEditing === ph.id ? null : ph.id; card.classList.toggle('flip'); haptic(8); };
+    // Brillo holográfico que sigue al dedo
+    card.onpointermove = (e) => { const r = card.getBoundingClientRect(); card.style.setProperty('--mx', `${((e.clientX - r.left) / r.width) * 100}%`); card.style.setProperty('--my', `${((e.clientY - r.top) / r.height) * 100}%`); };
+    grid.append(card);
+  });
+  body.append(grid);
+  if (!collAll && album.length > 6) { const more = el('button', 'chip-btn', `＋ ${num(album.length - 6)}`); more.style.marginTop = '10px'; more.onclick = () => { collAll = true; renderColl(); }; body.append(more); }
+}
+// Brillo holográfico con el giroscopio (si el teléfono lo permite sin pedir permiso)
+addEventListener('deviceorientation', (e) => {
+  if (tab !== 'together' || e.gamma == null) return;
+  const mx = 50 + Math.max(-40, Math.min(40, e.gamma)), my = 50 + Math.max(-40, Math.min(40, (e.beta || 45) - 45));
+  document.querySelectorAll('.tcard').forEach((c) => { c.style.setProperty('--mx', mx + '%'); c.style.setProperty('--my', my + '%'); });
+});
+
+/* ----- Nuestro sueño: Tokio, Seúl o Singapur ----- */
+let dreamSig = '';
+function renderDream() {
+  const d = state.dream, body = $('dreamBody');
+  const sig = [lang, JSON.stringify(d)].join('|');
+  if (sig === dreamSig && body.childElementCount && body.contains(document.activeElement)) return;
+  dreamSig = sig;
+  body.innerHTML = '';
+  const send = async (patch) => { try { state = await api('/api/dream', 'POST', patch); renderDream(); } catch (e) { toast(errText(e)); } };
+  const cities = el('div', 'dream-cities');
+  I.DREAM_CITIES.forEach((c) => { const b = el('button', 'pill' + (c === d.city ? ' on' : ''), `${I.DREAM_EMOJI[c]} ${t('dreamCities.' + c)}`); b.onclick = () => send({ city: c }); cities.append(b); });
+  body.append(cities);
+  if (d.date) {
+    const left = daysBetween(todayKey(), d.date);
+    if (left >= 0) body.append(el('div', 'count', t('dreamDays', { n: num(left), days: I.plural(lang, left, I.STRINGS[lang].days) })));
+  }
+  const r1 = el('div', 'row2');
+  const di = el('input', 'field'); di.type = 'date'; di.value = d.date || ''; di.onchange = () => send({ date: di.value || null });
+  r1.append(el('label', null, t('dreamDate')), di);
+  const r2 = el('div', 'row2'); r2.style.marginTop = '8px';
+  const gi = el('input', 'field'); gi.type = 'number'; gi.inputMode = 'numeric'; gi.min = '1'; gi.value = d.goal; gi.onchange = () => send({ goal: Number(gi.value) });
+  r2.append(el('label', null, t('dreamGoal')), gi);
+  body.append(r1, r2);
+  // Bote de ahorro
+  const bar = el('div', 'ratio-bar'); const fill = el('i'); fill.style.width = `${Math.min(100, (d.saved / d.goal) * 100)}%`; bar.append(fill);
+  body.append(bar, el('div', 'ratio-msg', `🐷 ${t('dreamSaved', { a: num(d.saved), b: num(d.goal) })}`));
+  const add = el('div', 'add-row');
+  const ai = el('input', 'field'); ai.type = 'number'; ai.inputMode = 'decimal'; ai.placeholder = t('dreamAmountPh');
+  const ab = el('button', 'btn gold', t('dreamSave'));
+  ab.onclick = async () => {
+    const a = Number(ai.value); if (!a) return ai.focus();
+    ab.disabled = true;
+    try { state = await api('/api/dream/save', 'POST', { amount: a }); FX.shower(1600, { colors: ['#7df9ff', '#ff2bd6', '#fde68a'], emoji: '✈️' }); renderDream(); }
+    catch (e) { ab.disabled = false; toast(errText(e)); }
+  };
+  add.append(ai, ab); body.append(add);
+  // Lo que queremos probar
+  body.append(el('div', 'lbl', t('dreamList')));
+  const spots = el('div', 'spots');
+  const desc = (I.DREAM_DESC[lang] || I.DREAM_DESC.en)[d.city];
+  I.DREAM_SPOTS[d.city].forEach(([e, name], i) => {
+    const b = el('button', 'spot' + (d.ticks.includes(i) ? ' on' : ''));
+    b.append(el('b', null, `${e} ${name}`), el('small', null, desc[i]));
+    b.onclick = () => { haptic(8); send({ tick: i }); };
+    spots.append(b);
+  });
+  body.append(spots);
+}
+
 /* ----- Mensaje directo y pregunta al azar ----- */
 $('directForm').onsubmit = (e) => {
   e.preventDefault();
@@ -2374,6 +3065,8 @@ async function sendLove(level = 1, opts = {}) {
     }
     renderHome(true);
     renderBadges();
+    renderShield();
+    if (res.shieldEarned) setTimeout(() => toast(t('shieldEarned')), 900);
     if (!res.sync && (res.streak > before || level === 3)) FX.shower(level === 3 ? 2200 : 1800, fxs);
   } catch (e) { st.className = 'status bad'; st.textContent = errText(e); }
   sending = false;
@@ -2417,9 +3110,12 @@ const FX = (() => {
     for (let i = 0; i < 4; i++) { ctx.rotate(Math.PI / 2); ctx.moveTo(0, 0); ctx.quadraticCurveTo(s * 0.15, s * 0.15, 0, s); ctx.quadraticCurveTo(-s * 0.15, s * 0.15, 0, 0); }
     ctx.fill(); ctx.restore();
   }
+  const SEASON_EMOJI = { xmas: ['❄️', '❄️', '❄️', '⭐', '🎄'], neo: ['✦', '◇'] };
   function spawnAmbient(initial) {
     const isHeart = Math.random() < 0.55;
+    const se = SEASON_EMOJI[document.documentElement.dataset.theme];
     ambient.push({
+      emoji: se && Math.random() < 0.45 ? se[(Math.random() * se.length) | 0] : null,
       x: Math.random() * W, y: initial ? Math.random() * H : H + 20,
       vy: -(0.15 + Math.random() * 0.35), sway: Math.random() * Math.PI * 2, swayS: 0.004 + Math.random() * 0.008,
       s: isHeart ? 6 + Math.random() * 12 : 3 + Math.random() * 6, heart: isHeart,
@@ -2488,7 +3184,8 @@ const FX = (() => {
       p.y += p.vy; p.sway += p.swayS; p.tw += 0.03;
       const x = p.x + Math.sin(p.sway) * 14;
       const a = p.a * (p.heart ? 1 : 0.6 + 0.4 * Math.sin(p.tw));
-      if (p.heart) heart(cs, x, p.y, p.s, p.rot, p.c, a); else spark(cs, x, p.y, p.s, a, p.c);
+      if (p.emoji) emojiP(cs, x, p.y, p.s * 1.3, p.rot, p.emoji, Math.min(.6, a * 1.6));
+      else if (p.heart) heart(cs, x, p.y, p.s, p.rot, p.c, a); else spark(cs, x, p.y, p.s, a, p.c);
       if (p.y < -30) ambient.splice(i, 1);
     }
     cf.clearRect(0, 0, W, H);
