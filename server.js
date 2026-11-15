@@ -287,6 +287,10 @@ function validTz(tz) { try { new Intl.DateTimeFormat('en-CA', { timeZone: tz });
 function dayKey(date, tz) {
   return new Intl.DateTimeFormat('en-CA', { timeZone: tz || 'UTC', year: 'numeric', month: '2-digit', day: '2-digit' }).format(date);
 }
+function minuteIn(date, tz) {
+  const [h, m] = new Intl.DateTimeFormat('en-GB', { timeZone: tz || 'UTC', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(date).split(':').map(Number);
+  return h * 60 + m;
+}
 function hourIn(date, tz) {
   return Number(new Intl.DateTimeFormat('en-GB', { timeZone: tz || 'UTC', hour: '2-digit', hourCycle: 'h23' }).format(date));
 }
@@ -297,7 +301,8 @@ function prevDay(key) {
 }
 function streakInfo(couple, now = new Date()) {
   const days = couple.days || {};
-  const both = (k) => (days[k] || []).length >= 2;
+  const frozen = couple.frozen || {};
+  const both = (k) => (days[k] || []).length >= 2 || !!frozen[k];
   const today = dayKey(now, couple.tz);
   let count = 0;
   let k = both(today) ? today : prevDay(today);
@@ -312,6 +317,7 @@ function recordDay(couple, userId, now = new Date()) {
   couple.days[today] = list;
   const keys = Object.keys(couple.days).sort();
   while (keys.length > 400) delete couple.days[keys.shift()];
+  if (couple.frozen) for (const k of Object.keys(couple.frozen)) if (k < keys[0]) delete couple.frozen[k];
   couple.bestStreak = streakInfo(couple, now).bestStreak;
 }
 
@@ -361,7 +367,7 @@ function stateFor(user) {
     question: couple ? questionState(couple, user, partner) : null,
     myMood: moodToday(user, couple),
     partnerMood: partner ? moodToday(partner, couple) : null,
-    album: couple ? (couple.media || []).filter((m) => m.kind === 'photo').slice(-60).reverse().map((m) => ({ id: m.id, at: m.at, mine: m.by === user.id })) : [],
+    album: couple ? (couple.media || []).filter((m) => m.kind === 'photo').slice(-60).reverse().map((m) => ({ id: m.id, at: m.at, mine: m.by === user.id, title: m.title || '' })) : [],
     tot: couple ? totState(couple, user, partner) : null,
     score: couple ? scoreState(couple, user, partner) : null,
     cards: couple ? (couple.cards || []).filter((c) => !c.used || Date.now() - c.usedAt < 7 * 86400000).map((c) => ({ id: c.id, card: c.card, mine: c.owner === user.id, used: !!c.used, at: c.at, gift: !!c.from, fromMe: c.from === user.id, note: c.note || '', issue: c.issue || null })) : [],
@@ -369,6 +375,7 @@ function stateFor(user) {
     partnerNotifReady: partner ? canReceive(partner) : false,
     harmony: couple ? harmonyState(couple, user, partner) : null,
     race: couple ? raceState(user) : null,
+    ...(couple ? wishState(couple, user, partner) : {}),
   };
 }
 // Textos escritos a mano en «Armonía» que conviene traducir
@@ -378,6 +385,7 @@ function harmonyTexts(couple) {
     ...(couple.thanks || []).slice(-40).map((x) => x.text),
     ...(couple.cards || []).map((c) => c.note),
     ...Object.values(couple.wishes || {}).flatMap((w) => w.items || []),
+    ...(couple.chest || []).slice(-60).map((x) => x.text),
   ].filter(Boolean);
 }
 
@@ -414,7 +422,7 @@ function auth(req, res, next) {
   if (!user) return fail(res, 401, 'unknown_user');
   req.user = user;
   const couple = user.code && db.couples[user.code];
-  if (couple) { settleTotBonus(couple); settleWeek(couple); }
+  if (couple) { settleTotBonus(couple); settleWeek(couple); settleShields(couple); }
   next();
 }
 
@@ -583,6 +591,8 @@ app.post('/api/send', auth, async (req, res) => {
   recordDay(couple, user.id);
   const s = streakInfo(couple);
   const newMilestone = s.streak > prevStreak && I18N.MILESTONES.includes(s.streak);
+  const prevShields = shieldsOf(couple), prevShieldAt = couple.shieldAt;
+  if (s.streak > prevStreak) earnShield(couple, s.streak);
   let subtitle = '';
   if (newMilestone) subtitle = `${I18N.MILESTONE_EMOJI[s.streak]} ${I18N.t(lang, 'msTitle', { n: I18N.fmtNum(lang, s.streak), days: I18N.plural(lang, s.streak, I18N.STRINGS[lang].days) })}`;
   else if (s.streak > prevStreak && s.streak > 1) subtitle = I18N.streakPush(lang, s.streak);
@@ -598,6 +608,7 @@ app.post('/api/send', auth, async (req, res) => {
   if (!delivered) {
     couple.days = JSON.parse(prevDays); // si no llegó, no cuenta para la racha
     couple.bestStreak = prevBest;
+    couple.shields = prevShields; couple.shieldAt = prevShieldAt;
     save();
     return fail(res, 502, 'delivery_failed');
   }
@@ -608,7 +619,7 @@ app.post('/api/send', auth, async (req, res) => {
   couple.counts[user.id] = (couple.counts[user.id] ?? couple.history.filter((h) => h.fromId === user.id).length - 1) + 1;
   if (newMilestone) couple.milestones = [...new Set([...(couple.milestones || []), s.streak])];
   save();
-  res.json({ ok: true, body, level, sync, milestone: newMilestone ? s.streak : null, ...stateFor(user) });
+  res.json({ ok: true, body, level, sync, milestone: newMilestone ? s.streak : null, shieldEarned: shieldsOf(couple) > prevShields, ...stateFor(user) });
   if (custom) translatePending(2).catch(() => {});
   if (sync) pushTo(user, { title: `${partner.name} · ${I18N.t(langOf(user), 'syncTitle')}`, body: I18N.t(langOf(user), 'syncBody') }).catch(() => {});
 
@@ -1010,6 +1021,384 @@ app.post('/api/race/tap', auth, (req, res) => {
   res.json(raceState(user));
 });
 
+// ---------------------------------------------------------------------------
+// Protector de racha 🛡️: si un día se les olvida, se gasta uno y la racha
+// sigue. Empiezan con 2 y ganan 1 cada 7 días seguidos (máximo 3).
+// «Recuperar racha»: regalo único para traer de vuelta la racha perdida.
+// ---------------------------------------------------------------------------
+const SHIELD = { start: 2, max: 3, every: 7, maxGap: 2, rescueGap: 21 };
+const shieldsOf = (couple) => (Number.isInteger(couple.shields) ? couple.shields : SHIELD.start);
+function earnShield(couple, streak) {
+  if (streak > 0 && streak % SHIELD.every === 0 && (couple.shieldAt || 0) < streak) {
+    couple.shieldAt = streak;
+    couple.shields = Math.min(SHIELD.max, shieldsOf(couple) + 1);
+  }
+}
+const isBoth = (couple, k) => ((couple.days || {})[k] || []).length >= 2 || !!(couple.frozen || {})[k];
+const chainFrom = (couple, k) => { let n = 0; while (isBoth(couple, k)) { n++; k = prevDay(k); } return n; };
+function settleShields(couple, now = new Date()) {
+  if (!couple || couple.members.length < 2) return 0;
+  const today = dayKey(now, couple.tz);
+  let k = prevDay(today);
+  const gap = [];
+  while (!isBoth(couple, k) && gap.length <= SHIELD.maxGap) { gap.push(k); k = prevDay(k); }
+  if (!gap.length || gap.length > SHIELD.maxGap) return 0;
+  const chain = chainFrom(couple, k);
+  const have = shieldsOf(couple);
+  if (!chain || gap.length > have) return 0;
+  couple.frozen = couple.frozen || {};
+  for (const g of gap) couple.frozen[g] = true;
+  couple.shields = have - gap.length;
+  couple.bestStreak = streakInfo(couple, now).bestStreak;
+  save();
+  for (const id of couple.members) {
+    const u = db.users[id];
+    if (u && canReceive(u)) pushTo(u, { title: 'Sahar 🛡️', body: I18N.t(langOf(u), 'shieldUsedPush', { n: I18N.fmtNum(langOf(u), chain) }) }).catch(() => {});
+  }
+  return gap.length;
+}
+// La racha perdida más reciente que todavía se puede recuperar
+function rescueInfo(couple, now = new Date()) {
+  if (couple.rescued || couple.members.length < 2) return null;
+  const today = dayKey(now, couple.tz);
+  let k = isBoth(couple, today) ? today : prevDay(today);
+  const current = chainFrom(couple, k);
+  for (let i = 0; i < current; i++) k = prevDay(k);
+  const gap = [];
+  while (!isBoth(couple, k) && gap.length <= SHIELD.rescueGap) { gap.push(k); k = prevDay(k); }
+  if (!gap.length || gap.length > SHIELD.rescueGap) return null;
+  const old = chainFrom(couple, k);
+  if (old < 2) return null;
+  return { gap, n: old + gap.length + current };
+}
+app.post('/api/streak/rescue', auth, (req, res) => {
+  const user = req.user;
+  const couple = db.couples[user.code];
+  const partner = couple && partnerOf(user);
+  if (!partner) return fail(res, 400, 'no_partner');
+  const r = rescueInfo(couple);
+  if (!r) return fail(res, 400, 'invalid_message');
+  couple.frozen = couple.frozen || {};
+  for (const g of r.gap) couple.frozen[g] = true;
+  couple.rescued = true;
+  couple.bestStreak = streakInfo(couple).bestStreak;
+  save();
+  res.json(stateFor(user));
+  if (canReceive(partner)) pushTo(partner, { title: 'Sahar 🔥', body: I18N.t(langOf(partner), 'rescuePush', { p: user.name, n: I18N.fmtNum(langOf(partner), r.n) }) }).catch(() => {});
+});
+
+// Número estable a partir de un texto (para elegir ideas de la semana)
+const hashNum = (str) => { let h = 2166136261; for (const ch of String(str)) h = Math.imul(h ^ ch.codePointAt(0), 16777619) >>> 0; return h; };
+
+// ---------------------------------------------------------------------------
+// Plan de la semana: una receta para cocinar juntos y una salida para
+// descubrir algo nuevo. Se puede pedir otra idea y marcar «lo hicimos».
+// ---------------------------------------------------------------------------
+const N_COOK = I18N.COOK_EMOJI.length, N_OUT = I18N.OUT_EMOJI.length;
+function weeklyOf(couple, now = new Date()) {
+  const key = weekKey(now, couple.tz);
+  if (!couple.weekly || couple.weekly.key !== key) {
+    const code = couple.members.join('');
+    couple.weekly = { key, cook: hashNum(key + 'c' + code) % N_COOK, out: hashNum(key + 'o' + code) % N_OUT, cookDone: null, outDone: null };
+  }
+  return couple.weekly;
+}
+app.post('/api/weekly', auth, (req, res) => {
+  const user = req.user;
+  const couple = db.couples[user.code];
+  const partner = couple && partnerOf(user);
+  if (!partner) return fail(res, 400, 'no_partner');
+  const kind = req.body.kind === 'out' ? 'out' : req.body.kind === 'cook' ? 'cook' : null;
+  if (!kind) return fail(res, 400, 'invalid_message');
+  const w = weeklyOf(couple);
+  const n = kind === 'cook' ? N_COOK : N_OUT;
+  if (req.body.act === 'other' && !w[kind + 'Done']) {
+    w[kind] = (w[kind] + 1 + crypto.randomInt(n - 1)) % n;
+  } else if (req.body.act === 'done' && !w[kind + 'Done']) {
+    w[kind + 'Done'] = { by: user.id, at: Date.now() };
+    couple.weeklyCount = couple.weeklyCount || { cook: 0, out: 0 };
+    couple.weeklyCount[kind]++;
+    if (canReceive(partner)) {
+      const pl = langOf(partner);
+      const list = (kind === 'cook' ? I18N.COOK : I18N.OUT);
+      const emo = (kind === 'cook' ? I18N.COOK_EMOJI : I18N.OUT_EMOJI)[w[kind]];
+      pushTo(partner, { title: `Sahar ${emo}`, body: I18N.t(pl, 'weekDonePush', { p: user.name, x: (list[pl] || list.en)[w[kind]] }) }).catch(() => {});
+    }
+  } else return fail(res, 400, 'invalid_message');
+  save();
+  res.json(stateFor(user));
+});
+
+// ---------------------------------------------------------------------------
+// «Juntos hacia la felicidad»: juego en equipo. Cada semana una misión por
+// pilar (felicidad, éxito, satisfacción, orgullo). Cuando los dos la cumplen,
+// crece su jardín. Si cumplen las 4, vale para cada uno.
+// ---------------------------------------------------------------------------
+const N_MISS = I18N.MISSIONS.en[0].length;
+const missionPicks = (key) => [0, 1, 2, 3].map((p) => hashNum(key + ':' + p) % N_MISS);
+function missOf(couple, now = new Date()) {
+  const key = weekKey(now, couple.tz);
+  if (!couple.miss || couple.miss.key !== key) couple.miss = { key, picks: missionPicks(key), done: [[], [], [], []], all: false };
+  return couple.miss;
+}
+app.post('/api/mission', auth, (req, res) => {
+  const user = req.user;
+  const couple = db.couples[user.code];
+  const partner = couple && partnerOf(user);
+  if (!partner) return fail(res, 400, 'no_partner');
+  const p = Number(req.body.p);
+  if (![0, 1, 2, 3].includes(p)) return fail(res, 400, 'invalid_message');
+  const m = missOf(couple);
+  if (m.done[p].includes(user.id)) return res.json(stateFor(user));
+  m.done[p].push(user.id);
+  const both = couple.members.every((id) => m.done[p].includes(id));
+  if (both) {
+    couple.missTotal = (couple.missTotal || 0) + 1;
+    couple.pillars = couple.pillars || [0, 0, 0, 0];
+    couple.pillars[p]++;
+  }
+  const allNow = !m.all && m.done.every((d) => couple.members.every((id) => d.includes(id)));
+  if (allNow) {
+    m.all = true;
+    for (const id of couple.members) drawCard(couple, id);
+  }
+  save();
+  res.json(stateFor(user));
+  if (allNow) {
+    for (const id of couple.members) { const u = db.users[id]; if (u && canReceive(u)) pushTo(u, { title: 'Sahar 🌳', body: I18N.t(langOf(u), 'missAllPush') }).catch(() => {}); }
+  } else if (!both && canReceive(partner)) {
+    const pl = langOf(partner);
+    pushTo(partner, { title: `Sahar ${I18N.PILLAR_EMOJI[p]}`, body: I18N.t(pl, 'missPush', { p: user.name, x: (I18N.MISSIONS[pl] || I18N.MISSIONS.en)[p][m.picks[p]] }) }).catch(() => {});
+  }
+});
+
+// ---------------------------------------------------------------------------
+// «Carrera de la suerte»: carrera por turnos con dado (gana la suerte, no la
+// velocidad). Casillas especiales y viento a favor para quien va detrás.
+// ---------------------------------------------------------------------------
+const DICE = { len: 36, wind: 6, prize: 2, specials: { turbo: 3, slip: 3, star: 2, swap: 2, heart: 4 } };
+function diceBoard() {
+  const cells = Array(DICE.len).fill('');
+  const free = Array.from({ length: DICE.len - 5 }, (_, i) => i + 2); // 2..32
+  for (let i = free.length - 1; i > 0; i--) { const j = crypto.randomInt(i + 1); [free[i], free[j]] = [free[j], free[i]]; }
+  for (const [type, n] of Object.entries(DICE.specials)) for (let i = 0; i < n; i++) cells[free.pop()] = type;
+  return cells;
+}
+function diceState(couple, user, partner) {
+  const g = couple.dice;
+  const wins = couple.diceWins || {};
+  const base = { winsMe: wins[user.id] || 0, winsPartner: partner ? wins[partner.id] || 0 : 0, racer: user.racer || I18N.RACERS[0], partnerRacer: (partner && partner.racer) || I18N.RACERS[1], len: DICE.len };
+  if (!g || !partner) return { ...base, id: null };
+  return {
+    ...base, id: g.id, board: g.board, status: g.status, myTurn: g.status === 'live' && g.turn === user.id,
+    me: g.pos[user.id] || 0, partner: g.pos[partner.id] || 0,
+    winner: g.winner ? (g.winner === user.id ? 'me' : 'partner') : null,
+    log: (g.log || []).slice(-6).map((x) => ({ ...x, by: x.by === user.id ? 'me' : 'partner' })), at: g.at,
+  };
+}
+app.post('/api/racer', auth, (req, res) => {
+  if (!I18N.RACERS.includes(req.body.racer)) return fail(res, 400, 'invalid_message');
+  req.user.racer = req.body.racer;
+  save();
+  res.json(stateFor(req.user));
+});
+app.post('/api/dice/start', auth, (req, res) => {
+  const user = req.user;
+  const couple = db.couples[user.code];
+  const partner = couple && partnerOf(user);
+  if (!partner) return fail(res, 400, 'no_partner');
+  if (couple.dice && couple.dice.status === 'live') return res.json(stateFor(user));
+  couple.dice = { id: crypto.randomBytes(6).toString('hex'), board: diceBoard(), pos: { [user.id]: 0, [partner.id]: 0 }, turn: user.id, status: 'live', log: [], at: Date.now() };
+  save();
+  res.json(stateFor(user));
+  if (canReceive(partner)) pushTo(partner, { title: 'Sahar 🏎️', body: I18N.t(langOf(partner), 'diceStartPush', { p: user.name }), tag: 'sahar-dice' }).catch(() => {});
+});
+app.post('/api/dice/roll', auth, (req, res) => {
+  const user = req.user;
+  const couple = db.couples[user.code];
+  const partner = couple && partnerOf(user);
+  const g = couple && couple.dice;
+  if (!partner || !g || g.status !== 'live' || g.turn !== user.id || g.id !== req.body.id) return couple ? res.json(stateFor(user)) : fail(res, 400, 'no_partner');
+  const end = DICE.len - 1;
+  const from = g.pos[user.id] || 0, other = g.pos[partner.id] || 0;
+  const roll = crypto.randomInt(1, 7);
+  const wind = other - from >= DICE.wind ? 1 : 0;
+  let to = Math.min(end, from + roll + wind);
+  const effect = g.board[to] || '';
+  let again = false;
+  if (to < end) {
+    if (effect === 'turbo') to = Math.min(end, to + 3);
+    else if (effect === 'slip') to = Math.max(0, to - 2);
+    else if (effect === 'star') again = true;
+    else if (effect === 'swap') { g.pos[partner.id] = to; to = other; }
+    else if (effect === 'heart') { const nx = g.board.findIndex((c, i) => i > to && c === 'heart'); if (nx > 0) to = nx; }
+  }
+  g.pos[user.id] = to;
+  g.log = [...(g.log || []), { by: user.id, roll, wind, from, to, effect: to === end ? '' : effect, at: Date.now() }].slice(-12);
+  g.at = Date.now();
+  let won = null;
+  for (const id of couple.members) if ((g.pos[id] || 0) >= end) won = id;
+  if (won) {
+    g.status = 'done'; g.winner = won;
+    couple.points = couple.points || {};
+    couple.points[won] = (couple.points[won] || 0) + DICE.prize;
+    if (!couple.week || couple.week.key !== weekKey(new Date(), couple.tz)) couple.week = { key: weekKey(new Date(), couple.tz), pts: {} };
+    couple.week.pts[won] = (couple.week.pts[won] || 0) + DICE.prize;
+    couple.diceWins = couple.diceWins || {};
+    couple.diceWins[won] = (couple.diceWins[won] || 0) + 1;
+  } else g.turn = again ? user.id : partner.id;
+  save();
+  res.json(stateFor(user));
+  if (canReceive(partner) && (won || !again)) {
+    const pl = langOf(partner);
+    const body = won ? I18N.t(pl, 'diceWinPush', { p: db.users[won].name }) : I18N.t(pl, 'diceTurnPush', { p: user.name, n: I18N.fmtNum(pl, roll) });
+    pushTo(partner, { title: 'Sahar 🎲', body, tag: 'sahar-dice' }).catch(() => {});
+  }
+});
+app.post('/api/dice/quit', auth, (req, res) => {
+  const couple = db.couples[req.user.code];
+  if (couple && couple.dice && couple.dice.status === 'live' && couple.dice.id === req.body.id) { couple.dice.status = 'quit'; save(); }
+  res.json(stateFor(req.user));
+});
+
+// ---------------------------------------------------------------------------
+// Memorama con sus fotos: el mismo tablero para los dos cada día; gana quien
+// use menos movimientos (+1 punto; empate, +1 a cada uno).
+// ---------------------------------------------------------------------------
+const MEMO = { pairs: 8, prize: 1 };
+function memoState(couple, user, partner) {
+  const day = dayKey(new Date(), couple.tz);
+  const e = (couple.memo || {})[day] || {};
+  const mine = e[user.id] ?? null, theirs = partner ? e[partner.id] ?? null : null;
+  return { day, seed: hashNum(day + couple.members.join('')), pairs: MEMO.pairs, mine, partner: mine != null ? theirs : null, partnerPlayed: theirs != null };
+}
+app.post('/api/memo', auth, (req, res) => {
+  const user = req.user;
+  const couple = db.couples[user.code];
+  const partner = couple && partnerOf(user);
+  if (!partner) return fail(res, 400, 'no_partner');
+  const moves = Math.round(Number(req.body.moves));
+  if (!Number.isInteger(moves) || moves < MEMO.pairs || moves > 500) return fail(res, 400, 'invalid_message');
+  const day = dayKey(new Date(), couple.tz);
+  couple.memo = couple.memo || {};
+  const e = couple.memo[day] || (couple.memo[day] = {});
+  if (e[user.id] != null) return res.json(stateFor(user));
+  e[user.id] = moves;
+  const theirs = e[partner.id];
+  if (theirs != null) {
+    const winners = moves === theirs ? [user.id, partner.id] : [moves < theirs ? user.id : partner.id];
+    couple.points = couple.points || {};
+    if (!couple.week || couple.week.key !== weekKey(new Date(), couple.tz)) couple.week = { key: weekKey(new Date(), couple.tz), pts: {} };
+    for (const w of winners) { couple.points[w] = (couple.points[w] || 0) + MEMO.prize; couple.week.pts[w] = (couple.week.pts[w] || 0) + MEMO.prize; }
+  }
+  const keys = Object.keys(couple.memo).sort();
+  while (keys.length > 14) delete couple.memo[keys.shift()];
+  save();
+  res.json(stateFor(user));
+  if (canReceive(partner)) { const pl = langOf(partner); pushTo(partner, { title: 'Sahar 🃏', body: I18N.t(pl, 'memoPush', { p: user.name, n: I18N.fmtNum(pl, moves) }) }).catch(() => {}); }
+});
+// Título de una carta (foto del álbum)
+app.post('/api/photo/title', auth, (req, res) => {
+  const couple = db.couples[req.user.code];
+  const m = couple && (couple.media || []).find((x) => x.id === req.body.id && x.kind === 'photo');
+  if (!m) return fail(res, 400, 'invalid_media');
+  m.title = clean(req.body.title, 40);
+  save();
+  res.json(stateFor(req.user));
+});
+
+// ---------------------------------------------------------------------------
+// Cofre: recuerdos que se dejan, lecciones aprendidas y planes de futuro
+// ---------------------------------------------------------------------------
+app.post('/api/chest', auth, (req, res) => {
+  const user = req.user;
+  const couple = db.couples[user.code];
+  const partner = couple && partnerOf(user);
+  if (!partner) return fail(res, 400, 'no_partner');
+  const kind = Number(req.body.kind);
+  const text = clean(req.body.text, 300);
+  if (![0, 1, 2].includes(kind) || !text) return fail(res, 400, 'invalid_message');
+  if (recentCount(couple.chest, user.id, DAY_MS) >= 30) return fail(res, 429, 'invalid_message');
+  couple.chest = [...(couple.chest || []), { id: crypto.randomBytes(6).toString('hex'), by: user.id, kind, text, at: Date.now() }].slice(-300);
+  remember(couple, text, user);
+  save();
+  res.json(stateFor(user));
+  translatePending(1).catch(() => {});
+  if (canReceive(partner)) { const pl = langOf(partner); pushTo(partner, { title: 'Sahar 💫', body: I18N.t(pl, 'chestPush', { p: user.name, k: I18N.t(pl, 'chestKinds.' + kind) }) }).catch(() => {}); }
+});
+app.delete('/api/chest', auth, (req, res) => {
+  const couple = db.couples[req.user.code];
+  if (!couple) return fail(res, 400, 'no_partner');
+  couple.chest = (couple.chest || []).filter((x) => !(x.id === req.body.id && x.by === req.user.id));
+  save();
+  res.json(stateFor(req.user));
+});
+
+// Mes de cumpleaños y su tema (la app se viste con ese tema ese mes)
+app.post('/api/birth', auth, (req, res) => {
+  const month = Number(req.body.month);
+  const theme = clean(req.body.theme, 20).replace(/[^a-z]/g, '');
+  req.user.birth = { month: Number.isInteger(month) && month >= 1 && month <= 12 ? month : null, theme: theme || null };
+  save();
+  res.json(stateFor(req.user));
+});
+
+// ---------------------------------------------------------------------------
+// Nuestro sueño: viaje a Tokio, Seúl o Singapur (fecha, bote y lista)
+// ---------------------------------------------------------------------------
+const dreamOf = (couple) => (couple.dream = couple.dream || { city: 'tokyo', date: null, goal: 3000, saved: 0, ticks: {} });
+app.post('/api/dream', auth, (req, res) => {
+  const couple = db.couples[req.user.code];
+  if (!couple) return fail(res, 400, 'no_partner');
+  const d = dreamOf(couple);
+  if (I18N.DREAM_CITIES.includes(req.body.city)) d.city = req.body.city;
+  if (req.body.date === null || req.body.date === '') d.date = null;
+  else if (/^\d{4}-\d{2}-\d{2}$/.test(req.body.date || '') && !isNaN(Date.parse(req.body.date + 'T00:00:00Z'))) d.date = req.body.date;
+  const goal = Math.round(Number(req.body.goal));
+  if (Number.isInteger(goal) && goal > 0 && goal <= 1000000) d.goal = goal;
+  if (Number.isInteger(req.body.tick) && req.body.tick >= 0 && req.body.tick < 8) {
+    const list = d.ticks[d.city] || [];
+    d.ticks[d.city] = list.includes(req.body.tick) ? list.filter((x) => x !== req.body.tick) : [...list, req.body.tick];
+  }
+  save();
+  res.json(stateFor(req.user));
+});
+app.post('/api/dream/save', auth, (req, res) => {
+  const user = req.user;
+  const couple = db.couples[user.code];
+  const partner = couple && partnerOf(user);
+  if (!partner) return fail(res, 400, 'no_partner');
+  const amount = Math.round(Number(req.body.amount) * 100) / 100;
+  if (!isFinite(amount) || amount === 0 || Math.abs(amount) > 100000) return fail(res, 400, 'invalid_message');
+  const d = dreamOf(couple);
+  d.saved = Math.max(0, Math.round((d.saved + amount) * 100) / 100);
+  d.log = [...(d.log || []), { by: user.id, amount, at: Date.now() }].slice(-50);
+  save();
+  res.json(stateFor(user));
+  if (amount > 0 && canReceive(partner)) { const pl = langOf(partner); pushTo(partner, { title: 'Sahar ✈️', body: I18N.t(pl, 'dreamPush', { p: user.name, a: I18N.fmtNum(pl, amount) }) }).catch(() => {}); }
+});
+
+function wishState(couple, user, partner) {
+  const w = weeklyOf(couple);
+  const m = missOf(couple);
+  const r = rescueInfo(couple);
+  const d = dreamOf(couple);
+  const birthOf = (u) => (u && u.birth ? { month: u.birth.month, theme: u.birth.theme } : { month: null, theme: null });
+  return {
+    shields: shieldsOf(couple), shieldMax: SHIELD.max, shieldEvery: SHIELD.every, rescue: r ? r.n : null,
+    weekly: { key: w.key, cook: w.cook, out: w.out, cookDone: !!w.cookDone, outDone: !!w.outDone, count: couple.weeklyCount || { cook: 0, out: 0 } },
+    miss: {
+      key: m.key, picks: m.picks, all: m.all, total: couple.missTotal || 0, pillars: couple.pillars || [0, 0, 0, 0],
+      me: m.done.map((d2) => d2.includes(user.id)), partner: m.done.map((d2) => !!partner && d2.includes(partner.id)),
+    },
+    dice: diceState(couple, user, partner),
+    memo: memoState(couple, user, partner),
+    chest: (couple.chest || []).slice(-100).reverse().map((x) => ({ id: x.id, mine: x.by === user.id, kind: x.kind, text: x.text, at: x.at })),
+    birth: { me: birthOf(user), partner: birthOf(partner) },
+    dream: { city: d.city, date: d.date, goal: d.goal, saved: d.saved, ticks: d.ticks[d.city] || [] },
+  };
+}
+
 // Responder la pregunta del día
 app.post('/api/answer', auth, async (req, res) => {
   const user = req.user;
@@ -1118,7 +1507,7 @@ function upcomingPersian(todayKey) {
 // ---------------------------------------------------------------------------
 // Fechas especiales
 // ---------------------------------------------------------------------------
-const DATE_TYPES = ['birthday', 'anniv', 'date', 'other'];
+const DATE_TYPES = ['birthday', 'anniv', 'date', 'call', 'plan', 'other'];
 function nextOccurrence(d, todayKey) {
   if (!d.yearly) return d.date;
   const [ty] = todayKey.split('-').map(Number);
@@ -1137,7 +1526,8 @@ app.post('/api/dates', auth, (req, res) => {
   if (!name || !/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(Date.parse(date + 'T00:00:00Z'))) return fail(res, 400, 'invalid_date');
   couple.dates = couple.dates || [];
   if (couple.dates.length >= 100) return fail(res, 400, 'invalid_date');
-  couple.dates.push({ id: crypto.randomBytes(6).toString('hex'), name, date, type, yearly: req.body.yearly !== false, by: req.user.id });
+  const time = /^([01]\d|2[0-3]):[0-5]\d$/.test(req.body.time || '') ? req.body.time : null;
+  couple.dates.push({ id: crypto.randomBytes(6).toString('hex'), name, date, type, yearly: req.body.yearly !== false, by: req.user.id, ...(time ? { time } : {}) });
   save();
   res.json(stateFor(req.user));
 });
@@ -1163,12 +1553,16 @@ app.get('/api/ics/:id', auth, (req, res) => {
   const esc = (t) => String(t).replace(/[\;,]/g, (c) => '\\' + c).replace(/\n/g, '\\n');
   const day = d.date.replace(/-/g, '');
   const end = nextDay(d.date).replace(/-/g, '');
+  // Con hora: evento de 1 hora (hora local del teléfono) y aviso 30 min antes
+  const tm = d.time ? d.time.replace(':', '') + '00' : null;
+  const endTm = d.time ? String((Number(d.time.slice(0, 2)) + 1) % 24).padStart(2, '0') + d.time.slice(3) + '00' : null;
+  const endDay = d.time && Number(d.time.slice(0, 2)) === 23 ? end : day;
   const ics = [
     'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Sahar Love//ES', 'CALSCALE:GREGORIAN',
     'BEGIN:VEVENT', `UID:${d.id}@sahar-love`, `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').slice(0, 15)}Z`,
-    `DTSTART;VALUE=DATE:${day}`, `DTEND;VALUE=DATE:${end}`, `SUMMARY:${esc('💗 ' + d.name)}`,
+    ...(tm ? [`DTSTART:${day}T${tm}`, `DTEND:${endDay}T${endTm}`] : [`DTSTART;VALUE=DATE:${day}`, `DTEND;VALUE=DATE:${end}`]), `SUMMARY:${esc('💗 ' + d.name)}`,
     ...(d.yearly ? ['RRULE:FREQ=YEARLY'] : []),
-    'BEGIN:VALARM', 'TRIGGER:-PT15H', 'ACTION:DISPLAY', `DESCRIPTION:${esc(d.name)}`, 'END:VALARM',
+    'BEGIN:VALARM', tm ? 'TRIGGER:-PT30M' : 'TRIGGER:-PT15H', 'ACTION:DISPLAY', `DESCRIPTION:${esc(d.name)}`, 'END:VALARM',
     'END:VEVENT', 'END:VCALENDAR', '',
   ].join('\r\n');
   res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
@@ -1195,8 +1589,11 @@ async function runReminders(now = new Date()) {
     for (const d of [...(couple.dates || []), ...persianItems]) {
       const occ = nextOccurrence(d, today);
       let key = null, textKey = null;
-      if (occ === today && h >= 8 && h <= 12) { key = `${d.id}:${occ}:t`; textKey = 'dateToday'; }
-      else if (occ === nextDay(today) && h >= 19 && h <= 22) { key = `${d.id}:${occ}:m`; textKey = 'dateTomorrow'; }
+      const soft = d.type === 'call' || d.type === 'plan'; // sin presión: sin aviso la víspera
+      const left = d.time && occ === today ? Number(d.time.slice(0, 2)) * 60 + Number(d.time.slice(3)) - minuteIn(now, couple.tz) : null;
+      if (left != null && left >= 0 && left <= 70) { key = `${d.id}:${occ}:h`; textKey = 'planSoon'; }
+      else if (occ === today && h >= 8 && h <= 12 && !(d.time && Number(d.time.slice(0, 2)) < 10)) { key = `${d.id}:${occ}:t`; textKey = 'dateToday'; }
+      else if (!soft && occ === nextDay(today) && h >= 19 && h <= 22) { key = `${d.id}:${occ}:m`; textKey = 'dateTomorrow'; }
       if (!key || couple.dateReminded.includes(key)) continue;
       couple.dateReminded = [...couple.dateReminded, key].slice(-200);
       for (const id of couple.members) {
@@ -1242,7 +1639,7 @@ async function runReminders(now = new Date()) {
       sent += await pushTo(u, { title: 'Sahar 🎲', body: I18N.t(langOf(u), 'totRemind', { p: (db.users[other] || {}).name || '' }) });
     }
   }
-  for (const couple of Object.values(db.couples)) { settleTotBonus(couple, now); settleWeek(couple, now); }
+  for (const couple of Object.values(db.couples)) { settleTotBonus(couple, now); settleWeek(couple, now); settleShields(couple, now); }
   if (sent) save();
   return sent;
 }
@@ -1290,4 +1687,4 @@ if (require.main === module) {
     setInterval(() => translatePending(6).catch(() => {}), 20 * 60 * 1000);
   }).catch((e) => { console.error('No se pudieron cargar los datos:', e.message); process.exit(1); });
 }
-module.exports = { persianHolidays, upcomingPersian, questionIndex, MOODS, app, ready, streakInfo, recordDay, dayKey, prevDay, localize, runReminders, flush, translatePending, nextOccurrence, totPairs, weekKey, settleWeek, settleTotBonus, races, RACE, db: () => db };
+module.exports = { settleShields, rescueInfo, SHIELD, DICE, missionPicks, persianHolidays, upcomingPersian, questionIndex, MOODS, app, ready, streakInfo, recordDay, dayKey, prevDay, localize, runReminders, flush, translatePending, nextOccurrence, totPairs, weekKey, settleWeek, settleTotBonus, races, RACE, db: () => db };

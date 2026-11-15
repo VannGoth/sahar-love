@@ -62,8 +62,8 @@ const { app, ready, streakInfo, recordDay, prevDay, runReminders, flush } = requ
   const DEFAULT_TEXTS = I.MESSAGES;
   // Todas las claves de cada idioma existen
   for (const l of I.LANGS) assert.strictEqual(I.QUESTIONS[l].length, 40, `preguntas ${l}`);
-  for (const l of I.LANGS) assert.ok(I.TOT[l].length === 60 && I.FACTS[l].length === 12 && I.CARDS[l].length === 24 && I.CARD_WHY[l].length === 24, `juegos ${l}`);
-  assert.ok(I.TOT_EMOJI.length === 60 && I.CARD_EMOJI.length === 24 && I.GIFT_CARDS.every((i) => i < 24) && !I.GIFT_CARDS.includes(11));
+  for (const l of I.LANGS) assert.ok(I.TOT[l].length === 60 && I.FACTS[l].length === 12 && I.CARDS[l].length === 25 && I.CARD_WHY[l].length === 25, `juegos ${l}`);
+  assert.ok(I.TOT_EMOJI.length === 60 && I.CARD_EMOJI.length === 25 && I.GIFT_CARDS.every((i) => i < 25) && I.GIFT_CARDS[0] === 24 && !I.GIFT_CARDS.includes(11));
   for (const l of I.LANGS) for (const [k, n] of [['issCats', 10], ['issFeels', 8], ['wishQs', 7]]) assert.strictEqual(I.STRINGS[l][k].length, n, `${k} ${l}`);
   // «Esto o aquello»: 15 días seguidos sin repetir ninguna pregunta
   {
@@ -443,6 +443,130 @@ const { app, ready, streakInfo, recordDay, prevDay, runReminders, flush } = requ
     await S.runReminders(new Date(S.persianHolidays(2026).yalda + 'T08:30:00Z'));
     assert.ok(pushes.slice(pb2).some((x) => x.payload.body.includes(I.t('fa', 'yalda'))), 'aviso de Yalda en persa');
     console.log('✓ fechas persas');
+
+    // ---- Deseos de Sahar ----
+    {
+      const wait = () => new Promise((r) => setTimeout(r, 80));
+      // Protector de racha: ayer nadie tocó, pero había racha → se gasta un protector
+      cp.days = {}; cp.frozen = {}; cp.shields = undefined; cp.rescued = false;
+      const today = S.dayKey(new Date(), cp.tz);
+      let k = S.prevDay(S.prevDay(today));
+      for (let i = 0; i < 5; i++) { cp.days[k] = ['p1', 'p2']; k = S.prevDay(k); }
+      let st2 = (await c2('GET', '/api/state?userId=p1')).json;
+      assert.strictEqual(st2.shields, 1, 'se gastó 1 de los 2 protectores iniciales');
+      assert.strictEqual(st2.streak, 6, 'la racha sigue (5 días + el día protegido)');
+      await wait();
+      assert.ok(pushes.some((x) => x.payload.title === 'Sahar 🛡️'), 'aviso del protector');
+      // Hueco de 3 días: ya no alcanza el protector, pero se puede recuperar una vez
+      cp.days = {}; cp.frozen = {}; cp.shields = 0;
+      k = S.prevDay(S.prevDay(S.prevDay(S.prevDay(today))));
+      for (let i = 0; i < 10; i++) { cp.days[k] = ['p1', 'p2']; k = S.prevDay(k); }
+      st2 = (await c2('GET', '/api/state?userId=p2')).json;
+      assert.strictEqual(st2.streak, 0);
+      assert.strictEqual(st2.rescue, 13, '10 días + 3 de hueco');
+      st2 = (await c2('POST', '/api/streak/rescue', { userId: 'p2' })).json;
+      assert.strictEqual(st2.streak, 13);
+      assert.strictEqual(st2.rescue, null, 'solo una vez');
+      assert.strictEqual((await c2('POST', '/api/streak/rescue', { userId: 'p2' })).status, 400);
+      // Se gana un protector al llegar a 7 días seguidos
+      cp.days = {}; cp.frozen = {}; cp.shields = 0; cp.shieldAt = 0;
+      k = S.prevDay(today);
+      for (let i = 0; i < 6; i++) { cp.days[k] = ['p1', 'p2']; k = S.prevDay(k); }
+      await c2('POST', '/api/send', { userId: 'p1' });
+      const se = (await c2('POST', '/api/send', { userId: 'p2' })).json;
+      assert.ok(se.shieldEarned && se.shields === 1, 'protector ganado a los 7 días');
+      console.log('✓ protector de racha y recuperar racha');
+
+      // Plan de la semana
+      let wk = (await c2('GET', '/api/state?userId=p1')).json.weekly;
+      assert.ok(wk.cook >= 0 && wk.cook < I.COOK_EMOJI.length && wk.out >= 0);
+      const prevCook = wk.cook;
+      wk = (await c2('POST', '/api/weekly', { userId: 'p1', kind: 'cook', act: 'other' })).json.weekly;
+      assert.notStrictEqual(wk.cook, prevCook, 'otra idea');
+      const pwk = pushes.length;
+      wk = (await c2('POST', '/api/weekly', { userId: 'p2', kind: 'cook', act: 'done' })).json.weekly;
+      assert.ok(wk.cookDone && wk.count.cook === 1);
+      assert.strictEqual((await c2('POST', '/api/weekly', { userId: 'p1', kind: 'cook', act: 'other' })).status, 400, 'ya hecho');
+      await wait();
+      assert.ok(pushes.slice(pwk).some((x) => x.endpoint.endsWith('/a')), 'aviso a Carlos');
+      console.log('✓ plan de la semana');
+
+      // Misiones en equipo
+      let ms3 = (await c2('POST', '/api/mission', { userId: 'p1', p: 0 })).json.miss;
+      assert.deepStrictEqual(ms3.me, [true, false, false, false]);
+      assert.strictEqual(ms3.total, 0, 'falta Mina');
+      ms3 = (await c2('POST', '/api/mission', { userId: 'p2', p: 0 })).json.miss;
+      assert.strictEqual(ms3.total, 1);
+      const cardsBefore = (cp.cards || []).length;
+      for (const p of [1, 2, 3]) { await c2('POST', '/api/mission', { userId: 'p1', p }); ms3 = (await c2('POST', '/api/mission', { userId: 'p2', p })).json.miss; }
+      assert.ok(ms3.all && ms3.total === 4);
+      assert.strictEqual(cp.cards.length, cardsBefore + 2, 'vale para cada uno');
+      console.log('✓ misiones juntos');
+
+      // Carrera de la suerte
+      assert.strictEqual((await c2('POST', '/api/racer', { userId: 'p2', racer: '🦄' })).json.dice.racer, '🦄');
+      let dg = (await c2('POST', '/api/dice/start', { userId: 'p1' })).json.dice;
+      assert.ok(dg.id && dg.myTurn && dg.board.length === S.DICE.len);
+      assert.strictEqual((await c2('GET', '/api/state?userId=p1')).json.dice.partnerRacer, '🦄');
+      // Tirar fuera de turno no hace nada
+      let dg2 = (await c2('POST', '/api/dice/roll', { userId: 'p2', id: dg.id })).json.dice;
+      assert.strictEqual(dg2.log.length, 0);
+      let guard = 0;
+      while (dg.status === 'live' && guard++ < 400) {
+        const who = dg.myTurn ? 'p1' : 'p2';
+        const r = (await c2('POST', '/api/dice/roll', { userId: who, id: dg.id })).json.dice;
+        const last = r.log[r.log.length - 1];
+        assert.ok(last.roll >= 1 && last.roll <= 6);
+        dg = (await c2('GET', '/api/state?userId=p1')).json.dice;
+      }
+      assert.strictEqual(dg.status, 'done');
+      assert.ok(dg.me === S.DICE.len - 1 || dg.partner === S.DICE.len - 1);
+      assert.strictEqual(dg.winsMe + dg.winsPartner, 1);
+      console.log('✓ carrera de la suerte');
+
+      // Memorama
+      let mm = (await c2('GET', '/api/state?userId=p1')).json.memo;
+      assert.ok(mm.seed > 0 && mm.pairs === 8 && mm.mine === null);
+      assert.strictEqual((await c2('POST', '/api/memo', { userId: 'p1', moves: 3 })).status, 400);
+      const sc0 = (await c2('GET', '/api/state?userId=p2')).json.score.me;
+      mm = (await c2('POST', '/api/memo', { userId: 'p1', moves: 14 })).json.memo;
+      assert.strictEqual(mm.partner, null);
+      mm = (await c2('POST', '/api/memo', { userId: 'p2', moves: 12 })).json;
+      assert.strictEqual(mm.memo.partner, 14);
+      assert.strictEqual(mm.score.me, sc0 + 1, 'menos movimientos gana');
+      // Título de carta
+      const alb2 = (await c2('POST', '/api/photo/title', { userId: 'p2', id: up.id, title: 'Nuestra primera foto' })).json.album;
+      assert.strictEqual(alb2.find((x) => x.id === up.id).title, 'Nuestra primera foto');
+      console.log('✓ memorama y cartas');
+
+      // Cofre, planes con hora y mes de cumpleaños
+      assert.strictEqual((await c2('POST', '/api/chest', { userId: 'p1', kind: 5, text: 'x' })).status, 400);
+      let ch = (await c2('POST', '/api/chest', { userId: 'p1', kind: 1, text: 'Hablar con calma funciona' })).json.chest;
+      assert.ok(ch[0].mine && ch[0].kind === 1);
+      ch = (await c2('DELETE', '/api/chest', { userId: 'p2', id: ch[0].id })).json.chest;
+      assert.strictEqual(ch.length, 1, 'solo quien lo escribió lo borra');
+      const call = (await c2('POST', '/api/dates', { userId: 'p1', name: 'Llamada', date: '2026-12-05', type: 'call', yearly: false, time: '19:30' })).json.dates.find((d) => d.type === 'call');
+      assert.strictEqual(call.time, '19:30');
+      const icsT = await c2('GET', `/api/ics/${call.id}?userId=p2`);
+      assert.ok(/DTSTART:20261205T193000/.test(icsT.raw.toString()));
+      const pc = pushes.length;
+      await S.runReminders(new Date('2026-12-05T17:50:00Z')); // 18:50 en Berlín
+      assert.ok(pushes.slice(pc).some((x) => x.payload.body.includes('Llamada')), 'aviso suave antes de la llamada');
+      await S.runReminders(new Date('2026-12-04T19:30:00Z'));
+      assert.ok(!pushes.slice(pc + 2).some((x) => x.payload.body.includes('Llamada')), 'sin aviso la víspera');
+      const bt = (await c2('POST', '/api/birth', { userId: 'p2', month: 3, theme: 'sakura' })).json.birth;
+      assert.deepStrictEqual(bt.me, { month: 3, theme: 'sakura' });
+      assert.deepStrictEqual((await c2('GET', '/api/state?userId=p1')).json.birth.partner, { month: 3, theme: 'sakura' });
+      console.log('✓ cofre, planes con hora y mes de cumpleaños');
+
+      // Sueño
+      let dr = (await c2('POST', '/api/dream', { userId: 'p2', city: 'seoul', goal: 4000, date: '2027-09-01', tick: 0 })).json.dream;
+      assert.ok(dr.city === 'seoul' && dr.goal === 4000 && dr.ticks[0] === 0);
+      dr = (await c2('POST', '/api/dream/save', { userId: 'p1', amount: 50 })).json.dream;
+      assert.strictEqual(dr.saved, 50);
+      assert.strictEqual((await c2('POST', '/api/dream/save', { userId: 'p1', amount: 'x' })).status, 400);
+      console.log('✓ nuestro sueño');
+    }
 
     // Desvincular: el último en salir borra la pareja
     assert.strictEqual((await c2('POST', '/api/couple/leave', { userId: 'p1' })).json.code, null);
