@@ -570,6 +570,21 @@
   .pill { border:1px solid var(--card-line); background:rgba(255,255,255,.04); color:var(--muted); border-radius:999px; padding:7px 12px; font-size:13.5px; font-weight:600; transition:all .2s; }
   .pill.on { color:var(--gold-1); border-color:var(--gold-3); background:rgba(var(--glow),.28); transform:translateY(-1px); }
   .hcard textarea.field { min-height:64px; resize:vertical; font:inherit; font-size:16px; }
+  /* ---- Índice de cada pestaña y títulos de sección ---- */
+  .jump { margin:14px 0 4px; padding:12px; border-radius:20px; background:rgba(255,255,255,.035); border:1px solid rgba(var(--glowg),.18); }
+  .jump-sec { color:var(--gold-2); font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; margin:8px 2px 6px; }
+  .jump-sec:first-child { margin-top:0; }
+  .jump-row { display:flex; flex-wrap:wrap; gap:6px; }
+  .jump-b { border:1px solid var(--card-line); background:rgba(var(--glow),.16); color:var(--cream); border-radius:999px; padding:7px 12px; font:inherit; font-size:13.5px; font-weight:600; transition:transform .15s, background .2s; }
+  .jump-b:active { transform:scale(.95); background:rgba(var(--glow),.35); }
+  .sec-h { font-family:var(--font-display); font-weight:500; font-size:24px; color:var(--gold-1); margin:26px 4px 10px; display:flex; align-items:center; gap:10px; }
+  .sec-h::after { content:""; flex:1; height:1px; background:linear-gradient(90deg,rgba(var(--glowg),.45),transparent); }
+  #askView, #togetherView, #usView { padding-bottom:8px; }
+  .tabbar .tab { min-width:0; padding:0 1px; }
+  .tabbar { gap:0; padding:5px; width:min(460px,calc(100% - 20px)); }
+  .tabbar .tab span:not(.badge) { font-size:10.5px; letter-spacing:-.2px; }
+  @media (max-width:390px) { .tabbar .tab span:not(.badge) { font-size:10px; letter-spacing:-.3px; } .tabbar .tab svg { width:22px; height:22px; } }
+  .tabbar .tab span:not(.badge) { max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   /* ---- En vivo: aviso que baja desde arriba ---- */
   .live-bar { position:fixed; z-index:250; top:calc(env(safe-area-inset-top,0px) + 10px); left:50%; width:min(92vw,420px); display:flex; align-items:center; gap:12px; text-align:start;
     padding:10px 14px 10px 10px; border-radius:20px; border:1px solid rgba(var(--glowg),.35); color:var(--cream); font:inherit;
@@ -1237,6 +1252,9 @@
       <div id="dreamBody"></div>
     </div>
   </section>
+
+  <!-- Preguntas: pregunta del día, mapas del amor y 36 preguntas (las tarjetas se ordenan al arrancar) -->
+  <section id="askView" class="view hidden"></section>
 </main>
 
 <nav class="tabbar hidden" id="tabbar">
@@ -1244,15 +1262,19 @@
     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.2l-1.3-1.2C5.6 15.4 2.4 12.5 2.4 8.9 2.4 6 4.7 3.7 7.6 3.7c1.7 0 3.3.8 4.4 2 1.1-1.2 2.7-2 4.4-2 2.9 0 5.2 2.3 5.2 5.2 0 3.6-3.2 6.5-8.3 11.1L12 21.2z"/></svg>
     <span data-i18n="tabHome"></span>
   </button>
+  <button class="tab" data-tab="together">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7.5h10a4.5 4.5 0 0 1 4.3 5.8l-1.2 4a2.6 2.6 0 0 1-4.4 1l-2-2.3h-3.4l-2 2.3a2.6 2.6 0 0 1-4.4-1l-1.2-4A4.5 4.5 0 0 1 7 7.5z" fill="currentColor" fill-opacity=".25"/><path d="M7.5 11v3M6 12.5h3"/><circle cx="16" cy="11.3" r=".9" fill="currentColor"/><circle cx="17.6" cy="13.6" r=".9" fill="currentColor"/></svg>
+    <span data-i18n="tabGames"></span>
+    <span class="badge hidden" id="togBadge">!</span>
+  </button>
+  <button class="tab" data-tab="ask">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5h16v10.5H10l-4.5 3.5V16H4z" fill="currentColor" fill-opacity=".25"/><path d="M10 9.3a2 2 0 1 1 2.8 1.8c-.5.3-.8.7-.8 1.2v.3"/><circle cx="12" cy="14.3" r=".6" fill="currentColor"/></svg>
+    <span data-i18n="tabAsk"></span>
+  </button>
   <button class="tab" data-tab="us">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M9 19.5l-.9-.8C4.6 15.6 2.5 13.7 2.5 11.3 2.5 9.4 4 7.9 5.9 7.9c1.1 0 2.2.5 3 1.3.8-.8 1.9-1.3 3-1.3"/><path d="M15 20.2l-1-.9c-3.6-3.2-5.9-5.3-5.9-7.9 0-2.1 1.6-3.7 3.7-3.7 1.2 0 2.4.6 3.2 1.4.8-.8 2-1.4 3.2-1.4 2.1 0 3.7 1.6 3.7 3.7 0 2.6-2.3 4.7-5.9 7.9l-1 .9z" fill="currentColor" fill-opacity=".25"/></svg>
     <span data-i18n="tabUs"></span>
     <span class="badge hidden" id="usBadge">!</span>
-  </button>
-  <button class="tab" data-tab="together">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 2.8l2.1 5.6 5.6 2.1-5.6 2.1L12 18.2l-2.1-5.6-5.6-2.1 5.6-2.1z" fill="currentColor" fill-opacity=".25"/><path d="M19 15.5l.9 2.3 2.3.9-2.3.9-.9 2.3-.9-2.3-2.3-.9 2.3-.9z"/></svg>
-    <span data-i18n="tabTogether"></span>
-    <span class="badge hidden" id="togBadge">!</span>
   </button>
   <button class="tab" data-tab="msgs">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/></svg>
@@ -1329,7 +1351,7 @@
 <label id="hapticLbl" aria-hidden="true"><input type="checkbox" switch tabindex="-1"></label>
 <script src="/i18n.js"></script>
 <script>
-const APP_VERSION = '2026-11-18-2';
+const APP_VERSION = '2026-11-18-3';
 let currentTheme = 'aurora';
 try {
   // Estreno del color nuevo: pasar una vez a «Aurora»; después se respeta lo que elijan
@@ -1409,8 +1431,56 @@ let pollTimer = null;
 let shownStreak = null;
 const isStandalone = window.navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-const VIEWS = ['loadingView', 'installView', 'nameView', 'coupleView', 'homeView', 'usView', 'togetherView', 'msgsView', 'datesView'];
-const TAB_VIEW = { home: 'homeView', us: 'usView', together: 'togetherView', msgs: 'msgsView', dates: 'datesView' };
+const VIEWS = ['loadingView', 'installView', 'nameView', 'coupleView', 'homeView', 'usView', 'togetherView', 'askView', 'msgsView', 'datesView'];
+const TAB_VIEW = { home: 'homeView', together: 'togetherView', ask: 'askView', us: 'usView', msgs: 'msgsView', dates: 'datesView' };
+
+/* ----- Orden de las pestañas: cada cosa en su sitio ----- */
+// Las tarjetas se mueven a su pestaña al arrancar. Cada pestaña lleva arriba
+// un índice para saltar directo a cada juego o herramienta.
+const LAYOUT = {
+  togetherView: [[null, ['c4Card', 'wmlCard', 'totCard', 'diceCard', 'memoCard', 'collCard', 'raceCard', 'storyCard']]],
+  askView: [[null, ['qCard', 'lmapCard', 'aronCard']]],
+  usView: [
+    ['secConnect', ['ciCard', 'stressCard', 'newsCard', 'turnCard', 'gratCard', 'giftCard', 'wishCard']],
+    ['secPlans', ['weekCard', 'missCard', 'dreamCard']],
+    ['secConflict', ['pauseCard', 'repairCard', 'neutralCard', 'issCard', 'issTopCard', 'ratioCard']],
+  ],
+};
+function applyLayout() {
+  for (const [viewId, groups] of Object.entries(LAYOUT)) {
+    const v = $(viewId); if (!v) continue;
+    const mk = (tag, cls) => { const e = document.createElement(tag); e.className = cls; return e; };
+    const jump = mk('div', 'jump'); jump.id = viewId + 'Jump';
+    v.prepend(jump);
+    for (const [sec, ids] of groups) {
+      if (sec) { const h = mk('h2', 'sec-h'); h.dataset.sec = sec; h.id = viewId + '-' + sec; v.append(h); }
+      ids.forEach((id) => { const c = $(id); if (c) { c.style.marginTop = ''; v.append(c); } });
+    }
+  }
+}
+applyLayout();
+let jumpLang = '';
+function renderJumps() {
+  if (jumpLang === lang) return; jumpLang = lang;
+  document.querySelectorAll('.sec-h').forEach((h) => { h.textContent = t(h.dataset.sec); });
+  for (const [viewId, groups] of Object.entries(LAYOUT)) {
+    const j = $(viewId + 'Jump'); if (!j) continue;
+    j.innerHTML = '';
+    groups.forEach(([sec, ids]) => {
+      if (sec) j.append(el('div', 'jump-sec', t(sec)));
+      const row = el('div', 'jump-row');
+      ids.forEach((id) => {
+        const c = $(id), h = c && c.querySelector('h3'); if (!h) return;
+        const sp = h.querySelector('[data-i18n]');
+        const label = `${h.firstChild ? h.firstChild.textContent.trim() : ''} ${sp ? t(sp.dataset.i18n) : h.textContent.trim()}`.trim();
+        const b = el('button', 'jump-b', label); b.type = 'button';
+        b.onclick = () => { haptic(6); c.classList.remove('rv'); c.classList.add('in'); c.scrollIntoView({ behavior: 'smooth', block: 'start' }); c.classList.remove('flash'); void c.offsetWidth; c.classList.add('flash'); };
+        row.append(b);
+      });
+      j.append(row);
+    });
+  }
+}
 
 function show(name) {
   VIEWS.forEach((v) => {
@@ -1454,6 +1524,7 @@ function render(fresh = true) {
   renderWishes2();
   renderScience();
   renderLockRow();
+  renderJumps();
   checkNewLove();
 }
 
@@ -1485,10 +1556,10 @@ function liveDiff(a, b) {
     if (sb.stress.partner && (!sa.stress.partner || sa.stress.partner.at !== sb.stress.partner.at)) add('liveStress', 'us', 'stressCard', true);
     if (sb.stress.mine && sb.stress.mine.ack && sa.stress.mine && !sa.stress.mine.ack) add('liveAck', 'us', 'stressCard');
   }
-  if (sa.lmap && sb.lmap && sa.lmap.day === sb.lmap.day && !sa.lmap.partnerPlayed && sb.lmap.partnerPlayed) add('liveLmap', 'together', 'lmapCard');
+  if (sa.lmap && sb.lmap && sa.lmap.day === sb.lmap.day && !sa.lmap.partnerPlayed && sb.lmap.partnerPlayed) add('liveLmap', 'ask', 'lmapCard');
   if (sa.checkin && sb.checkin && sa.checkin.week === sb.checkin.week && !sa.checkin.partnerDone && sb.checkin.partnerDone) add('liveCheckin', 'us', 'ciCard');
   if (sa.chal && sb.chal && sa.chal.day === sb.chal.day && !sa.chal.partner && sb.chal.partner) add('liveChal', 'home', 'chalCard');
-  if (sa.aron && sb.aron && sb.aron.i > sa.aron.i && sb.aron.i > 1) add('liveAron', 'together', 'aronCard');
+  if (sa.aron && sb.aron && sb.aron.i > sa.aron.i && sb.aron.i > 1) add('liveAron', 'ask', 'aronCard');
   // Lo urgente primero; si pasaron varias cosas, se muestran una tras otra
   ev.sort((x, y) => (y.urgent ? 1 : 0) - (x.urgent ? 1 : 0)).slice(0, 3).forEach(liveShow);
 }
