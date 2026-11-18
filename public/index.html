@@ -570,6 +570,30 @@
   .pill { border:1px solid var(--card-line); background:rgba(255,255,255,.04); color:var(--muted); border-radius:999px; padding:7px 12px; font-size:13.5px; font-weight:600; transition:all .2s; }
   .pill.on { color:var(--gold-1); border-color:var(--gold-3); background:rgba(var(--glow),.28); transform:translateY(-1px); }
   .hcard textarea.field { min-height:64px; resize:vertical; font:inherit; font-size:16px; }
+  /* ---- En vivo: aviso que baja desde arriba ---- */
+  .live-bar { position:fixed; z-index:250; top:calc(env(safe-area-inset-top,0px) + 10px); left:50%; width:min(92vw,420px); display:flex; align-items:center; gap:12px; text-align:start;
+    padding:10px 14px 10px 10px; border-radius:20px; border:1px solid rgba(var(--glowg),.35); color:var(--cream); font:inherit;
+    background:linear-gradient(135deg,rgba(var(--glow),.55),rgba(20,6,14,.85)); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    box-shadow:0 14px 40px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.05) inset; transform:translate(-50%,-140%); opacity:0; transition:transform .45s cubic-bezier(.2,1.3,.4,1), opacity .3s; }
+  .live-bar.show { transform:translate(-50%,0); opacity:1; }
+  .live-bar.urgent { border-color:#fca5a5; animation:livePulse 1.4s ease-in-out infinite; }
+  @keyframes livePulse { 50% { box-shadow:0 14px 40px rgba(0,0,0,.45), 0 0 0 4px rgba(252,165,165,.35); } }
+  .live-av { flex:none; width:38px; height:38px; border-radius:50%; display:grid; place-items:center; font-weight:800; color:#3a1206;
+    background:linear-gradient(135deg,var(--gold-1),var(--gold-3)); box-shadow:0 0 0 2px rgba(255,255,255,.25), 0 0 14px rgba(var(--glowg),.5); position:relative; }
+  .live-av::after { content:""; position:absolute; right:-1px; bottom:-1px; width:11px; height:11px; border-radius:50%; background:#4ade80; border:2px solid #1a0610; }
+  .live-tx { display:flex; flex-direction:column; gap:2px; min-width:0; }
+  .live-tx b { font-size:15px; line-height:1.3; }
+  .live-tx small { color:var(--muted); font-size:12.5px; }
+  .card.flash { animation:cardFlash 1.4s ease-out; }
+  @keyframes cardFlash { 0%,40% { box-shadow:0 0 0 3px rgba(var(--glowg),.8), 0 0 30px rgba(var(--glowg),.45); } 100% { box-shadow:none; } }
+  /* ---- Las tarjetas aparecen al bajar ---- */
+  .card.rv { opacity:0; transform:translateY(26px) scale(.98); }
+  .card.rv.in { opacity:1; transform:none; transition:opacity .6s ease, transform .7s cubic-bezier(.2,.8,.2,1); }
+  /* ---- Todo responde al tocar ---- */
+  .pill, .chip-btn, .repair, .c4-col, .tab { transition:transform .15s ease, background .2s, border-color .2s, color .2s; }
+  .pill:active, .repair:active, .tab:active { transform:scale(.95); }
+  .c4-board.live .c4-col:active { transform:scale(.97); }
+  @media (prefers-reduced-motion: reduce) { .live-bar { transition:opacity .2s; } .card.rv { opacity:1; transform:none; } }
   /* ---- 4 en raya: tablero con agujeros y fichas con brillo ---- */
   .c4-status { text-align:center; font-weight:700; color:var(--gold-1); margin:4px 0 10px; min-height:22px; }
   .c4-status.mine { animation:fade 1.6s infinite; }
@@ -1305,7 +1329,7 @@
 <label id="hapticLbl" aria-hidden="true"><input type="checkbox" switch tabindex="-1"></label>
 <script src="/i18n.js"></script>
 <script>
-const APP_VERSION = '2026-11-18-1';
+const APP_VERSION = '2026-11-18-2';
 let currentTheme = 'aurora';
 try {
   // Estreno del color nuevo: pasar una vez a «Aurora»; después se respeta lo que elijan
@@ -1412,7 +1436,7 @@ function render(fresh = true) {
     return;
   }
   show(TAB_VIEW[tab] || 'homeView');
-  pollTimer = setInterval(refresh, state.partnerOnline ? 6000 : 20000);
+  pollTimer = setInterval(refresh, liveMode() ? 2500 : state.partnerOnline ? 6000 : 20000);
   renderHome(fresh);
   renderMessages();
   renderDates();
@@ -1434,7 +1458,86 @@ function render(fresh = true) {
 }
 
 async function refresh() {
-  try { state = await api('/api/state'); render(false); } catch (_) {}
+  try { const prev = state; state = await api('/api/state'); render(false); liveDiff(prev, state); } catch (_) {}
+}
+
+/* ----- En vivo: avisos dentro de la app cuando la pareja hace algo ----- */
+// Compara el estado anterior con el nuevo y avisa de lo que hizo la pareja.
+function liveDiff(a, b) {
+  if (!a || !b || !a.code || a.code !== b.code || !b.partnerName) return;
+  const ev = [];
+  const add = (key, tab2, card, urgent) => ev.push({ key, tab: tab2, card, urgent });
+  if (!a.partnerOnline && b.partnerOnline) add('liveOnline', 'home', null);
+  const pa = a.play || {}, pb = b.play || {};
+  const ga = pa.c4 && pa.c4.game, gb = pb.c4 && pb.c4.game;
+  if (gb && (!ga || ga.id !== gb.id) && gb.moves === 0 && gb.turn === 'me') add('liveC4New', 'together', 'c4Card');
+  else if (gb && ga && ga.id === gb.id && gb.moves > ga.moves && gb.board[gb.last] === 'p') add(gb.winner === 'p' ? 'liveC4Win' : 'liveC4', 'together', 'c4Card');
+  if (pa.wml && pb.wml && pa.wml.day === pb.wml.day && !pa.wml.partnerDone && pb.wml.partnerDone) add('liveWml', 'together', 'wmlCard');
+  const la = pa.story && pa.story.cur, lb = pb.story && pb.story.cur;
+  if (lb && lb.lines.length && (!la || la.id !== lb.id || lb.lines.length > la.lines.length) && !lb.lines[lb.lines.length - 1].mine) add('liveStory', 'together', 'storyCard');
+  const sa = a.science || {}, sb = b.science || {};
+  if (sa.news && sb.news) {
+    const old = new Map(sa.news.map((n) => [n.id, n]));
+    if (sb.news.some((n) => !n.mine && !old.has(n.id))) add('liveNews', 'us', 'newsCard');
+    if (sb.news.some((n) => n.mine && n.reply && old.has(n.id) && !old.get(n.id).reply)) add('liveNewsReply', 'us', 'newsCard');
+  }
+  if (sa.stress && sb.stress) {
+    if (sb.stress.partner && (!sa.stress.partner || sa.stress.partner.at !== sb.stress.partner.at)) add('liveStress', 'us', 'stressCard', true);
+    if (sb.stress.mine && sb.stress.mine.ack && sa.stress.mine && !sa.stress.mine.ack) add('liveAck', 'us', 'stressCard');
+  }
+  if (sa.lmap && sb.lmap && sa.lmap.day === sb.lmap.day && !sa.lmap.partnerPlayed && sb.lmap.partnerPlayed) add('liveLmap', 'together', 'lmapCard');
+  if (sa.checkin && sb.checkin && sa.checkin.week === sb.checkin.week && !sa.checkin.partnerDone && sb.checkin.partnerDone) add('liveCheckin', 'us', 'ciCard');
+  if (sa.chal && sb.chal && sa.chal.day === sb.chal.day && !sa.chal.partner && sb.chal.partner) add('liveChal', 'home', 'chalCard');
+  if (sa.aron && sb.aron && sb.aron.i > sa.aron.i && sb.aron.i > 1) add('liveAron', 'together', 'aronCard');
+  // Lo urgente primero; si pasaron varias cosas, se muestran una tras otra
+  ev.sort((x, y) => (y.urgent ? 1 : 0) - (x.urgent ? 1 : 0)).slice(0, 3).forEach(liveShow);
+}
+const liveQ = []; let liveBusy = false;
+function liveShow(e) { liveQ.push(e); if (!liveBusy) liveNext(); }
+function liveNext() {
+  const e = liveQ.shift();
+  if (!e) { liveBusy = false; return; }
+  liveBusy = true;
+  let bar = $('liveBar');
+  if (!bar) { bar = el('button', 'live-bar'); bar.id = 'liveBar'; bar.type = 'button'; document.body.append(bar); }
+  bar.innerHTML = '';
+  const av = el('span', 'live-av', (pName() || '?').slice(0, 1).toUpperCase());
+  const tx = el('span', 'live-tx'); tx.append(el('b', null, t(e.key, { p: pName() })), el('small', null, t('liveTap')));
+  bar.append(av, tx);
+  bar.classList.toggle('urgent', !!e.urgent);
+  bar.classList.remove('show'); void bar.offsetWidth; bar.classList.add('show');
+  haptic(e.urgent ? [40, 60, 40, 60, 80] : [12, 40, 12]);
+  let done = false;
+  const hide = () => { if (done) return; done = true; bar.classList.remove('show'); setTimeout(liveNext, 450); };
+  bar.onclick = () => {
+    const tb = document.querySelector(`.tab[data-tab=${e.tab}]`);
+    if (tb && tab !== e.tab) tb.click();
+    if (e.card) setTimeout(() => { const c = $(e.card); if (c) { c.scrollIntoView({ behavior: 'smooth', block: 'start' }); c.classList.remove('flash'); void c.offsetWidth; c.classList.add('flash'); } }, 350);
+    hide();
+  };
+  setTimeout(hide, e.urgent ? 7000 : 4500);
+}
+// ¿Están jugando algo en vivo ahora mismo? Entonces refrescar más rápido.
+function liveMode() {
+  if (!state || !state.partnerOnline) return false;
+  const p = state.play || {}, s = state.science || {};
+  const g = p.c4 && p.c4.game;
+  return !!((g && g.status === 'live' && g.turn === 'p') || (p.story && p.story.cur && !p.story.myTurn)
+    || (p.wml && p.wml.mine && !p.wml.partnerDone) || (s.aron && s.aron.i > 0 && s.aron.i <= s.aron.n)
+    || (state.dice && state.dice.status === 'live') || (s.stress && (s.stress.mine && !s.stress.mine.ack)));
+}
+
+/* ----- Las tarjetas aparecen con suavidad al bajar ----- */
+const revealIO = 'IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches
+  ? new IntersectionObserver((list) => list.forEach((x) => { if (x.isIntersecting) { x.target.classList.add('in'); revealIO.unobserve(x.target); } }), { rootMargin: '0px 0px -8% 0px' })
+  : null;
+function revealCards(viewId) {
+  if (!revealIO) return;
+  const v = $(viewId); if (!v) return;
+  v.querySelectorAll(':scope > .card').forEach((c) => {
+    if (c.getBoundingClientRect().top < innerHeight * 0.9) return; // lo que ya se ve, se queda
+    c.classList.remove('in'); c.classList.add('rv'); revealIO.observe(c);
+  });
 }
 
 /* ----- Inicio ----- */
@@ -1674,6 +1777,8 @@ document.querySelectorAll('.tab').forEach((b) => b.onclick = () => {
   if (tab === 'us') { store.set('sahar_us_seen', String(Date.now())); renderHarmony(); }
   if (tab === 'together') { store.set('sahar_tog_seen', String(Date.now())); renderWishes2(); }
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  haptic(6);
+  requestAnimationFrame(() => revealCards(TAB_VIEW[tab] || 'homeView'));
 });
 
 /* ----- Fotos y audios ----- */
@@ -2120,6 +2225,7 @@ function drawTotStep() {
 }
 
 /* ----- Marcador: quién conoce mejor a quién ----- */
+let lastScore = null;
 function renderScore() {
   const sc = state.score;
   $('scoreCard').classList.toggle('hidden', !sc);
@@ -2127,14 +2233,21 @@ function renderScore() {
   const p = state.partnerName || '';
   const body = $('scoreBody'); body.innerHTML = '';
   const board = document.createElement('div'); board.className = 'vs-board';
-  const side = (n, who, lead) => { const d = document.createElement('div'); d.className = 'side' + (lead ? ' lead' : ''); const b = document.createElement('b'); b.textContent = num(n); const s2 = document.createElement('span'); s2.textContent = who; d.append(b, s2); return d; };
+  // Los puntos suben contando y la barra se desliza desde donde estaba
+  const prev = lastScore;
+  const side = (n, was, who, lead) => { const d = document.createElement('div'); d.className = 'side' + (lead ? ' lead' : ''); const b = document.createElement('b'); if (was != null && n > was) countUp(b, was, n); else b.textContent = num(n); const s2 = document.createElement('span'); s2.textContent = who; d.append(b, s2); return d; };
   const mid = document.createElement('div'); mid.className = 'mid'; mid.textContent = t('weekPts');
-  board.append(side(sc.weekMe, t('you'), sc.weekMe > sc.weekPartner), mid, side(sc.weekPartner, p, sc.weekPartner > sc.weekMe));
+  board.append(side(sc.weekMe, prev && prev.me, t('you'), sc.weekMe > sc.weekPartner), mid, side(sc.weekPartner, prev && prev.p, p, sc.weekPartner > sc.weekMe));
   const bar = document.createElement('div'); bar.className = 'score-bar';
   const tot = sc.weekMe + sc.weekPartner;
   const a = document.createElement('i'); a.style.background = 'linear-gradient(90deg,var(--red),var(--rose))';
   const b = document.createElement('i'); b.style.background = 'linear-gradient(90deg,var(--gold-3),var(--gold-2))';
-  a.style.width = tot ? `${(sc.weekMe / tot) * 100}%` : '50%'; b.style.width = tot ? `${(sc.weekPartner / tot) * 100}%` : '50%';
+  const pct = (x, y) => (x + y ? (x / (x + y)) * 100 : 50);
+  const wa = pct(sc.weekMe, sc.weekPartner);
+  const fromA = prev ? pct(prev.me, prev.p) : wa;
+  a.style.width = `${fromA}%`; b.style.width = `${100 - fromA}%`;
+  if (fromA !== wa) requestAnimationFrame(() => requestAnimationFrame(() => { a.style.width = `${wa}%`; b.style.width = `${100 - wa}%`; }));
+  lastScore = { me: sc.weekMe, p: sc.weekPartner };
   bar.append(a, b);
   const lead = document.createElement('div'); lead.className = 'score-lead';
   lead.textContent = sc.weekMe === sc.weekPartner ? t('scoreTie') : sc.weekMe > sc.weekPartner ? t('scoreYouLead') : t('scoreLead', { p });
