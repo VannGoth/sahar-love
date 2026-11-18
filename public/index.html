@@ -497,6 +497,70 @@
   @keyframes trophy { 0%{ transform:scale(0) rotate(-30deg); opacity:0 } 60%{ transform:scale(1.25) rotate(8deg); opacity:1 } 100%{ transform:none } }
   .status.sync { color:var(--gold-1); font-family:var(--font-display); font-size:24px; font-weight:700; animation:numpop .7s cubic-bezier(.2,.9,.3,1.5); }
 
+  /* ---------- Ciencia del amor ---------- */
+  .online { color:#4ade80; font-size:13px; font-weight:600; margin-inline-start:6px; white-space:nowrap; font-family:var(--font-ui); }
+  .online::before { content:""; display:inline-block; width:8px; height:8px; border-radius:50%; background:#4ade80; margin-inline-end:5px; box-shadow:0 0 8px #4ade80; animation:fade 1.6s infinite; vertical-align:middle; }
+  .chal-text { font-family:var(--font-display); font-size:20px; color:var(--cream); line-height:1.35; margin:0 0 6px; }
+  .chal-src { color:var(--muted-2); font-size:12.5px; margin-bottom:10px; }
+  .lmap-q { font-family:var(--font-display); font-size:21px; color:var(--gold-1); margin:0 0 10px; line-height:1.3; }
+  .lmap-pair, .ci-card { padding:12px; border-radius:16px; background:rgba(255,255,255,.04); border:1px solid rgba(var(--glowg),.16); margin-top:10px; animation:rise .4s both; }
+  .lmap-a small, .ci-card small { display:block; color:var(--gold-2); font-size:12px; font-weight:600; }
+  .lmap-a div { line-height:1.4; overflow-wrap:anywhere; margin-bottom:6px; }
+  .lmap-grade { color:var(--gold-1); font-weight:600; margin:6px 0; }
+  .aron-q { font-family:var(--font-display); font-size:22px; line-height:1.35; color:var(--cream); min-height:96px; animation:rise .4s both; }
+  .aron-nav { display:flex; gap:8px; margin-top:12px; }
+  .aron-nav .btn { flex:1; margin:0; }
+  .aron-timer { font-family:var(--font-display); font-size:44px; text-align:center; color:var(--gold-1); margin:6px 0; }
+  .breath { width:120px; height:120px; margin:8px auto 12px; border-radius:50%; display:grid; place-items:center; text-align:center; background:radial-gradient(circle at 35% 30%,rgba(var(--glowg),.55),rgba(var(--glow),.35)); box-shadow:0 0 40px rgba(var(--glow),.35); transition:transform 4s linear; color:var(--cream); font-weight:600; transform:scale(.8); }
+  .breath[data-ph="0"], .breath[data-ph="1"] { transform:scale(1.2); }
+  .pause-msg { text-align:center; color:var(--gold-1); margin-bottom:8px; line-height:1.4; }
+  .repairs { display:flex; flex-direction:column; gap:6px; }
+  .repair { text-align:start; border:1px solid var(--card-line); background:rgba(255,255,255,.04); color:var(--cream); border-radius:14px; padding:10px 12px; font-size:14.5px; line-height:1.35; transition:all .2s; }
+  .repair:active { transform:scale(.98); background:rgba(var(--glow),.3); }
+  .ci-range { display:flex; align-items:center; gap:12px; margin-bottom:8px; }
+  .ci-range input { flex:1; accent-color:var(--gold-2); }
+  .ci-range b { font-family:var(--font-display); font-size:30px; color:var(--gold-1); min-width:38px; text-align:center; }
+  .ci-score { font-family:var(--font-display); font-size:30px; color:var(--gold-1); line-height:1.1; }
+  .ci-card p { margin:6px 0 0; line-height:1.4; overflow-wrap:anywhere; }
+  .ci-card .need { color:var(--gold-1); }
+  .trend-wrap { margin-top:12px; }
+  .trend { width:100%; height:auto; display:block; }
+  .trend .grid { stroke:rgba(255,255,255,.08); stroke-width:1; }
+  .trend polyline { fill:none; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
+  .trend polyline.me { stroke:var(--gold-2); } .trend polyline.pt { stroke:var(--rose); }
+  .trend circle.me { fill:var(--gold-2); } .trend circle.pt { fill:var(--rose); }
+  .trend-lg { display:flex; gap:14px; justify-content:center; font-size:12.5px; color:var(--muted); margin-top:4px; }
+  .trend-lg span::before { content:"●"; margin-inline-end:4px; }
+  .trend-lg .me::before { color:var(--gold-2); } .trend-lg .pt::before { color:var(--rose); }
+  /* Dado 3D */
+  .die3d { width:56px; height:56px; perspective:500px; flex:none; }
+  .cube { position:relative; width:100%; height:100%; transform-style:preserve-3d; }
+  .cube .face { position:absolute; inset:0; border-radius:12px; background:linear-gradient(145deg,#fffaf0,#efdcbc); box-shadow:inset 0 0 0 1px rgba(0,0,0,.08), inset -4px -4px 10px rgba(0,0,0,.14); display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,1fr); padding:8px; backface-visibility:hidden; -webkit-backface-visibility:hidden; }
+  .cube .face i { display:block; margin:auto; width:10px; height:10px; border-radius:50%; }
+  .cube .face i.pip { background:radial-gradient(circle at 35% 35%,#8a1236,#2a0410); }
+  .cube .f1 { transform:translateZ(28px); } .cube .f2 { transform:rotateY(90deg) translateZ(28px); }
+  .cube .f3 { transform:rotateX(90deg) translateZ(28px); } .cube .f4 { transform:rotateX(-90deg) translateZ(28px); }
+  .cube .f5 { transform:rotateY(-90deg) translateZ(28px); } .cube .f6 { transform:rotateY(180deg) translateZ(28px); }
+  /* Bloqueo con código */
+  .lock { position:fixed; inset:0; z-index:300; display:grid; place-items:center; background:radial-gradient(120% 70% at 50% 0%,var(--bg-2),transparent 70%),var(--bg-0); padding:20px; }
+  .lock-box { text-align:center; width:min(320px,100%); }
+  .lock-heart { font-size:46px; }
+  #lockMsg { color:var(--gold-1); font-size:17px; min-height:24px; margin:10px 0 0; }
+  .lock-dots { display:flex; gap:14px; justify-content:center; margin:14px 0 22px; }
+  .lock-dots i { width:14px; height:14px; border-radius:50%; border:2px solid var(--gold-2); transition:background .15s; }
+  .lock-dots i.on { background:var(--gold-2); }
+  .lock-dots.shake { animation:lockshake .4s; }
+  @keyframes lockshake { 20%,60% { transform:translateX(-10px) } 40%,80% { transform:translateX(10px) } }
+  .keypad { display:grid; grid-template-columns:repeat(3,72px); gap:14px; justify-content:center; direction:ltr; }
+  .keypad button { height:72px; border-radius:50%; border:1px solid var(--card-line); background:rgba(255,255,255,.05); color:var(--cream); font-size:26px; }
+  .keypad button:active { background:rgba(var(--glow),.35); }
+  .keypad .blank { visibility:hidden; }
+  .lock-forgot { margin-top:18px; }
+  .lock-name { margin-top:12px; display:flex; gap:8px; }
+  .lock-name .btn { width:auto; margin:0; padding:0 18px; }
+  body.veil main, body.veil .tabbar { filter:blur(22px); }
+  .lightbox .lb-del { position:absolute; bottom:calc(env(safe-area-inset-bottom) + 24px); }
+
   /* ---------- Armonía ---------- */
   .hcard h3, .race-card h3 { margin:0 0 8px; font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--gold-2); display:flex; align-items:center; gap:6px; }
   html[dir="rtl"] .hcard h3, html[dir="rtl"] .race-card h3 { letter-spacing:0; font-size:15px; }
@@ -844,6 +908,10 @@
       <div id="cardsBody"></div>
       <button class="chip-btn" id="toGiftBtn" style="margin-top:6px">🎁 <span data-i18n="giftTitle"></span></button>
     </div>
+    <div class="card hcard" id="chalCard">
+      <h3>🔬 <span data-i18n="chalTitle"></span></h3>
+      <div id="chalBody"></div>
+    </div>
     <div class="card qcard" id="qCard">
       <h3>💭 <span data-i18n="qTitle"></span></h3>
       <p class="q-text" id="qText"></p>
@@ -906,6 +974,11 @@
         <label for="extraChk" data-i18n="extraVib"></label>
         <span class="switch"><input type="checkbox" id="extraChk"><i></i></span>
       </div>
+      <div class="set-row">
+        <label>🔒 <span data-i18n="lockTitle"></span></label>
+        <button class="chip-btn" id="lockBtn"></button>
+      </div>
+      <p class="score-note" style="text-align:start;margin:4px 0 8px" data-i18n="lockNote"></p>
     </div>
 
     <h2 data-i18n="receivedTitle"></h2>
@@ -927,6 +1000,26 @@
     <div class="card hcard" id="ratioCard" style="margin-top:14px">
       <h3>⚖️ <span data-i18n="ratioTitle"></span></h3>
       <div id="ratioBody"></div>
+    </div>
+    <div class="card hcard" id="ciCard">
+      <h3>📈 <span data-i18n="checkinTitle"></span></h3>
+      <p class="intro" data-i18n="checkinIntro"></p>
+      <div id="ciBody"></div>
+    </div>
+    <div class="card hcard" id="turnCard">
+      <h3>🔄 <span data-i18n="turnTitle"></span></h3>
+      <p class="intro" data-i18n="turnIntro"></p>
+      <div id="turnBody"></div>
+    </div>
+    <div class="card hcard" id="pauseCard">
+      <h3>🕊️ <span data-i18n="pauseTitle"></span></h3>
+      <p class="intro" data-i18n="pauseIntro"></p>
+      <div id="pauseBody"></div>
+    </div>
+    <div class="card hcard" id="repairCard">
+      <h3>🩹 <span data-i18n="repairTitle"></span></h3>
+      <p class="intro" data-i18n="repairIntro"></p>
+      <div id="repairBody"></div>
     </div>
     <div class="card hcard" id="issCard">
       <h3>💬 <span data-i18n="issTitle"></span></h3>
@@ -995,7 +1088,17 @@
 
   <!-- Juntos: plan de la semana, juegos y nuestro sueño -->
   <section id="togetherView" class="view hidden">
-    <div class="card hcard" id="weekCard" style="margin-top:14px">
+    <div class="card hcard" id="lmapCard" style="margin-top:14px">
+      <h3>🗺️ <span data-i18n="lmapTitle"></span></h3>
+      <p class="intro" id="lmapIntro"></p>
+      <div id="lmapBody"></div>
+    </div>
+    <div class="card hcard" id="aronCard">
+      <h3>💞 <span data-i18n="aronTitle"></span></h3>
+      <p class="intro" data-i18n="aronIntro"></p>
+      <div id="aronBody"></div>
+    </div>
+    <div class="card hcard" id="weekCard">
       <h3>🗓️ <span data-i18n="weekTitle"></span></h3>
       <p class="intro" data-i18n="weekIntro"></p>
       <div id="weekBody"></div>
@@ -1095,7 +1198,17 @@
   <div class="memo-grid" id="memoGrid"></div>
   <div class="race-msg" id="memoMsg"></div>
 </div>
-<div class="lightbox hidden" id="lightbox"><img alt="📷"></div>
+<div class="lightbox hidden" id="lightbox"><img alt="📷"><button class="chip-btn lb-del" id="lbDel"></button></div>
+<div class="lock hidden" id="lockView">
+  <div class="lock-box">
+    <div class="lock-heart">🔒</div>
+    <p id="lockMsg"></p>
+    <div class="lock-dots" id="lockDots"></div>
+    <div class="keypad" id="keypad"></div>
+    <button class="chip-btn lock-forgot" id="lockForgot"></button>
+    <div class="lock-name hidden" id="lockNameRow"><input class="field" id="lockName" autocomplete="off"><button class="btn" id="lockNameBtn">✓</button></div>
+  </div>
+</div>
 <div class="draw hidden" id="drawPad">
   <div class="bar" id="drawColors"></div>
   <canvas id="drawCanvas"></canvas>
@@ -1112,7 +1225,7 @@
 <label id="hapticLbl" aria-hidden="true"><input type="checkbox" switch tabindex="-1"></label>
 <script src="/i18n.js"></script>
 <script>
-const APP_VERSION = '2026-11-15-1';
+const APP_VERSION = '2026-11-17-1';
 let currentTheme = 'aurora';
 try {
   // Estreno del color nuevo: pasar una vez a «Aurora»; después se respeta lo que elijan
@@ -1169,9 +1282,8 @@ let userId = store.get('sahar_uid');
 if (!userId) { userId = (crypto.randomUUID ? crypto.randomUUID() : 'u' + Math.random().toString(36).slice(2) + Date.now()); store.set('sahar_uid', userId); }
 
 async function api(path, method = 'GET', body) {
-  const opts = { method, headers: { 'Content-Type': 'application/json' } };
-  if (method === 'GET') path += (path.includes('?') ? '&' : '?') + 'userId=' + encodeURIComponent(userId);
-  else opts.body = JSON.stringify({ userId, ...body });
+  const opts = { method, headers: { 'Content-Type': 'application/json', 'X-User-Id': userId } };
+  if (method !== 'GET') opts.body = JSON.stringify(body || {});
   let res;
   try {
     const ctrl = new AbortController();
@@ -1220,7 +1332,7 @@ function render(fresh = true) {
     return;
   }
   show(TAB_VIEW[tab] || 'homeView');
-  pollTimer = setInterval(refresh, 20000);
+  pollTimer = setInterval(refresh, state.partnerOnline ? 6000 : 20000);
   renderHome(fresh);
   renderMessages();
   renderDates();
@@ -1236,6 +1348,8 @@ function render(fresh = true) {
   renderRace();
   renderHarmony();
   renderWishes2();
+  renderScience();
+  renderLockRow();
   checkNewLove();
 }
 
@@ -1252,6 +1366,7 @@ function renderHome(animate) {
   const pn = document.createElement('span'); pn.className = 'amp'; pn.textContent = p; $('whoText').append(pn);
   $('whoText').append(document.createTextNode(parts[1] || ''));
   if (state.partnerMood) $('whoText').append(document.createTextNode(' ' + state.partnerMood));
+  if (state.partnerOnline) $('whoText').append(el('span', 'online', t('online')));
 
   const tg = $('togetherText');
   if (state.since) {
@@ -1554,7 +1669,7 @@ $('audioBtn').onclick = async () => {
 };
 async function fetchMedia(id) {
   if (mediaCache[id]) return mediaCache[id];
-  const r = await fetch(`/api/media/${id}?userId=${encodeURIComponent(userId)}`);
+  const r = await fetch(`/api/media/${id}`, { headers: { 'X-User-Id': userId } });
   if (!r.ok) throw new Error('media');
   return (mediaCache[id] = URL.createObjectURL(await r.blob()));
 }
@@ -1636,7 +1751,7 @@ function renderDates() {
     else { const bb = document.createElement('b'); bb.textContent = num(d.left); const sp = document.createElement('span'); sp.textContent = I.plural(lang, d.left, I.STRINGS[lang].days); left.append(bb, sp); }
     row.append(ic, main, left);
     const acts = document.createElement('div'); acts.className = 'date-acts';
-    const cal = document.createElement('a'); cal.href = `/api/ics/${d.id}?userId=${encodeURIComponent(userId)}`; cal.target = '_blank'; cal.rel = 'noopener'; cal.textContent = `📅 ${t('addCal')}`;
+    const cal = document.createElement('a'); cal.href = `/api/ics/${d.id}?t=${encodeURIComponent(d.ics || '')}`; cal.target = '_blank'; cal.rel = 'noopener'; cal.textContent = `📅 ${t('addCal')}`;
     const del = document.createElement('button'); del.textContent = '🗑';
     del.onclick = async () => { try { state = await api('/api/dates', 'DELETE', { id: d.id }); renderDates(); } catch (e) { $('dateErr').textContent = errText(e); } };
     acts.append(cal, del);
@@ -1788,11 +1903,25 @@ function renderAlbum() {
     const b = document.createElement('button');
     const im = document.createElement('img'); im.alt = '📷'; im.loading = 'lazy'; b.append(im);
     fetchMedia(m.id).then((u) => { im.src = u; }).catch(() => b.remove());
-    b.onclick = async () => { const lb = $('lightbox'); lb.querySelector('img').src = await fetchMedia(m.id); lb.classList.remove('hidden'); };
+    b.onclick = async () => {
+      const lb = $('lightbox'); lb.querySelector('img').src = await fetchMedia(m.id); lb.dataset.id = m.id;
+      const del = $('lbDel'); del.dataset.armed = ''; del.textContent = t('photoDel'); del.classList.remove('hidden');
+      lb.classList.remove('hidden');
+    };
     grid.append(b);
   });
 }
 $('lightbox').onclick = () => $('lightbox').classList.add('hidden');
+$('lbDel').onclick = async (e) => {
+  e.stopPropagation();
+  const del = $('lbDel'), lb = $('lightbox'), id = lb.dataset.id;
+  if (del.dataset.armed !== '1') { del.dataset.armed = '1'; del.textContent = t('photoDelConfirm'); haptic(20); return; }
+  try {
+    state = await api('/api/media/' + id, 'DELETE', {});
+    if (mediaCache[id]) { URL.revokeObjectURL(mediaCache[id]); delete mediaCache[id]; }
+    lb.classList.add('hidden'); toast(t('photoDeleted')); render(false);
+  } catch (err) { toast(errText(err)); }
+};
 
 /* ----- Fal-e Hafez: un verso al día ----- */
 function hafezIndex(day) { let h = 0; for (const ch of userId + day) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h % I.HAFEZ.length; }
@@ -2650,19 +2779,22 @@ function renderDice() {
     for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) cells.push(r % 2 ? r * cols + (cols - 1 - c) : r * cols + c);
     const lastLog = d.log[d.log.length - 1];
     const fresh = d.log.length !== diceShown.n || d.id !== diceShown.id;
+    if (fresh && diceShown.id === d.id && lastLog && !diceAnim) { diceShown = { id: d.id, n: d.log.length }; return animateDice(lastLog); }
+    const posMe = diceAnim && diceAnim.by === 'me' ? diceAnim.pos : d.me;
+    const posPt = diceAnim && diceAnim.by === 'partner' ? diceAnim.pos : d.partner;
     cells.forEach((i) => {
       const cell = el('div', 'cell' + (i === 0 ? ' start' : i === d.len - 1 ? ' goal' : ''));
       cell.append(el('span', 'n', String(i)));
       if (i === d.len - 1) cell.append(el('span', 'sp', '🏁'));
       else if (d.board[i]) cell.append(el('span', 'sp', SQ_ICON[d.board[i]] || ''));
-      if (d.me === i) { const tk = el('span', 'tok a' + (fresh && lastLog && lastLog.by === 'me' ? ' hop' : ''), d.racer); cell.append(tk); }
-      if (d.partner === i) { const tk = el('span', 'tok b' + (fresh && lastLog && lastLog.by === 'partner' ? ' hop' : ''), d.partnerRacer); cell.append(tk); }
+      if (posMe === i) { const tk = el('span', 'tok a' + (diceAnim && diceAnim.by === 'me' ? ' hop' : ''), d.racer); cell.append(tk); }
+      if (posPt === i) { const tk = el('span', 'tok b' + (diceAnim && diceAnim.by === 'partner' ? ' hop' : ''), d.partnerRacer); cell.append(tk); }
       board.append(cell);
     });
     body.append(board);
     const row = el('div', 'dice-row');
-    const face = el('div', 'dice-face' + (fresh && lastLog ? ' roll' : ''), lastLog ? DICE_FACES[lastLog.roll - 1] : '🎲');
-    row.append(face);
+    row.append(diceCube);
+    if (!diceAnim) showFace(lastLog ? lastLog.roll : 1, false);
     if (d.status === 'live') {
       if (d.myTurn) {
         const b = el('button', 'btn gold', `${t('diceYourTurn')} · ${t('diceRoll')}`);
@@ -2684,10 +2816,6 @@ function renderDice() {
       if (lastLog.wind) txt += ` · ${t('diceSq.wind')}`;
       if (lastLog.effect) txt += ` · ${t('diceSq.' + lastLog.effect)}`;
       body.append(el('div', 'dice-log', txt));
-    }
-    if (fresh && diceShown.id === d.id && lastLog) {
-      if (d.status === 'done' && d.winner === 'me') { FX.fireworks(5); FX.shower(2400, { colors: ['#fde68a', '#ff4f8b'], emoji: '🏆' }); haptic([60, 40, 80, 40, 120]); }
-      else if (lastLog.effect) { const [x, y] = centerOf(board); FX.burst(x, y, 24, { emoji: SQ_ICON[lastLog.effect] || '✨' }); }
     }
     diceShown = { id: d.id, n: d.log.length };
     if (d.status === 'live') {
@@ -2713,6 +2841,60 @@ function renderDice() {
   // Mientras se mira la carrera y es el turno del otro, preguntar seguido
   clearTimeout(dicePoll);
   if (d.status === 'live' && !d.myTurn && tab === 'together' && !document.hidden) dicePoll = setTimeout(refresh, 4000);
+}
+// Dado de verdad: cubo 3D que rueda, suena y cae en la cara que salió
+let diceAnim = null;
+const DIE_PIPS = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
+const FACE_ROT = { 1: [0, 0], 2: [0, -90], 3: [-90, 0], 4: [90, 0], 5: [0, 90], 6: [0, 180] };
+const diceCube = (() => {
+  const wrap = el('div', 'die3d'), cube = el('div', 'cube');
+  for (let n = 1; n <= 6; n++) { const f = el('div', 'face f' + n); for (let i = 0; i < 9; i++) f.append(el('i', DIE_PIPS[n].includes(i) ? 'pip' : '')); cube.append(f); }
+  wrap.append(cube); return wrap;
+})();
+function showFace(n, tumble) {
+  const cube = diceCube.firstChild, [x, y] = FACE_ROT[n] || [0, 0];
+  cube.style.transition = 'none';
+  if (!tumble) { cube.style.transform = `rotateX(${x}deg) rotateY(${y}deg)`; return; }
+  cube.style.transform = `rotateX(${x + 50}deg) rotateY(${y - 40}deg)`;
+  void cube.offsetWidth;
+  cube.style.transition = 'transform 1s cubic-bezier(.15,.75,.3,1)';
+  cube.style.transform = `rotateX(${x + 720}deg) rotateY(${y + 720}deg)`;
+}
+let audioCtx = null;
+function diceSound() {
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const ac = audioCtx, t0 = ac.currentTime;
+    for (let i = 0; i < 7; i++) {
+      const at = t0 + i * 0.085 + Math.random() * 0.03;
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = 'triangle'; o.frequency.value = 220 + Math.random() * 520;
+      g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(0.09 * (1 - i / 9), at + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, at + 0.05);
+      o.connect(g).connect(ac.destination); o.start(at); o.stop(at + 0.06);
+    }
+  } catch (_) {}
+}
+function animateDice(log) {
+  const d = state.dice, end = d.len - 1;
+  const land = Math.min(end, log.from + log.roll + log.wind);
+  const path = [];
+  for (let p = log.from + 1; p <= land; p++) path.push(p);
+  if (log.to !== land) path.push(log.to);
+  diceAnim = { by: log.by, pos: log.from };
+  renderDice(); showFace(log.roll, true); diceSound(); haptic([15, 40, 15, 40, 15]);
+  let k = 0;
+  setTimeout(function step() {
+    if (!diceAnim) return;
+    if (k < path.length) {
+      diceAnim.pos = path[k++]; renderDice(); haptic(6);
+      setTimeout(step, k === path.length - 1 && log.to !== land ? 520 : 240);
+    } else { diceAnim = null; renderDice(); diceFx(log); }
+  }, 1050);
+}
+function diceFx(log) {
+  const d = state.dice;
+  if (d.status === 'done' && d.winner === 'me') { FX.fireworks(5); FX.shower(2400, { colors: ['#fde68a', '#ff4f8b'], emoji: '🏆' }); haptic([60, 40, 80, 40, 120]); }
+  else if (log.effect) { const [x, y] = centerOf($('diceBody')); FX.burst(x, y, 24, { emoji: SQ_ICON[log.effect] || '✨' }); }
 }
 async function diceStart() {
   try { state = await api('/api/dice/start', 'POST', {}); renderDice(); FX.shower(1200, { emoji: state.dice.racer }); }
@@ -3206,9 +3388,323 @@ const FX = (() => {
 })();
 applyTheme(currentTheme);
 
+/* =================== Ciencia del amor =================== */
+const pName = () => (state && state.partnerName) || '';
+const strArr = (k) => I.STRINGS[lang][k] || I.STRINGS.en[k];
+function renderScience() {
+  const s = state && state.science;
+  if (!s) return;
+  renderChallenge(s); renderLmap(s); renderAron(s); renderCheckin(s); renderTurn(s); renderPause(s); renderRepair();
+}
+async function sciCall(path, body, fx) {
+  try { state = await api(path, 'POST', body); renderScience(); renderScore(); if (fx) fx(); return true; }
+  catch (e) { toast(errText(e)); return false; }
+}
+
+/* ----- Reto del día ----- */
+let chalSig = '';
+function renderChallenge(s) {
+  const c = s.chal, sig = lang + JSON.stringify(c) + pName();
+  if (sig === chalSig) return; chalSig = sig;
+  const body = $('chalBody'); body.innerHTML = '';
+  body.append(el('p', 'chal-text', listOf(I.CHALLENGES)[c.i]), el('div', 'chal-src', `📚 ${t('studyLbl')}: ${I.CHAL_SRC[c.i]}`));
+  if (c.me && c.partner) body.append(el('div', 'tot-step', t('chalBoth')));
+  else if (c.me) body.append(el('div', 'tot-wait', t('chalWait', { p: pName() })));
+  else {
+    const b = el('button', 'btn gold', t('chalDone'));
+    b.onclick = async () => {
+      b.disabled = true;
+      const ok = await sciCall('/api/challenge', {}, () => { const [x, y] = centerOf($('chalCard')); FX.burst(x, y, 40, { emoji: '✨' }); haptic([30, 40, 60]); });
+      if (!ok) b.disabled = false;
+    };
+    body.append(b);
+  }
+  body.append(el('div', 'wins', t('chalTotal', { n: num(c.total) })));
+}
+
+/* ----- Mapas del amor (Gottman) ----- */
+let lmapSig = '';
+function renderLmap(s) {
+  const m = s.lmap, sig = lang + JSON.stringify(m) + pName();
+  if (sig === lmapSig) return; lmapSig = sig;
+  const body = $('lmapBody');
+  const keep = { me: $('lmapMe') ? $('lmapMe').value : '', guess: $('lmapGuess') ? $('lmapGuess').value : '' };
+  body.innerHTML = '';
+  $('lmapIntro').textContent = t('lmapIntro', { p: pName() });
+  body.append(el('div', 'lmap-q', listOf(I.LMAP)[m.q]));
+  const G = strArr('lmapG');
+  if (!m.mine) {
+    const me = el('textarea', 'field'); me.id = 'lmapMe'; me.maxLength = 200; me.placeholder = t('lmapMe'); me.value = keep.me;
+    const g = el('textarea', 'field'); g.id = 'lmapGuess'; g.maxLength = 200; g.placeholder = t('lmapGuess', { p: pName() }); g.value = keep.guess;
+    const b = el('button', 'btn gold', t('lmapSend'));
+    b.onclick = async () => {
+      if (!me.value.trim() || !g.value.trim()) { (me.value.trim() ? g : me).focus(); return; }
+      b.disabled = true;
+      const ok = await sciCall('/api/lmap', { me: me.value, guess: g.value }, () => { haptic([20, 30, 20]); });
+      if (!ok) b.disabled = false;
+    };
+    body.append(me, g, b);
+  } else if (!m.partner) body.append(el('div', 'tot-wait', t('lmapWait', { p: pName() })));
+  else {
+    const row = (lbl, txt) => { const d = el('div', 'lmap-a'); d.append(el('small', null, lbl), el('div', null, showMsg(txt))); return d; };
+    const a = el('div', 'lmap-pair');
+    a.append(row(t('lmapYouGuessed'), m.mine.guess), row(t('lmapSaid', { p: pName() }), m.partner.me));
+    a.append(el('div', 'lmap-grade', m.myGrade == null ? t('lmapWaitGrade', { p: pName() }) : t('lmapMyGrade', { g: G[m.myGrade] })));
+    const b2 = el('div', 'lmap-pair');
+    b2.append(row(t('lmapTheyGuessed', { p: pName() }), m.partner.guess), row(t('lmapYourAns'), m.mine.me));
+    if (m.partnerGrade == null) {
+      const pills = el('div', 'pills');
+      G.forEach((lbl, i) => {
+        const p = el('button', 'pill', lbl);
+        p.onclick = () => sciCall('/api/lmap/grade', { grade: i }, () => { if (i) { const [x, y] = centerOf(b2); FX.burst(x, y, 20 * i, { emoji: '🗺️' }); } });
+        pills.append(p);
+      });
+      b2.append(el('div', 'lmap-grade', t('lmapGradeQ')), pills);
+    } else b2.append(el('div', 'lmap-grade', G[m.partnerGrade]));
+    body.append(a, b2);
+  }
+  body.append(el('div', 'wins', t('lmapTotal', { n: num(m.total) })));
+}
+
+/* ----- 36 preguntas (Aron, 1997) ----- */
+let aronSig = '', aronTimer = null;
+function renderAron(s) {
+  const a = s.aron, sig = lang + JSON.stringify(a);
+  if (sig === aronSig) return; aronSig = sig;
+  const body = $('aronBody'); body.innerHTML = ''; clearInterval(aronTimer);
+  const go = (act) => sciCall('/api/aron', { act }, () => haptic(12));
+  if (a.i === 0) {
+    const b = el('button', 'btn gold', t('aronStart')); b.onclick = () => go('next'); body.append(b);
+  } else if (a.i <= a.n) {
+    const part = a.i <= 12 ? 1 : a.i <= 24 ? 2 : 3;
+    body.append(el('small', 'chal-src', t('aronOf', { s: num(part), i: num(a.i), n: num(a.n) })));
+    const bar = el('div', 'ratio-bar'); const fill = el('i'); fill.style.width = `${(a.i / a.n) * 100}%`; bar.append(fill);
+    body.append(bar, el('div', 'aron-q', listOf(I.ARON)[a.i - 1]));
+    const nav = el('div', 'aron-nav');
+    const prev = el('button', 'btn ghost', t('aronPrev')); prev.onclick = () => go('prev');
+    const next = el('button', 'btn gold', t('aronNext')); next.onclick = () => go('next');
+    nav.append(prev, next); body.append(nav);
+  } else {
+    body.append(el('div', 'aron-q', t('aronEnd')));
+    const clock = el('div', 'aron-timer', '4:00');
+    const b = el('button', 'btn gold', t('aronTimer'));
+    b.onclick = () => {
+      b.disabled = true; const end = Date.now() + 4 * 60000;
+      clearInterval(aronTimer);
+      aronTimer = setInterval(() => {
+        const left = Math.max(0, end - Date.now()), sec = Math.ceil(left / 1000);
+        clock.textContent = `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
+        if (!left) { clearInterval(aronTimer); clock.textContent = t('aronDone'); FX.fireworks(4); FX.shower(2000, { emoji: '💞' }); haptic([60, 40, 120]); b.disabled = false; }
+      }, 250);
+    };
+    const r = el('button', 'chip-btn', `🔁 ${t('aronRestart')}`); r.style.marginTop = '10px'; r.onclick = () => go('restart');
+    body.append(clock, b, r);
+  }
+  if (a.rounds) body.append(el('div', 'wins', t('aronRounds', { n: num(a.rounds) })));
+}
+
+/* ----- Revisión semanal ----- */
+let ciSig = '', ciEdit = false;
+function renderCheckin(s) {
+  const c = s.checkin, sig = lang + JSON.stringify(c) + ciEdit + pName();
+  if (sig === ciSig) return; ciSig = sig;
+  const body = $('ciBody');
+  const keep = { score: $('ciScore') ? $('ciScore').value : null, best: $('ciBest') ? $('ciBest').value : null, need: $('ciNeed') ? $('ciNeed').value : null };
+  body.innerHTML = '';
+  if (!c.mine || ciEdit) {
+    const v = keep.score || (c.mine && c.mine.score) || 7;
+    const row = el('div', 'ci-range');
+    const r = el('input'); r.type = 'range'; r.min = 1; r.max = 10; r.value = v; r.id = 'ciScore';
+    const out = el('b', null, num(v));
+    r.oninput = () => { out.textContent = num(r.value); haptic(4); };
+    row.append(r, out);
+    const best = el('textarea', 'field'); best.id = 'ciBest'; best.maxLength = 300; best.placeholder = t('checkinBest'); best.value = keep.best ?? (c.mine ? c.mine.best : '');
+    const need = el('textarea', 'field'); need.id = 'ciNeed'; need.maxLength = 300; need.placeholder = t('checkinNeed'); need.value = keep.need ?? (c.mine ? c.mine.need : '');
+    const b = el('button', 'btn gold', t('checkinSend'));
+    b.onclick = async () => {
+      b.disabled = true;
+      ciEdit = false;
+      const ok = await sciCall('/api/checkin', { score: Number(r.value), best: best.value, need: need.value }, () => { const [x, y] = centerOf($('ciCard')); FX.burst(x, y, 30, { emoji: '📈' }); });
+      if (!ok) { ciEdit = !!c.mine; b.disabled = false; }
+    };
+    body.append(el('div', 'lbl', t('checkinQ')), row, best, need, b);
+  } else {
+    const card = (title, x) => {
+      const d = el('div', 'ci-card');
+      d.append(el('small', null, title), el('div', 'ci-score', `${num(x.score)}/${num(10)}`));
+      if (x.best) d.append(el('p', null, '✨ ' + showMsg(x.best)));
+      if (x.need) d.append(el('p', 'need', '🙏 ' + showMsg(x.need)));
+      return d;
+    };
+    body.append(card(t('checkinMine'), c.mine));
+    body.append(c.partner ? card(t('checkinTheirs', { p: pName() }), c.partner) : el('div', 'tot-wait', t('checkinWait', { p: pName() })));
+    const e = el('button', 'chip-btn', `✏️ ${t('checkinEdit')}`); e.style.marginTop = '10px';
+    e.onclick = () => { ciEdit = true; renderCheckin(state.science); };
+    body.append(e);
+  }
+  const h = c.hist.filter((x) => x.me != null || x.partner != null);
+  if (h.length >= 2) body.append(trendSvg(h));
+}
+function trendSvg(h) {
+  const W = 300, H = 90, pad = 10, ns = 'http://www.w3.org/2000/svg';
+  const mk = (tag, attrs) => { const n = document.createElementNS(ns, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); return n; };
+  const svg = mk('svg', { viewBox: `0 0 ${W} ${H}`, class: 'trend', role: 'img' });
+  const x = (i) => pad + (i * (W - 2 * pad)) / Math.max(1, h.length - 1);
+  const y = (v) => H - pad - ((v - 1) / 9) * (H - 2 * pad);
+  for (const v of [1, 5, 10]) svg.append(mk('line', { x1: pad, x2: W - pad, y1: y(v), y2: y(v), class: 'grid' }));
+  for (const [k, cls] of [['me', 'me'], ['partner', 'pt']]) {
+    const pts = h.map((d, i) => (d[k] == null ? null : [x(i), y(d[k])])).filter(Boolean);
+    if (!pts.length) continue;
+    svg.append(mk('polyline', { points: pts.map((p) => p.join(',')).join(' '), class: cls }));
+    pts.forEach((p) => svg.append(mk('circle', { cx: p[0], cy: p[1], r: 3.5, class: cls })));
+  }
+  const wrap = el('div', 'trend-wrap');
+  const lg = el('div', 'trend-lg'); lg.append(el('span', 'me', t('turnYou')), el('span', 'pt', pName()));
+  wrap.append(el('div', 'lbl', t('checkinTrend')), svg, lg);
+  return wrap;
+}
+
+/* ----- Girarse hacia el otro ----- */
+function renderTurn(s) {
+  const body = $('turnBody'); body.innerHTML = '';
+  const tr = s.turn; if (!tr) return;
+  const bar = (who, v) => {
+    const d = el('div', 'topcat'); d.append(el('span', null, who));
+    const b = el('div', 'bar'); const i = el('i'); i.style.width = v ? `${v.pct}%` : '0%'; b.append(i);
+    d.append(b, el('b', null, v ? `${num(v.pct)}%` : '—'));
+    return d;
+  };
+  const w = el('div', 'topcats'); w.append(bar(t('turnYou'), tr.me), bar(pName(), tr.partner)); body.append(w);
+  const vals = [tr.me, tr.partner].filter(Boolean);
+  body.append(el('div', 'ratio-msg', !vals.length ? t('turnNone') : vals.every((v) => v.pct >= 80) ? t('turnGood') : t('turnLow')));
+}
+
+/* ----- Pausa de 20 minutos con respiración ----- */
+let pauseSig = '', pauseTick = null;
+function renderPause(s) {
+  const p = s.pause, sig = lang + JSON.stringify(p) + pName();
+  if (sig === pauseSig) return; pauseSig = sig;
+  const body = $('pauseBody'); body.innerHTML = ''; clearInterval(pauseTick);
+  if (!p) {
+    const b = el('button', 'btn', `🕊️ ${t('pauseBtn')}`);
+    b.onclick = async () => { b.disabled = true; if (!(await sciCall('/api/pause', { act: 'start' }))) b.disabled = false; };
+    body.append(b); return;
+  }
+  const ring = el('div', 'breath'), lbl = el('span'), msg = el('div', 'pause-msg');
+  ring.append(lbl); body.append(ring, msg);
+  if (p.mine) { const back = el('button', 'btn ghost', t('pauseBack')); back.onclick = () => sciCall('/api/pause', { act: 'end' }); body.append(back); }
+  const B = strArr('pauseBreath');
+  const upd = () => {
+    const left = Math.max(0, Math.ceil((p.until - Date.now()) / 60000));
+    msg.textContent = p.mine ? t('pauseMine', { m: num(left) }) : t('pauseTheirs', { p: pName(), m: num(left) });
+    const ph = Math.floor(Date.now() / 4000) % 4;
+    if (ring.dataset.ph !== String(ph)) { ring.dataset.ph = ph; lbl.textContent = B[ph]; }
+    if (Date.now() > p.until) { clearInterval(pauseTick); refresh(); }
+  };
+  upd(); pauseTick = setInterval(upd, 500);
+}
+
+/* ----- Gestos de reparación ----- */
+let repairSig = '';
+function renderRepair() {
+  if (repairSig === lang) return; repairSig = lang;
+  const body = $('repairBody'); body.innerHTML = '';
+  const w = el('div', 'repairs');
+  listOf(I.REPAIRS).forEach((txt, i) => {
+    const b = el('button', 'repair', `🕊️ ${txt}`);
+    b.onclick = async () => {
+      if (b.disabled) return; b.disabled = true;
+      try { await api('/api/repair', 'POST', { i }); toast(t('repairSent')); haptic([20, 30, 20]); } catch (e) { toast(errText(e)); }
+      setTimeout(() => { b.disabled = false; }, 2000);
+    };
+    w.append(b);
+  });
+  body.append(w);
+}
+
+/* =================== Bloqueo con código =================== */
+// Código de 4 dígitos guardado solo en este teléfono, como huella PBKDF2
+// (nunca el código en sí). Se pide al abrir y al volver tras 1 minuto fuera.
+const Lock = (() => {
+  const KEY = 'sahar_lock', AWAY_MS = 60000;
+  let entry = '', mode = null, first = '', fails = 0, until = 0, hiddenAt = 0, built = false;
+  const get = () => { try { return JSON.parse(store.get(KEY) || 'null'); } catch (_) { return null; } };
+  const isOn = () => { const L = get(); return !!(L && L.hash && L.salt); };
+  async function hash(pin, salt) {
+    const enc = new TextEncoder();
+    const k = await crypto.subtle.importKey('raw', enc.encode(pin), 'PBKDF2', false, ['deriveBits']);
+    const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: enc.encode(salt), iterations: 150000, hash: 'SHA-256' }, k, 256);
+    return btoa(String.fromCharCode(...new Uint8Array(bits)));
+  }
+  const dots = () => { const d = $('lockDots'); d.innerHTML = ''; for (let i = 0; i < 4; i++) d.append(el('i', i < entry.length ? 'on' : '')); };
+  const msg = (x) => { $('lockMsg').textContent = x; };
+  const shake = () => { const d = $('lockDots'); d.classList.remove('shake'); void d.offsetWidth; d.classList.add('shake'); haptic([40, 30, 40]); };
+  function build() {
+    if (built) return; built = true;
+    const kp = $('keypad');
+    ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '⌫'].forEach((k) => {
+      const b = el('button', k ? '' : 'blank', k); b.type = 'button';
+      if (k) b.onclick = () => press(k === '⌫' ? 'del' : k);
+      kp.append(b);
+    });
+    $('lockForgot').onclick = () => {
+      if (mode !== 'unlock') return close();
+      $('lockNameRow').classList.toggle('hidden'); msg(t('lockForgotQ')); $('lockName').focus();
+    };
+    $('lockNameBtn').onclick = () => {
+      const name = (state && state.name) || '';
+      if (name && $('lockName').value.trim().toLowerCase() === name.trim().toLowerCase()) { store.set(KEY, ''); close(); toast(t('lockRemoved')); renderLockRow(); }
+      else shake();
+    };
+    document.addEventListener('keydown', (e) => { if (mode && /^[0-9]$/.test(e.key)) press(e.key); else if (mode && e.key === 'Backspace') press('del'); });
+  }
+  function open(m) {
+    build(); mode = m; entry = ''; first = '';
+    $('lockView').classList.remove('hidden'); $('lockNameRow').classList.add('hidden'); $('lockName').value = '';
+    msg(m === 'unlock' ? t('lockEnter') : t('lockNew'));
+    $('lockForgot').textContent = m === 'unlock' ? t('lockForgot') : '✕';
+    dots();
+  }
+  function close() { mode = null; entry = ''; $('lockView').classList.add('hidden'); }
+  async function press(k) {
+    if (Date.now() < until) { msg(t('lockWait', { s: num(Math.ceil((until - Date.now()) / 1000)) })); return; }
+    if (k === 'del') { entry = entry.slice(0, -1); return dots(); }
+    if (entry.length >= 4) return;
+    entry += k; haptic(8); dots();
+    if (entry.length < 4) return;
+    const pin = entry;
+    if (mode === 'unlock') {
+      const L = get();
+      if (L && (await hash(pin, L.salt)) === L.hash) { fails = 0; close(); }
+      else { fails++; if (fails >= 5) until = Date.now() + 30000 * Math.pow(2, fails - 5); msg(t('lockWrong')); shake(); entry = ''; setTimeout(dots, 350); }
+    } else if (!first) { first = pin; entry = ''; msg(t('lockRepeat')); setTimeout(dots, 150); }
+    else if (first === pin) {
+      const salt = Array.from(crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, '0')).join('');
+      store.set(KEY, JSON.stringify({ salt, hash: await hash(pin, salt) }));
+      close(); toast(t('lockOn')); renderLockRow();
+    } else { first = ''; entry = ''; msg(t('lockMismatch')); shake(); setTimeout(dots, 350); }
+  }
+  return {
+    isOn, open, close,
+    boot() { if (isOn()) open('unlock'); },
+    onVisibility() {
+      if (document.hidden) { hiddenAt = Date.now(); document.body.classList.add('veil'); return; }
+      document.body.classList.remove('veil');
+      if (isOn() && hiddenAt && Date.now() - hiddenAt > AWAY_MS && mode !== 'unlock') open('unlock');
+    },
+  };
+})();
+function renderLockRow() {
+  const b = $('lockBtn'); if (!b) return;
+  const on = Lock.isOn();
+  b.textContent = on ? t('lockOff') : t('lockSet');
+  b.onclick = () => { if (Lock.isOn()) { store.set('sahar_lock', ''); toast(t('lockRemoved')); renderLockRow(); } else Lock.open('set'); };
+}
+
 /* =================== Arranque =================== */
 (async function init() {
   applyLang();
+  Lock.boot();
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
   const params = new URLSearchParams(location.search);
   if (isIOS && !isStandalone && !params.has('preview')) return show('installView');
@@ -3233,7 +3729,7 @@ applyTheme(currentTheme);
   if (state && state.lang && state.lang !== lang && !store.get('sahar_lang')) { lang = state.lang; sel.value = lang; applyLang(); }
   render();
 })();
-document.addEventListener('visibilitychange', () => { if (!document.hidden && state && state.code) refresh(); });
+document.addEventListener('visibilitychange', () => { Lock.onVisibility(); if (!document.hidden && state && state.code) refresh(); });
 </script>
 </body>
 </html>
