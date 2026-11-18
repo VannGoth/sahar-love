@@ -664,6 +664,70 @@ const { app, ready, streakInfo, recordDay, prevDay, runReminders, flush } = requ
       const tr = (await hdr('GET', '/api/state', 'p2')).json.science.turn;
       assert.ok(tr && (tr.me === null || typeof tr.me.pct === 'number'));
       console.log('✓ ciencia del amor: mapas, 36 preguntas, pausa, reparación, revisión, retos');
+
+      // ---- Ciencia del amor 2 ----
+      // Buenas noticias: solo responde la pareja, una vez, y suma 1 punto
+      assert.strictEqual((await hdr('POST', '/api/news', 'p1', { text: '  ' })).status, 400);
+      let nw = (await hdr('POST', '/api/news', 'p1', { text: '¡Me ascendieron!' })).json.science.news;
+      assert.ok(nw[0].mine && nw[0].reply === null);
+      assert.strictEqual((await hdr('POST', '/api/news/reply', 'p1', { id: nw[0].id, i: 0 })).status, 404, 'no me respondo a mí');
+      assert.strictEqual((await hdr('POST', '/api/news/reply', 'p2', { id: nw[0].id, i: 99 })).status, 400);
+      const p2pts = (await hdr('GET', '/api/state', 'p2')).json.score.me;
+      nw = (await hdr('POST', '/api/news/reply', 'p2', { id: nw[0].id, i: 2 })).json.science.news;
+      assert.ok(!nw[0].mine && nw[0].reply.i === 2);
+      await hdr('POST', '/api/news/reply', 'p2', { id: nw[0].id, text: 'otra' });
+      const p2after = (await hdr('GET', '/api/state', 'p2')).json;
+      assert.strictEqual(p2after.score.me, p2pts + 1, 'responder una sola vez');
+      assert.strictEqual(p2after.science.news[0].reply.i, 2);
+      // ¿Qué necesitas?
+      assert.strictEqual((await hdr('POST', '/api/stress', 'p1', { act: 'send', need: 9, lvl: 2 })).status, 400);
+      let stq = (await hdr('POST', '/api/stress', 'p1', { act: 'send', need: 0, lvl: 2, note: 'Examen' })).json.science.stress;
+      assert.ok(stq.mine.need === 0 && stq.partner === null);
+      stq = (await hdr('POST', '/api/stress', 'p2', { act: 'ack' })).json.science.stress;
+      assert.ok(stq.partner.ack && stq.acks === 1);
+      stq = (await hdr('POST', '/api/stress', 'p1', { act: 'clear' })).json.science.stress;
+      assert.strictEqual(stq.mine, null);
+      // Mirada neutral: privada
+      assert.strictEqual((await hdr('POST', '/api/neutral', 'p1', { a: ['', '', ''] })).status, 400);
+      const nt = (await hdr('POST', '/api/neutral', 'p1', { a: ['Hechos', 'Vista neutral', 'Plan'] })).json.science.neutral;
+      assert.ok(nt.list.length === 1 && !nt.due && nt.next > Date.now() + 100 * 86400000);
+      assert.strictEqual((await hdr('GET', '/api/state', 'p2')).json.science.neutral.list.length, 0, 'el otro no lo ve');
+      console.log('✓ ciencia del amor 2: buenas noticias, ¿qué necesitas?, mirada neutral');
+
+      // ---- Juegos de pareja 2 ----
+      // 4 en raya: p1 gana en vertical en la columna 0
+      let c4 = (await hdr('POST', '/api/c4', 'p1', { act: 'new' })).json.play.c4;
+      assert.ok(c4.game.turn === 'me' && c4.game.board.length === 42);
+      assert.strictEqual((await hdr('POST', '/api/c4', 'p2', { act: 'drop', col: 0 })).status, 400, 'no es su turno');
+      assert.strictEqual((await hdr('POST', '/api/c4', 'p1', { act: 'drop', col: 7 })).status, 400);
+      const c4pts = (await hdr('GET', '/api/state', 'p1')).json.score.me;
+      for (let k = 0; k < 3; k++) { await hdr('POST', '/api/c4', 'p1', { act: 'drop', col: 0 }); await hdr('POST', '/api/c4', 'p2', { act: 'drop', col: 1 }); }
+      c4 = (await hdr('POST', '/api/c4', 'p1', { act: 'drop', col: 0 })).json.play.c4;
+      assert.ok(c4.game.status === 'done' && c4.game.winner === 'me' && c4.game.line.length === 4 && c4.wins.me === 1);
+      assert.strictEqual(c4.game.board[35], 'me', 'la ficha cae al fondo');
+      assert.strictEqual((await hdr('GET', '/api/state', 'p1')).json.score.me, c4pts + 3);
+      assert.strictEqual((await hdr('GET', '/api/state', 'p2')).json.play.c4.game.winner, 'p');
+      c4 = (await hdr('POST', '/api/c4', 'p1', { act: 'new' })).json.play.c4;
+      assert.strictEqual(c4.game.turn, 'p', 'empieza quien perdió');
+      // ¿Quién es más probable…?: no se ven las respuestas del otro antes de jugar
+      assert.strictEqual((await hdr('POST', '/api/wml', 'p1', { picks: [0, 1] })).status, 400);
+      let wm = (await hdr('POST', '/api/wml', 'p1', { picks: [0, 0, 1, 1, 0] })).json.play.wml;
+      assert.ok(wm.mine && wm.partner === null && wm.qs.length === 5);
+      wm = (await hdr('POST', '/api/wml', 'p2', { picks: [1, 0, 0, 1, 1] })).json.play.wml;
+      assert.ok(wm.matches === 3 && wm.total === 1, 'coinciden si yo=«yo» y el otro=«tú»');
+      // Nuestra historia: por turnos, y se guarda en la biblioteca
+      assert.strictEqual((await hdr('POST', '/api/story', 'p1', { act: 'new', start: 99 })).status, 400);
+      let sy = (await hdr('POST', '/api/story', 'p1', { act: 'new', start: 3 })).json.play.story;
+      assert.ok(sy.cur && sy.myTurn);
+      await hdr('POST', '/api/story', 'p1', { act: 'add', text: 'Uno' });
+      assert.strictEqual((await hdr('POST', '/api/story', 'p1', { act: 'add', text: 'Dos' })).status, 400, 'no dos seguidas');
+      assert.strictEqual((await hdr('POST', '/api/story', 'p1', { act: 'end' })).status, 400, 'muy corta');
+      for (let k = 0; k < 5; k++) await hdr('POST', '/api/story', k % 2 ? 'p1' : 'p2', { act: 'add', text: 'Frase ' + k });
+      sy = (await hdr('POST', '/api/story', 'p1', { act: 'end' })).json.play.story;
+      assert.ok(sy.cur === null && sy.books.length === 1 && sy.books[0].lines.length === 6);
+      sy = (await hdr('POST', '/api/story', 'p2', { act: 'title', id: sy.books[0].id, title: 'El billete secreto' })).json.play.story;
+      assert.strictEqual(sy.books[0].title, 'El billete secreto');
+      console.log('✓ juegos 2: 4 en raya, ¿quién es más probable?, nuestra historia');
     }
 
     // Desvincular: el último en salir borra la pareja

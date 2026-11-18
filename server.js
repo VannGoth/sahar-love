@@ -433,6 +433,7 @@ function stateFor(user) {
     harmony: couple ? harmonyState(couple, user, partner) : null,
     race: couple ? raceState(user) : null,
     science: couple ? scienceState(couple, user, partner) : null,
+    play: couple ? playState(couple, user, partner) : null,
     ...(couple ? wishState(couple, user, partner) : {}),
   };
 }
@@ -446,6 +447,10 @@ function harmonyTexts(couple) {
     ...(couple.chest || []).slice(-60).map((x) => x.text),
     ...Object.values(couple.lmap || {}).flatMap((e) => Object.values(e.ans || {}).flatMap((a) => [a.me, a.guess])),
     ...Object.values(couple.checkins || {}).slice(-4).flatMap((w) => Object.values(w).flatMap((c) => [c.best, c.need])),
+    ...(couple.news || []).slice(-8).flatMap((n) => [n.text, n.reply && n.reply.text]),
+    ...Object.values(couple.stress || {}).map((s) => s.note),
+    ...(couple.story ? couple.story.lines.map((l) => l.text) : []),
+    ...(couple.stories || []).slice(-3).flatMap((s) => s.lines.map((l) => l.text)),
   ].filter(Boolean);
 }
 
@@ -1720,6 +1725,121 @@ app.post('/api/challenge', auth, (req, res) => {
   pushPartner(partner, 'Sahar 🔬', both ? 'chalBothPush' : 'chalPush', { p: user.name });
 });
 
+const newId = () => crypto.randomBytes(6).toString('hex');
+// Pareja lista para jugar (o error 400). Evita repetir lo mismo en cada ruta.
+function duo(req, res) {
+  const user = req.user;
+  const couple = db.couples[user.code];
+  const partner = couple && partnerOf(user);
+  if (!partner) { fail(res, 400, 'no_partner'); return null; }
+  return { user, couple, partner };
+}
+
+// ---- Buenas noticias: capitalización (Gable y col., 2004, 2006) -----------
+// Cómo responde la pareja a NUESTRAS buenas noticias predice la relación más
+// que cómo responde a las malas. La respuesta «activa y constructiva»
+// (entusiasmo + preguntas) es la que une; la pasiva o la que cambia de tema, no.
+const N_NEWS_REPLY = I18N.NEWS_REPLIES.es.length;
+app.post('/api/news', auth, (req, res) => {
+  const d = duo(req, res); if (!d) return;
+  const text = clean(req.body.text, 220);
+  if (!text) return fail(res, 400, 'invalid_message');
+  if (recentCount(d.couple.news, d.user.id, DAY_MS) >= 10) return fail(res, 429, 'too_many');
+  d.couple.news = [...(d.couple.news || []), { id: newId(), by: d.user.id, text, at: Date.now(), reply: null }].slice(-40);
+  remember(d.couple, text, d.user);
+  save();
+  res.json(stateFor(d.user));
+  translatePending(1).catch(() => {});
+  pushPartner(d.partner, 'Sahar 🎉', 'newsPush', { p: d.user.name, t: text.slice(0, 80) });
+});
+app.post('/api/news/reply', auth, (req, res) => {
+  const d = duo(req, res); if (!d) return;
+  const n = (d.couple.news || []).find((x) => x.id === req.body.id);
+  if (!n || n.by === d.user.id) return fail(res, 404, 'not_found');
+  if (n.reply) return res.json(stateFor(d.user));
+  const i = req.body.i == null ? null : Number(req.body.i);
+  const text = clean(req.body.text, 220);
+  if (i != null && (!Number.isInteger(i) || i < 0 || i >= N_NEWS_REPLY)) return fail(res, 400, 'invalid_message');
+  if (i == null && !text) return fail(res, 400, 'invalid_message');
+  n.reply = i != null ? { i, at: Date.now() } : { text, at: Date.now() };
+  if (text) remember(d.couple, text, d.user);
+  addPoints(d.couple, d.user.id, 1); // premiar la respuesta activa y constructiva
+  save();
+  res.json(stateFor(d.user));
+  if (text) translatePending(1).catch(() => {});
+  const pl = langOf(d.partner);
+  if (canReceive(d.partner)) pushTo(d.partner, { title: `${d.user.name} 🎉`, body: i != null ? (I18N.NEWS_REPLIES[I18N.pick(pl)] || I18N.NEWS_REPLIES.en)[i] : text }).catch(() => {});
+});
+function newsState(couple, user) {
+  return (couple.news || []).slice(-8).reverse().map((n) => ({ id: n.id, mine: n.by === user.id, text: n.text, at: n.at, reply: n.reply }));
+}
+
+// ---- ¿Qué necesitas? Afrontar el estrés en pareja (Bodenmann) --------------
+// El «afrontamiento diádico» —avisar del estrés y que el otro apoye como uno
+// necesita— predice la satisfacción en pareja (metaanálisis de Falconier y
+// col., 2015, con 72 estudios). Cada uno avisa qué tipo de apoyo le sirve hoy.
+const N_NEEDS = I18N.NEEDS.es.length;
+const STRESS_MS = 12 * 3600000;
+app.post('/api/stress', auth, (req, res) => {
+  const d = duo(req, res); if (!d) return;
+  d.couple.stress = d.couple.stress || {};
+  const act = req.body.act;
+  if (act === 'send') {
+    const need = Number(req.body.need), lvl = Number(req.body.lvl);
+    if (!Number.isInteger(need) || need < 0 || need >= N_NEEDS || ![1, 2, 3].includes(lvl)) return fail(res, 400, 'invalid_message');
+    if (recentCount(Object.values(d.couple.stress).filter((s) => s.by === d.user.id), d.user.id, 60000) >= 1) return fail(res, 429, 'too_many');
+    const note = clean(req.body.note, 160);
+    d.couple.stress[d.user.id] = { by: d.user.id, need, lvl, note, at: Date.now(), ack: null };
+    if (note) remember(d.couple, note, d.user);
+    save();
+    res.json(stateFor(d.user));
+    if (note) translatePending(1).catch(() => {});
+    const pl = langOf(d.partner);
+    if (canReceive(d.partner)) pushTo(d.partner, { title: 'Sahar 🫂', body: I18N.t(pl, 'stressPush', { p: d.user.name, n: (I18N.NEEDS[I18N.pick(pl)] || I18N.NEEDS.en)[need] }) }).catch(() => {});
+  } else if (act === 'ack') {
+    const s = d.couple.stress[d.partner.id];
+    if (!s || s.ack || Date.now() - s.at > STRESS_MS) return res.json(stateFor(d.user));
+    s.ack = Date.now();
+    d.couple.stressAcks = (d.couple.stressAcks || 0) + 1;
+    addPoints(d.couple, d.user.id, 1);
+    save();
+    res.json(stateFor(d.user));
+    pushPartner(d.partner, 'Sahar 🫂', 'stressAckPush', { p: d.user.name });
+  } else if (act === 'clear') {
+    delete d.couple.stress[d.user.id];
+    save();
+    res.json(stateFor(d.user));
+  } else fail(res, 400, 'invalid_message');
+});
+function stressState(couple, user, partner) {
+  const live = (s) => (s && Date.now() - s.at < STRESS_MS ? { need: s.need, lvl: s.lvl, note: s.note, at: s.at, ack: s.ack } : null);
+  const st = couple.stress || {};
+  return { mine: live(st[user.id]), partner: partner ? live(st[partner.id]) : null, acks: couple.stressAcks || 0 };
+}
+
+// ---- Mirada neutral (Finkel y col., 2013) --------------------------------
+// 120 matrimonios, 2 años: la calidad de la relación bajó en todos el primer
+// año. En el segundo, las parejas que cada 4 meses escribieron 7 minutos sobre
+// su último desacuerdo «como lo vería alguien neutral que quiere lo mejor
+// para los dos» dejaron de empeorar (y discutieron con menos angustia).
+// Lo escrito es PRIVADO: solo lo ve quien lo escribió.
+const NEUTRAL_EVERY = 120 * DAY_MS;
+app.post('/api/neutral', auth, (req, res) => {
+  const d = duo(req, res); if (!d) return;
+  const a = [0, 1, 2].map((i) => clean((req.body.a || [])[i], 1200));
+  if (!a.some(Boolean)) return fail(res, 400, 'invalid_message');
+  if (recentCount((d.couple.neutral || {})[d.user.id], d.user.id, 3600000) >= 3) return fail(res, 429, 'too_many');
+  d.couple.neutral = d.couple.neutral || {};
+  d.couple.neutral[d.user.id] = [...(d.couple.neutral[d.user.id] || []), { by: d.user.id, a, at: Date.now() }].slice(-12);
+  save();
+  res.json(stateFor(d.user));
+});
+function neutralState(couple, user) {
+  const mine = ((couple.neutral || {})[user.id] || []).slice().reverse();
+  const last = mine[0] ? mine[0].at : null;
+  return { list: mine.map((x) => ({ a: x.a, at: x.at })), next: last ? last + NEUTRAL_EVERY : null, due: !last || Date.now() >= last + NEUTRAL_EVERY };
+}
+
 function scienceState(couple, user, partner) {
   const a = couple.aron || { i: 0, rounds: 0 };
   const p = couple.pause;
@@ -1730,7 +1850,164 @@ function scienceState(couple, user, partner) {
     checkin: checkinState(couple, user, partner),
     turn: turnState(couple, user, partner),
     chal: challengeState(couple, user, partner),
+    news: newsState(couple, user),
+    stress: stressState(couple, user, partner),
+    neutral: neutralState(couple, user),
   };
+}
+
+// ===========================================================================
+// JUEGOS DE PAREJA 2: 4 en raya, ¿Quién es más probable…? y Nuestra historia
+// ===========================================================================
+// ---- 4 en raya de corazones (7 columnas × 6 filas) -----------------------
+const C4_W = 7, C4_H = 6;
+function c4Line(b) {
+  const at = (r, c) => (r >= 0 && r < C4_H && c >= 0 && c < C4_W ? b[r * C4_W + c] : null);
+  for (let r = 0; r < C4_H; r++) for (let c = 0; c < C4_W; c++) {
+    const v = at(r, c);
+    if (!v) continue;
+    for (const [dr, dc] of [[0, 1], [1, 0], [1, 1], [1, -1]]) {
+      const line = [0, 1, 2, 3].map((k) => [r + dr * k, c + dc * k]);
+      if (line.every(([rr, cc]) => at(rr, cc) === v)) return line.map(([rr, cc]) => rr * C4_W + cc);
+    }
+  }
+  return null;
+}
+app.post('/api/c4', auth, (req, res) => {
+  const d = duo(req, res); if (!d) return;
+  const { user, couple, partner } = d;
+  const g = couple.c4;
+  const act = req.body.act;
+  if (act === 'new') {
+    if (g && g.status === 'live' && g.moves > 0) return fail(res, 400, 'invalid_message');
+    // Empieza quien perdió la anterior (o quien la pide)
+    const first = g && g.winner && g.winner !== 'draw' ? (g.winner === user.id ? partner.id : user.id) : user.id;
+    couple.c4 = { id: newId(), board: Array(C4_W * C4_H).fill(null), turn: first, status: 'live', moves: 0, last: null, line: null, winner: null, at: Date.now() };
+    save();
+    res.json(stateFor(user));
+    pushPartner(partner, 'Sahar 🔴', 'c4Push', { p: user.name });
+  } else if (act === 'drop') {
+    const col = Number(req.body.col);
+    if (!g || g.status !== 'live' || g.turn !== user.id) return fail(res, 400, 'not_your_turn');
+    if (!Number.isInteger(col) || col < 0 || col >= C4_W) return fail(res, 400, 'invalid_message');
+    let row = -1;
+    for (let r = C4_H - 1; r >= 0; r--) if (!g.board[r * C4_W + col]) { row = r; break; }
+    if (row < 0) return fail(res, 400, 'invalid_message');
+    g.board[row * C4_W + col] = user.id;
+    g.moves++; g.last = row * C4_W + col; g.at = Date.now();
+    const line = c4Line(g.board);
+    if (line) {
+      g.status = 'done'; g.winner = user.id; g.line = line;
+      couple.c4Wins = couple.c4Wins || {};
+      couple.c4Wins[user.id] = (couple.c4Wins[user.id] || 0) + 1;
+      addPoints(couple, user.id, 3);
+    } else if (g.moves === C4_W * C4_H) { g.status = 'done'; g.winner = 'draw'; }
+    else g.turn = partner.id;
+    save();
+    res.json(stateFor(user));
+    pushPartner(partner, 'Sahar 🔴', g.status === 'done' ? (g.winner === 'draw' ? 'c4DrawPush' : 'c4WinPush') : 'c4TurnPush', { p: user.name });
+  } else fail(res, 400, 'invalid_message');
+});
+function c4State(couple, user, partner) {
+  const g = couple.c4;
+  const who = (id) => (id == null ? null : id === 'draw' ? 'draw' : id === user.id ? 'me' : 'p');
+  const w = couple.c4Wins || {};
+  return {
+    game: g ? { id: g.id, board: g.board.map(who), turn: who(g.turn), status: g.status, last: g.last, line: g.line, winner: who(g.winner), moves: g.moves } : null,
+    wins: { me: w[user.id] || 0, p: partner ? w[partner.id] || 0 : 0 },
+  };
+}
+
+// ---- ¿Quién es más probable…? ---------------------------------------------
+// Cada día 5 frases; cada uno elige «yo» o «tú». Si coinciden, punto para los dos.
+const WML_N = 5;
+const N_WML = I18N.WML.es.length;
+function wmlQs(day) {
+  const n = dayNum(day), start = (n * WML_N) % N_WML;
+  return Array.from({ length: WML_N }, (_, k) => (start + k) % N_WML);
+}
+app.post('/api/wml', auth, (req, res) => {
+  const d = duo(req, res); if (!d) return;
+  const { user, couple, partner } = d;
+  const picks = req.body.picks;
+  if (!Array.isArray(picks) || picks.length !== WML_N || !picks.every((x) => x === 0 || x === 1)) return fail(res, 400, 'invalid_message');
+  const day = dayKey(new Date(), couple.tz);
+  couple.wml = couple.wml || {};
+  const e = couple.wml[day] || (couple.wml[day] = { qs: wmlQs(day), ans: {} });
+  if (e.ans[user.id]) return res.json(stateFor(user));
+  e.ans[user.id] = picks; // 0 = yo (quien responde), 1 = mi pareja
+  const theirs = e.ans[partner.id];
+  if (theirs) {
+    // Coinciden si yo digo «yo» y mi pareja dice «tú» (o al revés)
+    const m = picks.filter((x, i) => x !== theirs[i]).length;
+    e.matches = m;
+    if (m) { addPoints(couple, user.id, m); addPoints(couple, partner.id, m); }
+    couple.wmlTotal = (couple.wmlTotal || 0) + 1;
+  }
+  keepLast(couple.wml, 14);
+  save();
+  res.json(stateFor(user));
+  pushPartner(partner, 'Sahar 🤔', theirs ? 'wmlBothPush' : 'wmlPush', { p: user.name });
+});
+function wmlState(couple, user, partner) {
+  const day = dayKey(new Date(), couple.tz);
+  const e = (couple.wml || {})[day] || { qs: wmlQs(day), ans: {} };
+  const mine = e.ans[user.id] || null, theirs = partner ? e.ans[partner.id] || null : null;
+  return { day, qs: e.qs, mine, partner: mine && theirs ? theirs : null, partnerDone: !!theirs, matches: mine && theirs ? e.matches : null, total: couple.wmlTotal || 0 };
+}
+
+// ---- Nuestra historia: un cuento a cuatro manos ---------------------------
+const N_STORY = I18N.STORY_STARTS.es.length;
+const STORY_MIN = 6, STORY_MAX = 30;
+app.post('/api/story', auth, (req, res) => {
+  const d = duo(req, res); if (!d) return;
+  const { user, couple, partner } = d;
+  const act = req.body.act;
+  let s = couple.story;
+  if (act === 'new') {
+    if (s && s.lines.length) return fail(res, 400, 'invalid_message');
+    const start = Number(req.body.start);
+    if (!Number.isInteger(start) || start < 0 || start >= N_STORY) return fail(res, 400, 'invalid_message');
+    couple.story = { id: newId(), start, lines: [], at: Date.now() };
+  } else if (act === 'add') {
+    const text = clean(req.body.text, 240);
+    if (!s || !text) return fail(res, 400, 'invalid_message');
+    const lastBy = s.lines.length ? s.lines[s.lines.length - 1].by : null;
+    if (lastBy === user.id) return fail(res, 400, 'not_your_turn');
+    s.lines.push({ by: user.id, text, at: Date.now() });
+    remember(couple, text, user);
+    if (s.lines.length >= STORY_MAX) finishStory(couple);
+    save();
+    res.json(stateFor(user));
+    translatePending(1).catch(() => {});
+    return pushPartner(partner, 'Sahar 📖', 'storyPush', { p: user.name });
+  } else if (act === 'end') {
+    if (!s || s.lines.length < STORY_MIN) return fail(res, 400, 'invalid_message');
+    finishStory(couple);
+    pushPartner(partner, 'Sahar 📖', 'storyEndPush', { p: user.name });
+  } else if (act === 'title') {
+    const b = (couple.stories || []).find((x) => x.id === req.body.id);
+    if (!b) return fail(res, 404, 'not_found');
+    b.title = clean(req.body.title, 60);
+  } else return fail(res, 400, 'invalid_message');
+  save();
+  res.json(stateFor(user));
+});
+function finishStory(couple) {
+  const s = couple.story;
+  if (!s) return;
+  couple.stories = [...(couple.stories || []), { ...s, done: Date.now(), title: '' }].slice(-12);
+  couple.story = null;
+}
+function storyState(couple, user) {
+  const map = (s) => s && { id: s.id, start: s.start, title: s.title || '', at: s.at, done: s.done || null, lines: s.lines.map((l) => ({ mine: l.by === user.id, text: l.text, at: l.at })) };
+  const s = couple.story;
+  const lastBy = s && s.lines.length ? s.lines[s.lines.length - 1].by : null;
+  return { cur: map(s), myTurn: !!s && lastBy !== user.id, min: STORY_MIN, max: STORY_MAX, books: (couple.stories || []).slice().reverse().map(map) };
+}
+
+function playState(couple, user, partner) {
+  return { c4: c4State(couple, user, partner), wml: wmlState(couple, user, partner), story: storyState(couple, user) };
 }
 
 function wishState(couple, user, partner) {
