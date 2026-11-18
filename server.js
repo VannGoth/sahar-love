@@ -234,22 +234,77 @@ async function translatePending(limit = 6) {
 // ---------------------------------------------------------------------------
 const MEDIA_DIR = path.join(path.dirname(DATA_FILE), 'media');
 const MAX_MEDIA_B64 = 1400000; // ~1 MB
+
+// Cifrado de fotos y audios (AES-256-GCM). La clave buena es MEDIA_KEY en las
+// variables de entorno de Render (así quien vea la base de datos no ve las
+// fotos). Sin MEDIA_KEY se usa una clave guardada en la base, que al menos
+// evita que las fotos queden en claro.
+const keyFrom = (s) => crypto.createHash('sha256').update(String(s)).digest();
+const MEDIA_KEYS = () => ({
+  ...(process.env.MEDIA_KEY ? { env: keyFrom(process.env.MEDIA_KEY) } : {}),
+  ...(db.mediaKey ? { db: Buffer.from(db.mediaKey, 'base64') } : {}),
+});
+function currentMediaKey() {
+  if (process.env.MEDIA_KEY) return { kid: 'env', key: keyFrom(process.env.MEDIA_KEY) };
+  if (!db.mediaKey) { db.mediaKey = crypto.randomBytes(32).toString('base64'); save(); }
+  return { kid: 'db', key: Buffer.from(db.mediaKey, 'base64') };
+}
+function sealMedia(mime, b64) {
+  const { kid, key } = currentMediaKey();
+  const iv = crypto.randomBytes(12);
+  const c = crypto.createCipheriv('aes-256-gcm', key, iv);
+  const data = Buffer.concat([c.update(Buffer.from(b64, 'base64')), c.final()]);
+  return { v: 1, kid, mime, iv: iv.toString('base64'), tag: c.getAuthTag().toString('base64'), data: data.toString('base64') };
+}
+function openMedia(rec) {
+  if (!rec) return null;
+  if (!rec.v) return { mime: rec.mime, buf: Buffer.from(rec.b64, 'base64'), plain: true };
+  const key = MEDIA_KEYS()[rec.kid];
+  if (!key) { console.error('media: falta la clave', rec.kid); return null; }
+  try {
+    const d = crypto.createDecipheriv('aes-256-gcm', key, Buffer.from(rec.iv, 'base64'));
+    d.setAuthTag(Buffer.from(rec.tag, 'base64'));
+    return { mime: rec.mime, buf: Buffer.concat([d.update(Buffer.from(rec.data, 'base64')), d.final()]), plain: false, kid: rec.kid };
+  } catch (e) { console.error('media: no se pudo descifrar', e.message); return null; }
+}
+// Comprobar que el archivo es de verdad lo que dice ser (y no un HTML disfrazado)
+function looksLike(kind, mime, buf) {
+  const at = (i, hex) => buf.length >= i + hex.length / 2 && buf.subarray(i, i + hex.length / 2).toString('hex') === hex;
+  if (kind === 'photo') {
+    if (mime === 'image/jpeg') return at(0, 'ffd8ff');
+    if (mime === 'image/png') return at(0, '89504e470d0a1a0a');
+    if (mime === 'image/webp') return at(0, '52494646') && at(8, '57454250');
+    return false;
+  }
+  return at(4, '66747970') /* mp4/m4a */ || at(0, '1a45dfa3') /* webm */ || at(0, '4f676753') /* ogg */
+    || at(0, '494433') /* mp3 */ || (buf.length > 1 && buf[0] === 0xff && (buf[1] & 0xe0) === 0xe0) /* mp3/aac */;
+}
 async function putMedia(id, mime, b64) {
+  const body = JSON.stringify(sealMedia(mime, b64));
   if (useUpstash) {
-    const r = await fetch(`${UP_URL}/set/sahar-media:${id}`, { method: 'POST', headers: { Authorization: `Bearer ${UP_TOKEN}` }, body: JSON.stringify({ mime, b64 }) });
+    const r = await fetch(`${UP_URL}/set/sahar-media:${id}`, { method: 'POST', headers: { Authorization: `Bearer ${UP_TOKEN}` }, body });
     if (!r.ok) throw new Error('upstash ' + r.status);
   } else {
     fs.mkdirSync(MEDIA_DIR, { recursive: true });
-    fs.writeFileSync(path.join(MEDIA_DIR, id + '.json'), JSON.stringify({ mime, b64 }));
+    fs.writeFileSync(path.join(MEDIA_DIR, id + '.json'), body);
   }
 }
+// Devuelve { mime, buf } ya descifrado. Las fotos viejas sin cifrar se
+// cifran solas la primera vez que alguien las abre.
 async function getMedia(id) {
+  let rec = null;
   if (useUpstash) {
     const r = await fetch(`${UP_URL}/get/sahar-media:${id}`, { headers: { Authorization: `Bearer ${UP_TOKEN}` } });
     const j = await r.json();
-    return j.result ? JSON.parse(j.result) : null;
+    rec = j.result ? JSON.parse(j.result) : null;
+  } else {
+    try { rec = JSON.parse(fs.readFileSync(path.join(MEDIA_DIR, id + '.json'), 'utf8')); } catch (_) { rec = null; }
   }
-  try { return JSON.parse(fs.readFileSync(path.join(MEDIA_DIR, id + '.json'), 'utf8')); } catch (_) { return null; }
+  const out = openMedia(rec);
+  if (out && (out.plain || (process.env.MEDIA_KEY && out.kid !== 'env'))) {
+    putMedia(id, out.mime, out.buf.toString('base64')).catch((e) => console.error('media: recifrar', e.message));
+  }
+  return out;
 }
 async function delMedia(id) {
   try {
@@ -360,7 +415,9 @@ function stateFor(user) {
     totalSent: couple ? couple.counts?.[user.id] ?? couple.history.filter((h) => h.fromId === user.id).length : 0,
     totalReceived: couple && partner ? couple.counts?.[partner.id] ?? received.length : 0,
     since: couple ? couple.since || null : null,
-    dates: couple ? (couple.dates || []) : [],
+    dates: couple ? (couple.dates || []).map((d) => ({ ...d, ics: icsToken(d.id) })) : [],
+    partnerOnline: !!(partner && partner.seenAt && Date.now() - partner.seenAt < ONLINE_MS),
+    partnerSeenAt: partner ? partner.seenAt || null : null,
     persianOn: couple ? couple.persianDates !== false : true,
     persian: couple && couple.persianDates !== false ? upcomingPersian(dayKey(new Date(), couple.tz)) : [],
     prefs: prefsOf(user),
@@ -375,6 +432,7 @@ function stateFor(user) {
     partnerNotifReady: partner ? canReceive(partner) : false,
     harmony: couple ? harmonyState(couple, user, partner) : null,
     race: couple ? raceState(user) : null,
+    science: couple ? scienceState(couple, user, partner) : null,
     ...(couple ? wishState(couple, user, partner) : {}),
   };
 }
@@ -386,6 +444,8 @@ function harmonyTexts(couple) {
     ...(couple.cards || []).map((c) => c.note),
     ...Object.values(couple.wishes || {}).flatMap((w) => w.items || []),
     ...(couple.chest || []).slice(-60).map((x) => x.text),
+    ...Object.values(couple.lmap || {}).flatMap((e) => Object.values(e.ans || {}).flatMap((a) => [a.me, a.guess])),
+    ...Object.values(couple.checkins || {}).slice(-4).flatMap((w) => Object.values(w).flatMap((c) => [c.best, c.need])),
   ].filter(Boolean);
 }
 
@@ -407,6 +467,66 @@ function moodToday(u, couple) {
 // API
 // ---------------------------------------------------------------------------
 const app = express();
+app.disable('x-powered-by');
+app.set('trust proxy', 1); // Render pone un proxy delante: la IP real viene en X-Forwarded-For
+
+// ---------------------------------------------------------------------------
+// Seguridad: cabeceras, política de contenido (CSP) y límite de intentos
+// ---------------------------------------------------------------------------
+// Huella del <script> en línea de index.html: así el navegador solo ejecuta
+// NUESTRO código y nada inyectado (aunque alguien colara texto raro).
+const INLINE_HASHES = (() => {
+  try {
+    const html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8').replace(/\r\n?/g, '\n');
+    return [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => `'sha256-${crypto.createHash('sha256').update(m[1], 'utf8').digest('base64')}'`);
+  } catch (_) { return []; }
+})();
+const CSP = [
+  "default-src 'self'",
+  `script-src 'self' ${INLINE_HASHES.join(' ')}`,
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' https://fonts.gstatic.com",
+  "img-src 'self' blob: data:",
+  "media-src 'self' blob:",
+  "connect-src 'self'",
+  "worker-src 'self'",
+  "manifest-src 'self'",
+  "object-src 'none'",
+  "base-uri 'none'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+].join('; ');
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
+  res.setHeader('Permissions-Policy', 'camera=(self), microphone=(self), geolocation=(), payment=(), usb=()');
+  if (req.secure) res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  if (process.env.CSP !== 'off' && INLINE_HASHES.length) res.setHeader('Content-Security-Policy', CSP);
+  if (req.path.startsWith('/api/')) res.setHeader('Cache-Control', 'no-store');
+  next();
+});
+
+// Límite de intentos (en memoria): frena a quien intente adivinar códigos o
+// llenar el servidor. Muy por encima de lo que hacen ustedes dos.
+const hits = new Map();
+function limited(bucket, key, max, windowMs) {
+  const k = bucket + ':' + key;
+  const now = Date.now();
+  let h = hits.get(k);
+  if (!h || now - h.start > windowMs) { h = { start: now, n: 0 }; hits.set(k, h); }
+  h.n++;
+  if (hits.size > 5000) for (const [kk, v] of hits) if (now - v.start > 3600000) hits.delete(kk);
+  return h.n > max;
+}
+const rateLimit = (bucket, max, windowMs, keyFn = (req) => req.ip) => (req, res, next) =>
+  (limited(bucket, keyFn(req), max, windowMs) ? fail(res, 429, 'too_many') : next());
+app.use('/api/', rateLimit('api', 1500, 60000));
+app.use('/api/couple/join', rateLimit('join', 10, 10 * 60000));
+app.use('/api/register', rateLimit('register', 30, 60 * 60000));
+
 const jsonSmall = express.json({ limit: '50kb' });
 const jsonBig = express.json({ limit: '2mb' });
 app.use((req, res, next) => (req.path === '/api/media' ? jsonBig : jsonSmall)(req, res, next));
@@ -416,11 +536,16 @@ app.use(express.static(path.join(__dirname, 'public'), {
   },
 }));
 
+// La identidad viaja en una cabecera (no en la dirección), para que no quede
+// en registros del servidor ni en el historial. Se acepta aún en el cuerpo o
+// la dirección para las versiones viejas de la app que tengan guardadas.
 function auth(req, res, next) {
-  const id = (req.body && req.body.userId) || req.query.userId;
-  const user = id && db.users[id];
+  const id = req.get('X-User-Id') || (req.body && req.body.userId) || req.query.userId;
+  const user = typeof id === 'string' && Object.prototype.hasOwnProperty.call(db.users, id) && db.users[id];
   if (!user) return fail(res, 401, 'unknown_user');
+  if (limited('user', user.id, 900, 60000)) return fail(res, 429, 'too_many');
   req.user = user;
+  user.seenAt = Date.now(); // para «en línea ahora»
   const couple = user.code && db.couples[user.code];
   if (couple) { settleTotBonus(couple); settleWeek(couple); settleShields(couple); }
   next();
@@ -431,8 +556,9 @@ app.get('/api/health', (_req, res) => { res.setHeader('Cache-Control', 'no-store
 app.get('/api/vapid', (_req, res) => res.json({ publicKey: vapid.publicKey }));
 
 app.post('/api/register', (req, res) => {
-  const { userId, name, tz, lang } = req.body;
-  if (!userId || !name || String(userId).length > 100 || !String(name).trim()) return fail(res, 400, 'missing');
+  const { name, tz, lang } = req.body;
+  const userId = req.get('X-User-Id') || req.body.userId;
+  if (!userId || typeof userId !== 'string' || !name || userId.length > 100 || !/^[\w-]+$/.test(userId) || !String(name).trim()) return fail(res, 400, 'missing');
   const user = db.users[userId] || { id: userId, subs: [], devices: [] };
   user.name = String(name).trim().slice(0, 30);
   if (tz && validTz(tz)) user.tz = tz;
@@ -815,6 +941,7 @@ const N_WISHES = 7;
 const clean = (v, max) => String(v || '').trim().slice(0, max);
 const remember = (couple, text, user) => { if (!text) return; couple.src = couple.src || {}; couple.src[text] = langOf(user); if (couple.tr && couple.tr[text]) couple.tr[text]._tries = 0; };
 const DAY_MS = 86400000;
+const ONLINE_MS = 50000; // visto hace menos de 50 s = con la app abierta
 const recentCount = (list, uid, ms) => (list || []).filter((x) => x.by === uid && Date.now() - x.at < ms).length;
 
 // Contar algo que molestó: tema, emoción, qué pasó y qué necesito (método Gottman)
@@ -1378,6 +1505,234 @@ app.post('/api/dream/save', auth, (req, res) => {
   if (amount > 0 && canReceive(partner)) { const pl = langOf(partner); pushTo(partner, { title: 'Sahar ✈️', body: I18N.t(pl, 'dreamPush', { p: user.name, a: I18N.fmtNum(pl, amount) }) }).catch(() => {}); }
 });
 
+// ===========================================================================
+// CIENCIA DEL AMOR — herramientas basadas en estudios de pareja
+// ===========================================================================
+const keepLast = (obj, n) => { const keys = Object.keys(obj).sort(); while (keys.length > n) delete obj[keys.shift()]; };
+const addPoints = (couple, uid, n, now = new Date()) => {
+  couple.points = couple.points || {};
+  couple.points[uid] = (couple.points[uid] || 0) + n;
+  if (!couple.week || couple.week.key !== weekKey(now, couple.tz)) couple.week = { key: weekKey(now, couple.tz), pts: {} };
+  couple.week.pts[uid] = (couple.week.pts[uid] || 0) + n;
+};
+const pushPartner = (partner, title, key, vars) => {
+  if (partner && canReceive(partner)) pushTo(partner, { title, body: I18N.t(langOf(partner), key, vars) }).catch(() => {});
+};
+
+// ---- Mapas del amor (Gottman): conocer el mundo interior del otro ----------
+// Cada uno responde sobre sí y adivina lo del otro. Al ver las dos, quien
+// respondió califica: ✓ acertó (2), ≈ casi (1), ✗ no (0). Suma a la semana.
+const N_LMAP = I18N.LMAP.es.length;
+function lmapState(couple, user, partner) {
+  const day = dayKey(new Date(), couple.tz);
+  const e = (couple.lmap || {})[day] || { ans: {}, grade: {} };
+  const q = Number.isInteger(e.q) ? e.q : dayNum(day) % N_LMAP;
+  const mine = e.ans[user.id] || null, theirs = partner ? e.ans[partner.id] || null : null;
+  const both = !!(mine && theirs);
+  return {
+    day, q, mine, partner: both ? theirs : null, partnerPlayed: !!theirs,
+    myGrade: e.grade[user.id] ?? null, // nota que recibió MI adivinanza
+    partnerGrade: partner ? e.grade[partner.id] ?? null : null, // nota que le puse a su adivinanza
+    total: couple.lmapTotal || 0,
+  };
+}
+app.post('/api/lmap', auth, (req, res) => {
+  const user = req.user;
+  const couple = db.couples[user.code];
+  const partner = couple && partnerOf(user);
+  if (!partner) return fail(res, 400, 'no_partner');
+  const me = clean(req.body.me, 200), guess = clean(req.body.guess, 200);
+  if (!me || !guess) return fail(res, 400, 'invalid_message');
+  const day = dayKey(new Date(), couple.tz);
+  couple.lmap = couple.lmap || {};
+  const e = couple.lmap[day] || (couple.lmap[day] = { q: dayNum(day) % N_LMAP, ans: {}, grade: {} });
+  if (e.ans[user.id]) return res.json(stateFor(user));
+  e.ans[user.id] = { me, guess };
+  remember(couple, me, user); remember(couple, guess, user);
+  keepLast(couple.lmap, 14);
+  save();
+  res.json(stateFor(user));
+  translatePending(2).catch(() => {});
+  pushPartner(partner, 'Sahar 🗺️', e.ans[partner.id] ? 'lmapBothPush' : 'lmapPush', { p: user.name });
+});
+app.post('/api/lmap/grade', auth, (req, res) => {
+  const user = req.user;
+  const couple = db.couples[user.code];
+  const partner = couple && partnerOf(user);
+  if (!partner) return fail(res, 400, 'no_partner');
+  const g = Number(req.body.grade);
+  if (![0, 1, 2].includes(g)) return fail(res, 400, 'invalid_message');
+  const e = (couple.lmap || {})[dayKey(new Date(), couple.tz)];
+  if (!e || !e.ans[user.id] || !e.ans[partner.id] || e.grade[partner.id] != null) return res.json(stateFor(user));
+  e.grade[partner.id] = g; // califico lo que adivinó mi pareja sobre mí
+  if (g) addPoints(couple, partner.id, g);
+  if (e.grade[user.id] != null) couple.lmapTotal = (couple.lmapTotal || 0) + 1;
+  save();
+  res.json(stateFor(user));
+  pushPartner(partner, 'Sahar 🗺️', 'lmapGradePush', { p: user.name, g: ['✗', '≈', '✓'][g] });
+});
+
+// ---- 36 preguntas para enamorarse (Aron y col., 1997) ------------------------
+// Una sesión guiada que comparten: los dos ven la misma pregunta.
+const N_ARON = I18N.ARON.es.length;
+app.post('/api/aron', auth, (req, res) => {
+  const user = req.user;
+  const couple = db.couples[user.code];
+  const partner = couple && partnerOf(user);
+  if (!partner) return fail(res, 400, 'no_partner');
+  const a = couple.aron = couple.aron || { i: 0, rounds: 0, at: null };
+  const act = req.body.act;
+  if (act === 'next' && a.i <= N_ARON) {
+    if (a.i === 0) pushPartner(partner, 'Sahar 💞', 'aronPush', { p: user.name });
+    a.i++; a.at = Date.now();
+    if (a.i === N_ARON + 1) a.rounds++; // i = N+1: pantalla final (mirarse 4 minutos)
+  } else if (act === 'prev' && a.i > 0) { a.i--; a.at = Date.now(); }
+  else if (act === 'restart') { a.i = 0; a.at = Date.now(); }
+  else return fail(res, 400, 'invalid_message');
+  save();
+  res.json(stateFor(user));
+});
+
+// ---- Pausa de 20 minutos y gestos de reparación (Gottman) -----------------
+// Con el pulso alto («inundación») nadie escucha bien; hace falta ~20 min
+// sin rumiar para calmarse. Quien pide la pausa se compromete a volver.
+const PAUSE_MS = 20 * 60000;
+const N_REPAIR = I18N.REPAIRS.es.length;
+const pauseTimers = {};
+function pauseEnd(code) {
+  const couple = db.couples[code];
+  const p = couple && couple.pause;
+  if (!p || p.notified || Date.now() < p.until) return false;
+  p.notified = true;
+  save();
+  for (const id of couple.members) {
+    const u = db.users[id];
+    if (u && canReceive(u)) pushTo(u, { title: 'Sahar 🕊️', body: I18N.t(langOf(u), 'pauseEndPush') }).catch(() => {});
+  }
+  return true;
+}
+app.post('/api/pause', auth, (req, res) => {
+  const user = req.user;
+  const couple = db.couples[user.code];
+  const partner = couple && partnerOf(user);
+  if (!partner) return fail(res, 400, 'no_partner');
+  if (req.body.act === 'start') {
+    if (couple.pause && !couple.pause.notified && Date.now() < couple.pause.until) return res.json(stateFor(user));
+    couple.pause = { by: user.id, at: Date.now(), until: Date.now() + PAUSE_MS, notified: false };
+    couple.pauseCount = (couple.pauseCount || 0) + 1;
+    clearTimeout(pauseTimers[user.code]);
+    pauseTimers[user.code] = setTimeout(() => pauseEnd(user.code), PAUSE_MS + 500);
+    pushPartner(partner, 'Sahar 🕊️', 'pausePush', { p: user.name });
+  } else if (req.body.act === 'end' && couple.pause && !couple.pause.notified) {
+    couple.pause.notified = true;
+    clearTimeout(pauseTimers[user.code]);
+    pushPartner(partner, 'Sahar 🕊️', 'pauseBackPush', { p: user.name });
+  } else return fail(res, 400, 'invalid_message');
+  save();
+  res.json(stateFor(user));
+});
+app.post('/api/repair', auth, (req, res) => {
+  const user = req.user;
+  const couple = db.couples[user.code];
+  const partner = couple && partnerOf(user);
+  if (!partner) return fail(res, 400, 'no_partner');
+  const i = Number(req.body.i);
+  if (!Number.isInteger(i) || i < 0 || i >= N_REPAIR) return fail(res, 400, 'invalid_message');
+  if (recentCount(couple.repairs, user.id, 60000) >= 3) return fail(res, 429, 'too_many');
+  couple.repairs = [...(couple.repairs || []), { by: user.id, i, at: Date.now() }].slice(-100);
+  save();
+  res.json(stateFor(user));
+  if (canReceive(partner)) pushTo(partner, { title: `${user.name} 🕊️`, body: (I18N.REPAIRS[I18N.pick(langOf(partner))] || I18N.REPAIRS.en)[i] }).catch(() => {});
+});
+
+// ---- Revisión semanal (Marriage Checkup, Cordova 2014; Gottman) -----------
+// Cada semana: qué tan conectados (1–10), lo mejor y lo que necesito.
+const checkinKey = (now = new Date(), tz) => weekKey(now, tz);
+app.post('/api/checkin', auth, (req, res) => {
+  const user = req.user;
+  const couple = db.couples[user.code];
+  const partner = couple && partnerOf(user);
+  if (!partner) return fail(res, 400, 'no_partner');
+  const score = Math.round(Number(req.body.score));
+  if (!Number.isInteger(score) || score < 1 || score > 10) return fail(res, 400, 'invalid_message');
+  const best = clean(req.body.best, 300), need = clean(req.body.need, 300);
+  const key = checkinKey(new Date(), couple.tz);
+  couple.checkins = couple.checkins || {};
+  const w = couple.checkins[key] || (couple.checkins[key] = {});
+  const first = !w[user.id];
+  w[user.id] = { score, best, need, at: Date.now() };
+  remember(couple, best, user); remember(couple, need, user);
+  keepLast(couple.checkins, 26);
+  save();
+  res.json(stateFor(user));
+  translatePending(2).catch(() => {});
+  if (first) pushPartner(partner, 'Sahar 📈', 'checkinPush', { p: user.name });
+});
+function checkinState(couple, user, partner) {
+  const key = checkinKey(new Date(), couple.tz);
+  const all = couple.checkins || {};
+  const cur = all[key] || {};
+  const mine = cur[user.id] || null, theirs = partner ? cur[partner.id] || null : null;
+  const hist = Object.keys(all).sort().slice(-8).map((k) => ({ week: k, me: (all[k][user.id] || {}).score ?? null, partner: partner && !(k === key && !mine) ? (all[k][partner.id] || {}).score ?? null : null }));
+  return { week: key, mine, partner: mine ? theirs : null, partnerDone: !!theirs, hist };
+}
+
+// ---- Girarse hacia el otro (Gottman & Driver, 2006) ------------------------
+// En parejas que siguieron juntas, se respondía al 86 % de los «intentos de
+// conexión»; en las que se separaron, al 33 % (Driver & Gottman, 2004;
+// Gottman & DeClaire, 2001). Aquí: de los toques que te
+// llegaron en 30 días, ¿a cuántos respondiste (toque o reacción) en 4 horas?
+function turnState(couple, user, partner) {
+  if (!partner) return null;
+  const since = Date.now() - 30 * DAY_MS, win = 4 * 3600000;
+  const h = (couple.history || []).filter((x) => x.at > since - win);
+  const rate = (who, other) => {
+    const bids = h.filter((x) => x.to === who && x.fromId === other && x.type !== 'react' && x.at > since && x.at < Date.now() - 60000);
+    if (!bids.length) return null;
+    const ok = bids.filter((b) => h.some((x) => x.fromId === who && x.at > b.at && x.at - b.at <= win)).length;
+    return { pct: Math.round((ok / bids.length) * 100), n: bids.length };
+  };
+  return { me: rate(user.id, partner.id), partner: rate(partner.id, user.id) };
+}
+
+// ---- Reto del día con ciencia --------------------------------------------
+const N_CHAL = I18N.CHALLENGES.es.length;
+function challengeState(couple, user, partner) {
+  const day = dayKey(new Date(), couple.tz);
+  const done = (couple.chal || {})[day] || [];
+  return { day, i: (dayNum(day) * 7) % N_CHAL, me: done.includes(user.id), partner: !!partner && done.includes(partner.id), total: couple.chalTotal || 0 };
+}
+app.post('/api/challenge', auth, (req, res) => {
+  const user = req.user;
+  const couple = db.couples[user.code];
+  const partner = couple && partnerOf(user);
+  if (!partner) return fail(res, 400, 'no_partner');
+  const day = dayKey(new Date(), couple.tz);
+  couple.chal = couple.chal || {};
+  const done = couple.chal[day] || (couple.chal[day] = []);
+  if (done.includes(user.id)) return res.json(stateFor(user));
+  done.push(user.id);
+  const both = couple.members.every((id) => done.includes(id));
+  if (both) couple.chalTotal = (couple.chalTotal || 0) + 1;
+  keepLast(couple.chal, 14);
+  save();
+  res.json(stateFor(user));
+  pushPartner(partner, 'Sahar 🔬', both ? 'chalBothPush' : 'chalPush', { p: user.name });
+});
+
+function scienceState(couple, user, partner) {
+  const a = couple.aron || { i: 0, rounds: 0 };
+  const p = couple.pause;
+  return {
+    lmap: lmapState(couple, user, partner),
+    aron: { i: a.i, rounds: a.rounds || 0, n: N_ARON },
+    pause: p && !p.notified && Date.now() < p.until ? { mine: p.by === user.id, until: p.until, at: p.at } : null,
+    checkin: checkinState(couple, user, partner),
+    turn: turnState(couple, user, partner),
+    chal: challengeState(couple, user, partner),
+  };
+}
+
 function wishState(couple, user, partner) {
   const w = weeklyOf(couple);
   const m = missOf(couple);
@@ -1454,7 +1809,9 @@ app.post('/api/media', auth, async (req, res) => {
   const b64 = String(req.body.data || '');
   const okMime = kind === 'photo' ? /^image\/(jpeg|png|webp)$/.test(mime) : /^audio\/(mp4|aac|mpeg|webm|ogg|x-m4a)(;.*)?$/.test(mime);
   if (!kind || !okMime || !b64 || b64.length > MAX_MEDIA_B64 || !/^[A-Za-z0-9+/=]+$/.test(b64)) return fail(res, 400, 'invalid_media');
-  const id = crypto.randomBytes(12).toString('hex');
+  if (!looksLike(kind, mime, Buffer.from(b64.slice(0, 64), 'base64'))) return fail(res, 400, 'invalid_media');
+  if (limited('media', req.user.id, 60, 60 * 60000)) return fail(res, 429, 'too_many');
+  const id = crypto.randomBytes(16).toString('hex');
   try { await putMedia(id, mime, b64); } catch (e) { console.error('media', e.message); return fail(res, 502, 'invalid_media'); }
   couple.media = [...(couple.media || []), { id, kind, mime, by: req.user.id, at: Date.now() }];
   // Conservar las 80 más recientes
@@ -1466,11 +1823,23 @@ app.get('/api/media/:id', auth, async (req, res) => {
   const couple = db.couples[req.user.code];
   const m = couple && (couple.media || []).find((x) => x.id === req.params.id);
   if (!m) return res.status(404).end();
-  const data = await getMedia(m.id);
+  const data = await getMedia(m.id).catch(() => null);
   if (!data) return res.status(404).end();
   res.setHeader('Content-Type', data.mime);
-  res.setHeader('Cache-Control', 'private, max-age=31536000, immutable');
-  res.end(Buffer.from(data.b64, 'base64'));
+  res.setHeader('Content-Disposition', 'inline');
+  res.setHeader('Cache-Control', 'private, max-age=604800');
+  res.end(data.buf);
+});
+// Borrar una foto o audio para siempre (cualquiera de los dos: el álbum es de ambos)
+app.delete('/api/media/:id', auth, (req, res) => {
+  const couple = db.couples[req.user.code];
+  const m = couple && (couple.media || []).find((x) => x.id === req.params.id);
+  if (!m) return fail(res, 404, 'invalid_media');
+  couple.media = couple.media.filter((x) => x !== m);
+  for (const h of couple.history || []) if (h.media && h.media.id === m.id) h.media = null;
+  delMedia(m.id);
+  save();
+  res.json(stateFor(req.user));
 });
 
 // ---------------------------------------------------------------------------
@@ -1545,10 +1914,22 @@ app.delete('/api/dates', auth, (req, res) => {
   save();
   res.json(stateFor(req.user));
 });
-// Archivo .ics para añadir la fecha al calendario del iPhone
-app.get('/api/ics/:id', auth, (req, res) => {
-  const couple = db.couples[req.user.code];
-  const d = couple && (couple.dates || []).find((x) => x.id === req.params.id);
+// Archivo .ics para añadir la fecha al calendario del iPhone. El enlace va
+// firmado (t=…), así no hace falta poner la identidad en la dirección.
+function icsToken(id) {
+  if (!db.secret) { db.secret = crypto.randomBytes(32).toString('base64'); save(); }
+  return crypto.createHmac('sha256', db.secret).update('ics:' + id).digest('base64url').slice(0, 22);
+}
+const safeEq = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(String(b)); return x.length === y.length && crypto.timingSafeEqual(x, y); };
+app.get('/api/ics/:id', (req, res, next) => {
+  if (req.query.t) return next();
+  return auth(req, res, next);
+}, (req, res) => {
+  let d = null;
+  if (req.user) { const couple = db.couples[req.user.code]; d = couple && (couple.dates || []).find((x) => x.id === req.params.id); }
+  else if (safeEq(req.query.t, icsToken(req.params.id))) {
+    for (const c of Object.values(db.couples)) { d = (c.dates || []).find((x) => x.id === req.params.id); if (d) break; }
+  }
   if (!d) return res.status(404).end();
   const esc = (t) => String(t).replace(/[\;,]/g, (c) => '\\' + c).replace(/\n/g, '\\n');
   const day = d.date.replace(/-/g, '');
@@ -1639,6 +2020,23 @@ async function runReminders(now = new Date()) {
       sent += await pushTo(u, { title: 'Sahar 🎲', body: I18N.t(langOf(u), 'totRemind', { p: (db.users[other] || {}).name || '' }) });
     }
   }
+  // Revisión semanal: el domingo por la tarde, a quien aún no la hizo
+  for (const couple of Object.values(db.couples)) {
+    if (couple.members.length < 2) continue;
+    const today = dayKey(now, couple.tz);
+    const h = hourIn(now, couple.tz);
+    if (new Date(today + 'T12:00:00Z').getUTCDay() !== 0 || h < 18 || h > 21) continue;
+    const w = (couple.checkins || {})[weekKey(now, couple.tz)] || {};
+    couple.ciReminded = couple.ciReminded && couple.ciReminded.day === today ? couple.ciReminded : { day: today, ids: [] };
+    for (const id of couple.members) {
+      if (w[id] || couple.ciReminded.ids.includes(id)) continue;
+      const u = db.users[id];
+      if (!u || !canReceive(u)) continue;
+      couple.ciReminded.ids.push(id);
+      sent += await pushTo(u, { title: 'Sahar 📈', body: I18N.t(langOf(u), 'checkinRemind') });
+    }
+  }
+  for (const code of Object.keys(db.couples)) if (pauseEnd(code)) sent++;
   for (const couple of Object.values(db.couples)) { settleTotBonus(couple, now); settleWeek(couple, now); settleShields(couple, now); }
   if (sent) save();
   return sent;

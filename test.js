@@ -12,6 +12,11 @@ process.env.APNS_KEY_ID = 'ABC123DEFG';
 process.env.APNS_TEAM_ID = 'TEAM123456';
 process.env.APNS_BUNDLE_ID = 'com.test.sahar';
 process.env.DATA_FILE = path.join(os.tmpdir(), `sahar-test-${Date.now()}.json`);
+// Las pruebas nunca salen a internet: el traductor real responde «sin cupo» al instante
+const netFetch = global.fetch;
+global.fetch = (url, opts) => (String(url).includes('mymemory.translated.net')
+  ? Promise.resolve(new Response('{"responseStatus":429,"responseData":{"translatedText":"MYMEMORY WARNING"}}', { status: 429 }))
+  : netFetch(url, opts));
 
 const { app, ready, streakInfo, recordDay, prevDay, runReminders, flush } = require('./server');
 
@@ -332,10 +337,17 @@ const { app, ready, streakInfo, recordDay, prevDay, runReminders, flush } = requ
     console.log('✓ tira y afloja');
 
     // Fotos y audios
-    const jpeg = crypto.randomBytes(2000).toString('base64');
+    const jpeg = Buffer.concat([Buffer.from('ffd8ffe0', 'hex'), crypto.randomBytes(2000)]).toString('base64');
     assert.strictEqual((await c2('POST', '/api/media', { userId: 'p1', kind: 'photo', mime: 'text/html', data: jpeg })).status, 400);
     const up = (await c2('POST', '/api/media', { userId: 'p1', kind: 'photo', mime: 'image/jpeg', data: jpeg })).json;
-    assert.match(up.id, /^[0-9a-f]{24}$/);
+    assert.match(up.id, /^[0-9a-f]{32}$/);
+    // Un «JPEG» que en realidad es HTML se rechaza
+    assert.strictEqual((await c2('POST', '/api/media', { userId: 'p1', kind: 'photo', mime: 'image/jpeg', data: Buffer.from('<html><script>x</script>').toString('base64') })).status, 400, 'contenido falso');
+    // En disco la foto está cifrada (no se ve el JPEG)
+    const MEDIA_DIR = path.join(path.dirname(process.env.DATA_FILE), 'media');
+    const onDisk = JSON.parse(fs.readFileSync(path.join(MEDIA_DIR, up.id + '.json'), 'utf8'));
+    assert.ok(onDisk.v === 1 && onDisk.iv && onDisk.tag && !onDisk.b64, 'cifrada en reposo');
+    assert.ok(!Buffer.from(onDisk.data, 'base64').subarray(0, 3).equals(Buffer.from('ffd8ff', 'hex')));
     const sentPhoto = (await c2('POST', '/api/send', { userId: 'p1', mediaId: up.id })).json;
     assert.ok(sentPhoto.ok);
     const got = (await c2('GET', '/api/state?userId=p2')).json.received[0];
@@ -566,6 +578,92 @@ const { app, ready, streakInfo, recordDay, prevDay, runReminders, flush } = requ
       assert.strictEqual(dr.saved, 50);
       assert.strictEqual((await c2('POST', '/api/dream/save', { userId: 'p1', amount: 'x' })).status, 400);
       console.log('✓ nuestro sueño');
+
+      // ---- Seguridad ----
+      const hdr = async (method, p, uid, body) => { const r = await fetch(B2 + p, { method, headers: { 'Content-Type': 'application/json', 'X-User-Id': uid }, body: body && JSON.stringify(body) }); return { status: r.status, json: await r.json().catch(() => null), headers: r.headers }; };
+      const sh = await hdr('GET', '/api/state', 'p1');
+      assert.strictEqual(sh.status, 200, 'identidad por cabecera');
+      assert.strictEqual(sh.headers.get('x-content-type-options'), 'nosniff');
+      assert.strictEqual(sh.headers.get('cache-control'), 'no-store');
+      assert.strictEqual(sh.headers.get('x-powered-by'), null);
+      const page = await fetch(B2 + '/');
+      const csp = page.headers.get('content-security-policy') || '';
+      assert.match(csp, /script-src 'self' 'sha256-[A-Za-z0-9+/=]+'/, 'CSP con huella del script');
+      assert.match(csp, /frame-ancestors 'none'/);
+      assert.strictEqual((await hdr('GET', '/api/state', '__proto__')).status, 401, 'no acepta ids raros');
+      assert.strictEqual((await c2('POST', '/api/register', { userId: 'mal id!', name: 'X' })).status, 400);
+      // Enlace de calendario firmado: sin identidad en la dirección
+      const dd = sh.json.dates[0];
+      assert.ok(dd.ics, 'token de calendario');
+      const ics = await fetch(`${B2}/api/ics/${dd.id}?t=${dd.ics}`);
+      assert.strictEqual(ics.status, 200);
+      assert.strictEqual((await fetch(`${B2}/api/ics/${dd.id}?t=falso`)).status, 404);
+      // Borrar una foto
+      const ph = Buffer.concat([Buffer.from('89504e470d0a1a0a', 'hex'), crypto.randomBytes(500)]).toString('base64');
+      const up2 = (await hdr('POST', '/api/media', 'p2', { kind: 'photo', mime: 'image/png', data: ph })).json;
+      assert.ok((await hdr('GET', '/api/state', 'p1')).json.album.some((m) => m.id === up2.id));
+      const afterDel = (await hdr('DELETE', '/api/media/' + up2.id, 'p1', {})).json;
+      assert.ok(!afterDel.album.some((m) => m.id === up2.id), 'foto borrada del álbum');
+      assert.strictEqual((await c2('GET', `/api/media/${up2.id}?userId=p1`)).status, 404);
+      // Límite de intentos al unirse con códigos
+      let lim = 0;
+      for (let i = 0; i < 12; i++) if ((await c2('POST', '/api/couple/join', { userId: 'p1', code: 'ZZZZZZ' })).status === 429) lim++;
+      assert.ok(lim > 0, 'frena a quien adivina códigos');
+      // Presencia
+      assert.strictEqual((await hdr('GET', '/api/state', 'p2')).json.partnerOnline, true, 'p1 está en línea');
+      console.log('✓ seguridad: cabeceras, CSP, fotos cifradas, borrar foto, calendario firmado y límites');
+
+      // ---- Ciencia del amor ----
+      let sc = (await hdr('GET', '/api/state', 'p1')).json.science;
+      assert.ok(sc && sc.lmap && sc.aron && sc.checkin && sc.chal);
+      // Mapas del amor
+      assert.strictEqual((await hdr('POST', '/api/lmap', 'p1', { me: '', guess: 'x' })).status, 400);
+      sc = (await hdr('POST', '/api/lmap', 'p1', { me: 'Pizza', guess: 'Sushi' })).json.science;
+      assert.ok(sc.lmap.mine && sc.lmap.partner === null, 'no ve lo del otro antes de jugar');
+      sc = (await hdr('POST', '/api/lmap', 'p2', { me: 'Sushi', guess: 'Pizza' })).json.science;
+      assert.strictEqual(sc.lmap.partner.me, 'Pizza');
+      const ptsBefore = (await hdr('GET', '/api/state', 'p1')).json.score.me;
+      await hdr('POST', '/api/lmap/grade', 'p2', { grade: 2 }); // p2 califica lo que adivinó p1
+      await hdr('POST', '/api/lmap/grade', 'p2', { grade: 0 }); // no se puede calificar dos veces
+      const afterGrade = (await hdr('GET', '/api/state', 'p1')).json;
+      assert.strictEqual(afterGrade.score.me, ptsBefore + 2, '✓ = 2 puntos');
+      assert.strictEqual(afterGrade.science.lmap.myGrade, 2);
+      await hdr('POST', '/api/lmap/grade', 'p1', { grade: 1 });
+      assert.strictEqual((await hdr('GET', '/api/state', 'p1')).json.science.lmap.total, 1, 'ronda completa');
+      // 36 preguntas
+      let ar = (await hdr('POST', '/api/aron', 'p1', { act: 'next' })).json.science.aron;
+      assert.strictEqual(ar.i, 1);
+      for (let i = 0; i < 36; i++) ar = (await hdr('POST', '/api/aron', 'p2', { act: 'next' })).json.science.aron;
+      assert.ok(ar.i === 37 && ar.rounds === 1, 'pantalla final y ronda contada');
+      assert.strictEqual((await hdr('POST', '/api/aron', 'p2', { act: 'next' })).status, 400);
+      ar = (await hdr('POST', '/api/aron', 'p1', { act: 'restart' })).json.science.aron;
+      assert.strictEqual(ar.i, 0);
+      // Pausa de 20 minutos
+      let pz = (await hdr('POST', '/api/pause', 'p1', { act: 'start' })).json.science.pause;
+      assert.ok(pz.mine && pz.until - Date.now() > 19 * 60000);
+      assert.strictEqual((await hdr('GET', '/api/state', 'p2')).json.science.pause.mine, false);
+      pz = (await hdr('POST', '/api/pause', 'p1', { act: 'end' })).json.science.pause;
+      assert.strictEqual(pz, null);
+      // Reparación
+      assert.strictEqual((await hdr('POST', '/api/repair', 'p1', { i: 99 })).status, 400);
+      assert.strictEqual((await hdr('POST', '/api/repair', 'p1', { i: 3 })).status, 200);
+      // Revisión semanal: no se ve la del otro hasta hacer la propia
+      await hdr('POST', '/api/checkin', 'p2', { score: 8, best: 'La cena', need: 'Más abrazos' });
+      let ci = (await hdr('GET', '/api/state', 'p1')).json.science.checkin;
+      assert.ok(ci.partnerDone && ci.partner === null && ci.hist.every((h) => h.partner == null), 'privado hasta responder');
+      assert.strictEqual((await hdr('POST', '/api/checkin', 'p1', { score: 11 })).status, 400);
+      ci = (await hdr('POST', '/api/checkin', 'p1', { score: 9, best: 'Paseo', need: '' })).json.science.checkin;
+      assert.strictEqual(ci.partner.score, 8);
+      assert.strictEqual(ci.hist[ci.hist.length - 1].partner, 8);
+      // Reto del día
+      let chq = (await hdr('POST', '/api/challenge', 'p1', {})).json.science.chal;
+      assert.ok(chq.me && !chq.partner && chq.total === 0);
+      chq = (await hdr("POST", "/api/challenge", "p2", {})).json.science.chal;
+      assert.strictEqual(chq.total, 1);
+      // Girarse hacia el otro: hay toques y respuestas en el historial
+      const tr = (await hdr('GET', '/api/state', 'p2')).json.science.turn;
+      assert.ok(tr && (tr.me === null || typeof tr.me.pct === 'number'));
+      console.log('✓ ciencia del amor: mapas, 36 preguntas, pausa, reparación, revisión, retos');
     }
 
     // Desvincular: el último en salir borra la pareja
