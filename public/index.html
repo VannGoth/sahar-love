@@ -570,6 +570,56 @@
   .pill { border:1px solid var(--card-line); background:rgba(255,255,255,.04); color:var(--muted); border-radius:999px; padding:7px 12px; font-size:13.5px; font-weight:600; transition:all .2s; }
   .pill.on { color:var(--gold-1); border-color:var(--gold-3); background:rgba(var(--glow),.28); transform:translateY(-1px); }
   .hcard textarea.field { min-height:64px; resize:vertical; font:inherit; font-size:16px; }
+  /* ---- 4 en raya: tablero con agujeros y fichas con brillo ---- */
+  .c4-status { text-align:center; font-weight:700; color:var(--gold-1); margin:4px 0 10px; min-height:22px; }
+  .c4-status.mine { animation:fade 1.6s infinite; }
+  .c4-board { position:relative; display:grid; grid-template-columns:repeat(7,1fr); gap:5px; padding:8px; border-radius:18px; max-width:380px; margin:0 auto;
+    background:linear-gradient(160deg,rgba(var(--glow),.55),rgba(var(--glow),.25)); box-shadow:inset 0 2px 0 rgba(255,255,255,.18), inset 0 -4px 10px rgba(0,0,0,.35), 0 12px 28px rgba(0,0,0,.35); touch-action:manipulation; }
+  .c4-col { display:grid; grid-template-rows:repeat(6,1fr); gap:5px; border-radius:12px; padding:0; border:0; background:none; transition:background .2s; }
+  .c4-board.live .c4-col:active, .c4-board.live .c4-col:hover { background:rgba(255,255,255,.08); }
+  .c4-cell { aspect-ratio:1; border-radius:50%; background:radial-gradient(circle at 50% 40%,rgba(0,0,0,.55),rgba(0,0,0,.28)); box-shadow:inset 0 3px 6px rgba(0,0,0,.55); position:relative; overflow:visible; }
+  .c4-disc { position:absolute; inset:6%; border-radius:50%; display:grid; place-items:center; font-size:clamp(11px,3.4vw,16px); }
+  .c4-disc.me { background:radial-gradient(circle at 35% 30%,#ffc2d4,#ff4f8b 45%,#9d0b3c); box-shadow:inset 0 -3px 6px rgba(0,0,0,.35), 0 2px 4px rgba(0,0,0,.4); }
+  .c4-disc.p { background:radial-gradient(circle at 35% 30%,#fff6d8,#f5c84b 45%,#9a6a06); box-shadow:inset 0 -3px 6px rgba(0,0,0,.35), 0 2px 4px rgba(0,0,0,.4); }
+  .c4-disc.drop { animation:c4drop .62s cubic-bezier(.45,0,.9,.55) both; z-index:2; }
+  @keyframes c4drop { 0% { transform:translateY(var(--from)); } 62% { transform:translateY(0); } 76% { transform:translateY(-14%); } 88% { transform:translateY(0); } 94% { transform:translateY(-4%); } 100% { transform:translateY(0); } }
+  .c4-disc.win { animation:c4win 1s ease-in-out infinite; box-shadow:0 0 0 3px #fff, 0 0 18px 4px rgba(255,255,255,.75); }
+  @keyframes c4win { 50% { transform:scale(1.12); } }
+  .c4-score { display:flex; justify-content:center; gap:14px; margin-top:10px; color:var(--muted); font-size:14px; }
+  .c4-score i { display:inline-block; width:12px; height:12px; border-radius:50%; vertical-align:-1px; margin-inline-end:5px; }
+  /* ---- ¿Quién es más probable…? ---- */
+  .wml-head { color:var(--muted); font-size:14px; margin-bottom:6px; }
+  .wml-row { padding:10px 12px; border-radius:14px; background:rgba(255,255,255,.04); border:1px solid rgba(var(--glowg),.14); margin-bottom:8px; animation:rise .35s both; }
+  .wml-q { color:var(--cream); font-size:15.5px; margin-bottom:8px; line-height:1.35; }
+  .wml-row .pills { gap:8px; }
+  .wml-row .pill { flex:1; text-align:center; }
+  .wml-res { display:flex; justify-content:space-between; gap:8px; font-size:13.5px; color:var(--muted); }
+  .wml-row.ok { border-color:rgba(134,239,172,.55); background:rgba(134,239,172,.08); }
+  .wml-big { text-align:center; font-family:var(--font-display); font-size:22px; color:var(--gold-1); margin:6px 0 10px; }
+  /* ---- Nuestra historia ---- */
+  .story-start { font-family:var(--font-display); font-style:italic; font-size:19px; color:var(--gold-1); line-height:1.4; margin:4px 0 12px; }
+  .story-lines { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
+  .story-line { max-width:85%; padding:9px 12px; border-radius:16px; font-size:15px; line-height:1.4; color:var(--cream); animation:rise .35s both; }
+  .story-line.p { align-self:flex-start; background:rgba(255,255,255,.06); border-end-start-radius:4px; }
+  .story-line.me { align-self:flex-end; background:rgba(var(--glow),.3); border-end-end-radius:4px; }
+  .story-book { border:1px solid var(--card-line); border-radius:14px; padding:10px 12px; margin-top:8px; background:rgba(255,255,255,.03); }
+  .story-book summary { cursor:pointer; color:var(--gold-1); font-weight:600; }
+  .story-book p { margin:8px 0 0; color:var(--cream); line-height:1.5; font-size:14.5px; }
+  .row-in { display:flex; gap:8px; margin-top:10px; }
+  .row-in .field { flex:1; }
+  /* ---- Buenas noticias y ¿qué necesitas? ---- */
+  .news-item { padding:12px; border-radius:16px; background:rgba(255,255,255,.04); border:1px solid rgba(var(--glowg),.16); margin-top:10px; animation:rise .35s both; }
+  .news-item small { color:var(--muted-2); }
+  .news-text { font-size:16px; color:var(--cream); margin:4px 0 8px; line-height:1.4; }
+  .news-reply { color:var(--gold-1); font-weight:600; }
+  .news-item .pills { margin:6px 0; }
+  .stress-alert { padding:14px; border-radius:16px; margin-bottom:12px; background:linear-gradient(135deg,rgba(var(--glow),.35),rgba(var(--glow),.12)); border:1px solid rgba(var(--glowg),.35); animation:rise .4s both; }
+  .stress-alert .news-text { font-weight:600; }
+  .lbl { color:var(--muted); font-size:13.5px; margin:10px 0 6px; }
+  /* ---- Mirada neutral ---- */
+  .neutral-q { color:var(--cream); font-size:15px; line-height:1.4; margin:12px 0 6px; }
+  .neutral-clock { font-family:var(--font-display); font-size:30px; text-align:center; color:var(--gold-1); margin:6px 0; font-variant-numeric:tabular-nums; }
+  .neutral-past { margin-top:10px; }
   .hcard .field { margin-bottom:8px; }
   .hcard .btn { margin:6px 0 0; }
   .iss { padding:14px; border-radius:18px; background:var(--card); border:1px solid var(--card-line); animation:rise .45s both; }
@@ -1006,6 +1056,16 @@
       <p class="intro" data-i18n="checkinIntro"></p>
       <div id="ciBody"></div>
     </div>
+    <div class="card hcard" id="stressCard">
+      <h3>🫂 <span data-i18n="stressTitle"></span></h3>
+      <p class="intro" data-i18n="stressIntro"></p>
+      <div id="stressBody"></div>
+    </div>
+    <div class="card hcard" id="newsCard">
+      <h3>🎉 <span data-i18n="newsTitle"></span></h3>
+      <p class="intro" data-i18n="newsIntro"></p>
+      <div id="newsBody"></div>
+    </div>
     <div class="card hcard" id="turnCard">
       <h3>🔄 <span data-i18n="turnTitle"></span></h3>
       <p class="intro" data-i18n="turnIntro"></p>
@@ -1020,6 +1080,11 @@
       <h3>🩹 <span data-i18n="repairTitle"></span></h3>
       <p class="intro" data-i18n="repairIntro"></p>
       <div id="repairBody"></div>
+    </div>
+    <div class="card hcard" id="neutralCard">
+      <h3>🧭 <span data-i18n="neutralTitle"></span></h3>
+      <p class="intro" data-i18n="neutralIntro"></p>
+      <div id="neutralBody"></div>
     </div>
     <div class="card hcard" id="issCard">
       <h3>💬 <span data-i18n="issTitle"></span></h3>
@@ -1097,6 +1162,21 @@
       <h3>💞 <span data-i18n="aronTitle"></span></h3>
       <p class="intro" data-i18n="aronIntro"></p>
       <div id="aronBody"></div>
+    </div>
+    <div class="card hcard" id="c4Card">
+      <h3>🔴 <span data-i18n="c4Title"></span></h3>
+      <p class="intro" data-i18n="c4Intro"></p>
+      <div id="c4Body"></div>
+    </div>
+    <div class="card hcard" id="wmlCard">
+      <h3>🤔 <span data-i18n="wmlTitle"></span></h3>
+      <p class="intro" data-i18n="wmlIntro"></p>
+      <div id="wmlBody"></div>
+    </div>
+    <div class="card hcard" id="storyCard">
+      <h3>📖 <span data-i18n="storyTitle"></span></h3>
+      <p class="intro" id="storyIntro"></p>
+      <div id="storyBody"></div>
     </div>
     <div class="card hcard" id="weekCard">
       <h3>🗓️ <span data-i18n="weekTitle"></span></h3>
@@ -1225,7 +1305,7 @@
 <label id="hapticLbl" aria-hidden="true"><input type="checkbox" switch tabindex="-1"></label>
 <script src="/i18n.js"></script>
 <script>
-const APP_VERSION = '2026-11-17-1';
+const APP_VERSION = '2026-11-18-1';
 let currentTheme = 'aurora';
 try {
   // Estreno del color nuevo: pasar una vez a «Aurora»; después se respeta lo que elijan
@@ -3395,6 +3475,323 @@ function renderScience() {
   const s = state && state.science;
   if (!s) return;
   renderChallenge(s); renderLmap(s); renderAron(s); renderCheckin(s); renderTurn(s); renderPause(s); renderRepair();
+  if (s.news) renderNews(s); if (s.stress) renderStress(s); if (s.neutral) renderNeutral(s);
+  const p = state.play;
+  if (p) { renderC4(p); renderWml(p); renderStory(p); }
+}
+const myName = () => (state && state.name) || t('wmlMe');
+
+/* ----- 4 en raya de corazones ----- */
+let c4Sig = '', c4Seen = '', c4Busy = false;
+function dropSound(big) {
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const ac = audioCtx, t0 = ac.currentTime + 0.36; // suena al tocar fondo
+    [0, 0.13].forEach((d, k) => {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = 'sine'; o.frequency.setValueAtTime(big ? 180 : 150, t0 + d); o.frequency.exponentialRampToValueAtTime(70, t0 + d + 0.09);
+      g.gain.setValueAtTime(0.0001, t0 + d); g.gain.exponentialRampToValueAtTime(k ? 0.05 : 0.16, t0 + d + 0.005); g.gain.exponentialRampToValueAtTime(0.0001, t0 + d + 0.12);
+      o.connect(g).connect(ac.destination); o.start(t0 + d); o.stop(t0 + d + 0.14);
+    });
+  } catch (_) {}
+}
+function renderC4(p) {
+  const c = p.c4, g = c.game, sig = lang + JSON.stringify(c) + pName();
+  if (sig === c4Sig) return; c4Sig = sig;
+  const body = $('c4Body'); body.innerHTML = '';
+  const live = g && g.status === 'live', myTurn = live && g.turn === 'me';
+  const st = el('div', 'c4-status' + (myTurn ? ' mine' : ''));
+  if (!g) st.textContent = '';
+  else if (live) st.textContent = myTurn ? t('c4MyTurn') : t('c4Their', { p: pName() });
+  else st.textContent = g.winner === 'me' ? t('c4Won') : g.winner === 'p' ? t('c4Lost', { p: pName() }) : t('c4Draw');
+  body.append(st);
+  const board = el('div', 'c4-board' + (myTurn ? ' live' : ''));
+  const key = g ? g.id + ':' + g.moves : '';
+  const animate = g && g.last != null && key !== c4Seen && c4Seen !== '';
+  for (let col = 0; col < 7; col++) {
+    const colEl = el('button', 'c4-col'); colEl.type = 'button';
+    colEl.setAttribute('aria-label', String(col + 1));
+    for (let row = 0; row < 6; row++) {
+      const i = row * 7 + col, v = g ? g.board[i] : null;
+      const cell = el('div', 'c4-cell');
+      if (v) {
+        const d = el('i', 'c4-disc ' + v, v === 'me' ? '💗' : '✨');
+        if (animate && i === g.last) { d.classList.add('drop'); d.style.setProperty('--from', `${-(row + 1) * 118}%`); }
+        if (g.line && g.line.includes(i)) d.classList.add('win');
+        cell.append(d);
+      }
+      colEl.append(cell);
+    }
+    colEl.onclick = async () => {
+      if (!myTurn || c4Busy) return;
+      if (g.board[col] !== null) { haptic([10, 30, 10]); return; } // columna llena
+      c4Busy = true; haptic(8);
+      try { state = await api('/api/c4', 'POST', { act: 'drop', col }); renderScience(); renderScore(); }
+      catch (e) { toast(errText(e)); }
+      c4Busy = false;
+    };
+    board.append(colEl);
+  }
+  body.append(board);
+  if (animate) {
+    dropSound(); setTimeout(() => haptic(18), 380);
+    if (g.status === 'done' && g.winner === 'me') setTimeout(() => { FX.fireworks(4); FX.shower(2200, { colors: ['#ff4f8b', '#fde68a'], emoji: '🏆' }); haptic([60, 40, 80, 40, 120]); }, 700);
+    else if (g.status === 'done' && g.winner === 'p') setTimeout(() => { const [x, y] = centerOf(board); FX.burst(x, y, 30, { emoji: '✨' }); }, 700);
+  }
+  c4Seen = key || '-';
+  if (!live) {
+    const b = el('button', 'btn gold', g ? t('c4Revenge') : t('c4New'));
+    b.style.marginTop = '12px';
+    b.onclick = async () => { b.disabled = true; try { c4Seen = '-'; state = await api('/api/c4', 'POST', { act: 'new' }); renderScience(); haptic(12); } catch (e) { toast(errText(e)); b.disabled = false; } };
+    body.append(b);
+  }
+  const sc = el('div', 'c4-score');
+  const a = el('span'); a.append(el('i')); a.firstChild.style.background = '#ff4f8b'; a.append(`${t('wmlMe')} ${num(c.wins.me)}`);
+  const b2 = el('span'); b2.append(el('i')); b2.firstChild.style.background = '#f5c84b'; b2.append(`${pName()} ${num(c.wins.p)}`);
+  sc.append(a, b2); body.append(sc);
+}
+
+/* ----- ¿Quién es más probable…? ----- */
+let wmlSig = '', wmlPicks = [];
+function renderWml(p) {
+  const w = p.wml, sig = lang + JSON.stringify(w) + pName() + wmlPicks.join();
+  if (sig === wmlSig) return; wmlSig = sig;
+  const body = $('wmlBody'); body.innerHTML = '';
+  const Q = listOf(I.WML);
+  if (wmlPicks.length !== w.qs.length || w.mine) wmlPicks = w.mine ? [] : Array(w.qs.length).fill(null);
+  body.append(el('div', 'wml-head', t('wmlHead')));
+  if (!w.mine) {
+    w.qs.forEach((qi, k) => {
+      const row = el('div', 'wml-row'); row.style.animationDelay = `${k * 60}ms`;
+      row.append(el('div', 'wml-q', `${Q[qi]}?`));
+      const pills = el('div', 'pills');
+      [t('wmlMe'), pName()].forEach((lbl, v) => {
+        const b = el('button', 'pill' + (wmlPicks[k] === v ? ' on' : ''), lbl);
+        b.onclick = () => { wmlPicks[k] = v; haptic(6); renderWml(state.play); };
+        pills.append(b);
+      });
+      row.append(pills); body.append(row);
+    });
+    const send = el('button', 'btn gold', t('wmlSend'));
+    send.disabled = wmlPicks.some((x) => x === null);
+    send.onclick = async () => {
+      send.disabled = true;
+      try { state = await api('/api/wml', 'POST', { picks: wmlPicks }); wmlPicks = []; renderScience(); renderScore(); haptic([20, 30, 20]); }
+      catch (e) { toast(errText(e)); send.disabled = false; }
+    };
+    body.append(send);
+  } else if (!w.partner) body.append(el('div', 'tot-wait', t('wmlWait', { p: pName() })));
+  else {
+    body.append(el('div', 'wml-big', t('wmlMatch', { n: num(w.matches) })));
+    w.qs.forEach((qi, k) => {
+      const ok = w.mine[k] !== w.partner[k];
+      const row = el('div', 'wml-row' + (ok ? ' ok' : '')); row.style.animationDelay = `${k * 90}ms`;
+      row.append(el('div', 'wml-q', `${ok ? '✅' : '❌'} ${Q[qi]}?`));
+      const res = el('div', 'wml-res');
+      res.append(el('span', null, t('wmlYouSaid', { x: w.mine[k] ? pName() : myName() })), el('span', null, t('wmlTheySaid', { p: pName(), x: w.partner[k] ? myName() : pName() })));
+      row.append(res); body.append(row);
+    });
+    body.append(el('div', 'tot-wait', t('wmlTomorrow')));
+    const fk = 'sahar_wml_fx_' + w.day;
+    if (w.matches >= 3 && !sessionStorage.getItem(fk)) { try { sessionStorage.setItem(fk, '1'); } catch (_) {} setTimeout(() => { const [x, y] = centerOf($('wmlCard')); FX.burst(x, y, 12 * w.matches, { emoji: '🤔' }); }, 300); }
+  }
+  body.append(el('div', 'wins', t('wmlTotal', { n: num(w.total) })));
+}
+
+/* ----- Nuestra historia ----- */
+let storySig = '', storyPick = null;
+function renderStory(p) {
+  const s = p.story, sig = lang + JSON.stringify(s) + pName() + storyPick;
+  if (sig === storySig) return; storySig = sig;
+  const body = $('storyBody');
+  const draft = $('storyIn') ? $('storyIn').value : '';
+  body.innerHTML = '';
+  $('storyIntro').textContent = t('storyIntro', { n: num(s.min) });
+  const S0 = listOf(I.STORY_STARTS);
+  if (!s.cur) {
+    if (storyPick == null) storyPick = Math.floor(Math.random() * S0.length);
+    body.append(el('div', 'lbl', t('storyPick')), el('div', 'story-start', S0[storyPick]));
+    const row = el('div', 'aron-nav');
+    const other = el('button', 'btn ghost', t('storyOther')); other.onclick = () => { storyPick = (storyPick + 1 + Math.floor(Math.random() * (S0.length - 1))) % S0.length; haptic(6); renderStory(state.play); };
+    const go = el('button', 'btn gold', t('storyNew'));
+    go.onclick = async () => { go.disabled = true; try { state = await api('/api/story', 'POST', { act: 'new', start: storyPick }); storyPick = null; renderScience(); haptic(12); } catch (e) { toast(errText(e)); go.disabled = false; } };
+    row.append(other, go); body.append(row);
+  } else {
+    body.append(el('div', 'story-start', S0[s.cur.start]));
+    const lines = el('div', 'story-lines');
+    s.cur.lines.forEach((l) => lines.append(el('div', 'story-line ' + (l.mine ? 'me' : 'p'), showMsg(l.text))));
+    body.append(lines);
+    if (s.myTurn) {
+      const ta = el('textarea', 'field'); ta.id = 'storyIn'; ta.maxLength = 240; ta.placeholder = t('storyPh'); ta.value = draft;
+      const add = el('button', 'btn gold', t('storyAdd'));
+      add.onclick = async () => {
+        if (!ta.value.trim()) { ta.focus(); return; }
+        add.disabled = true;
+        try { state = await api('/api/story', 'POST', { act: 'add', text: ta.value }); renderScience(); const [x, y] = centerOf(add); FX.burst(x, y, 14, { emoji: '✍️' }); haptic(12); }
+        catch (e) { toast(errText(e)); add.disabled = false; }
+      };
+      body.append(ta, add);
+    } else body.append(el('div', 'tot-wait', t('storyWait', { p: pName() })));
+    if (s.cur.lines.length >= s.min) {
+      const end = el('button', 'chip-btn', t('storyEnd')); end.style.marginTop = '10px';
+      end.onclick = async () => { end.disabled = true; try { state = await api('/api/story', 'POST', { act: 'end' }); renderScience(); FX.shower(1600, { emoji: '📕' }); haptic([30, 40, 60]); } catch (e) { toast(errText(e)); end.disabled = false; } };
+      body.append(end);
+    }
+  }
+  if (s.books.length) {
+    body.append(el('div', 'lbl', `📚 ${t('storyLib')}`));
+    s.books.forEach((b) => {
+      const d = el('details', 'story-book');
+      d.append(el('summary', null, `${b.title || t('storyUntitled')} · ${t('storyLines', { n: num(b.lines.length) })} · ${fmtDay(b.done || b.at)}`));
+      d.append(el('p', null, [S0[b.start], ...b.lines.map((l) => showMsg(l.text))].join(' ')));
+      if (!b.title) {
+        const row = el('div', 'row-in');
+        const inp = el('input', 'field'); inp.maxLength = 60; inp.placeholder = t('storyTitlePh');
+        const ok = el('button', 'btn gold', '✓'); ok.style.width = 'auto';
+        ok.onclick = async () => { if (!inp.value.trim()) return; try { state = await api('/api/story', 'POST', { act: 'title', id: b.id, title: inp.value }); renderScience(); } catch (e) { toast(errText(e)); } };
+        row.append(inp, ok); d.append(row);
+      }
+      body.append(d);
+    });
+  }
+}
+
+/* ----- Buenas noticias (Gable) ----- */
+let newsSig = '';
+function renderNews(s) {
+  const n = s.news, sig = lang + JSON.stringify(n) + pName() + JSON.stringify(state.trans || {}).length;
+  if (sig === newsSig) return; newsSig = sig;
+  const body = $('newsBody');
+  const draft = $('newsIn') ? $('newsIn').value : '';
+  body.innerHTML = '';
+  const R = listOf(I.NEWS_REPLIES);
+  // Primero las noticias de la pareja que esperan mi respuesta
+  n.filter((x) => !x.mine && !x.reply).forEach((x) => {
+    const it = el('div', 'news-item');
+    it.append(el('small', null, `${t('newsFrom', { p: pName() })} · ${fmtDay(x.at)}`), el('div', 'news-text', showMsg(x.text)), el('div', 'lbl', t('newsReplyQ')));
+    const pills = el('div', 'pills');
+    R.forEach((r, i) => { const b = el('button', 'pill', r); b.onclick = () => sciCall('/api/news/reply', { id: x.id, i }, () => { const [cx, cy] = centerOf(it); FX.burst(cx, cy, 36, { emoji: '🎉' }); haptic([30, 40, 60]); }); pills.append(b); });
+    const row = el('div', 'row-in');
+    const inp = el('input', 'field'); inp.maxLength = 220; inp.placeholder = t('newsOwn');
+    const ok = el('button', 'btn gold', '➤'); ok.style.width = 'auto';
+    ok.onclick = () => { if (inp.value.trim()) sciCall('/api/news/reply', { id: x.id, text: inp.value }, () => { const [cx, cy] = centerOf(it); FX.burst(cx, cy, 36, { emoji: '🎉' }); haptic([30, 40, 60]); }); };
+    row.append(inp, ok);
+    it.append(pills, row, el('div', 'chal-src', t('newsTip')));
+    body.append(it);
+  });
+  const ta = el('textarea', 'field'); ta.id = 'newsIn'; ta.maxLength = 220; ta.placeholder = t('newsPh'); ta.value = draft;
+  const send = el('button', 'btn gold', t('newsSend'));
+  send.onclick = async () => {
+    if (!ta.value.trim()) { ta.focus(); return; }
+    send.disabled = true;
+    const ok = await sciCall('/api/news', { text: ta.value }, () => { const [x, y] = centerOf(send); FX.burst(x, y, 30, { emoji: '🎉' }); haptic([20, 30, 20]); });
+    if (ok) { const e2 = $('newsIn'); if (e2) e2.value = ''; } else send.disabled = false;
+  };
+  body.append(ta, send);
+  n.filter((x) => x.mine || x.reply).slice(0, 5).forEach((x) => {
+    const it = el('div', 'news-item');
+    it.append(el('small', null, `${x.mine ? t('newsMine') : t('newsFrom', { p: pName() })} · ${fmtDay(x.at)}`), el('div', 'news-text', showMsg(x.text)));
+    if (x.reply) it.append(el('div', 'news-reply', `${x.mine ? pName() : myName()}: ${x.reply.i != null ? R[x.reply.i] : showMsg(x.reply.text)}`));
+    else it.append(el('div', 'tot-wait', t('newsWait', { p: pName() })));
+    body.append(it);
+  });
+}
+
+/* ----- ¿Qué necesitas? (afrontamiento diádico) ----- */
+let stressSig = '', stressSel = { lvl: null, need: null };
+function renderStress(s) {
+  const st = s.stress, sig = lang + JSON.stringify(st) + pName() + JSON.stringify(stressSel);
+  if (sig === stressSig) return; stressSig = sig;
+  const body = $('stressBody');
+  const note = $('stressNote') ? $('stressNote').value : '';
+  body.innerHTML = '';
+  const N = listOf(I.NEEDS), L = strArr('stressLvls');
+  if (st.partner) {
+    const a = el('div', 'stress-alert');
+    a.append(el('div', 'news-text', t('stressPartner', { p: pName(), l: L[st.partner.lvl - 1], n: N[st.partner.need] })));
+    if (st.partner.note) a.append(el('div', null, `“${showMsg(st.partner.note)}”`));
+    if (st.partner.ack) a.append(el('div', 'news-reply', t('stressAckDone')));
+    else {
+      const b = el('button', 'btn gold', t('stressAck')); b.style.marginTop = '10px';
+      b.onclick = () => { b.disabled = true; sciCall('/api/stress', { act: 'ack' }, () => { const [x, y] = centerOf(a); FX.burst(x, y, 30, { emoji: '💪' }); haptic([30, 40, 60]); }); };
+      a.append(b);
+    }
+    body.append(a);
+  }
+  if (st.mine) {
+    const m = el('div', 'news-item');
+    m.append(el('div', 'news-text', t('stressMine', { p: pName(), n: N[st.mine.need] })), el('div', st.mine.ack ? 'news-reply' : 'tot-wait', st.mine.ack ? t('stressAcked', { p: pName() }) : t('stressNotYet', { p: pName() })));
+    const c = el('button', 'chip-btn', t('stressClear')); c.style.marginTop = '8px';
+    c.onclick = () => sciCall('/api/stress', { act: 'clear' }, () => haptic(10));
+    m.append(c); body.append(m);
+  } else {
+    body.append(el('div', 'lbl', t('stressLvlQ')));
+    const lp = el('div', 'pills');
+    L.forEach((l, i) => { const b = el('button', 'pill' + (stressSel.lvl === i + 1 ? ' on' : ''), l); b.onclick = () => { stressSel.lvl = i + 1; haptic(5); renderStress(state.science); }; lp.append(b); });
+    body.append(lp, el('div', 'lbl', t('stressNeedQ')));
+    const np = el('div', 'pills');
+    N.forEach((l, i) => { const b = el('button', 'pill' + (stressSel.need === i ? ' on' : ''), l); b.onclick = () => { stressSel.need = i; haptic(5); renderStress(state.science); }; np.append(b); });
+    const inp = el('input', 'field'); inp.id = 'stressNote'; inp.maxLength = 160; inp.placeholder = t('stressNotePh'); inp.value = note; inp.style.marginTop = '10px';
+    const send = el('button', 'btn gold', t('stressSend', { p: pName() })); send.style.marginTop = '10px';
+    send.disabled = stressSel.lvl == null || stressSel.need == null;
+    send.onclick = async () => {
+      send.disabled = true;
+      const ok = await sciCall('/api/stress', { act: 'send', lvl: stressSel.lvl, need: stressSel.need, note: inp.value }, () => haptic([20, 30, 20]));
+      if (ok) stressSel = { lvl: null, need: null }; else send.disabled = false;
+    };
+    body.append(np, inp, send);
+  }
+  if (st.acks) body.append(el('div', 'wins', t('stressAcks', { n: num(st.acks) })));
+}
+
+/* ----- Mirada neutral (Finkel, 2013) ----- */
+let neutralSig = '', neutralOpen = false, neutralTimer = null, neutralEnd = 0;
+function renderNeutral(s) {
+  const nt = s.neutral, sig = lang + JSON.stringify(nt) + neutralOpen;
+  if (sig === neutralSig) return; neutralSig = sig;
+  const body = $('neutralBody');
+  const keep = [0, 1, 2].map((i) => ($('neutralA' + i) ? $('neutralA' + i).value : ''));
+  body.innerHTML = '';
+  const Q = listOf(I.NEUTRAL_Q);
+  if (!neutralOpen) {
+    body.append(el('div', nt.due ? 'news-reply' : 'tot-wait', nt.due ? t('neutralDue') : t('neutralNext', { d: fmtDay(nt.next) })));
+    const b = el('button', nt.due ? 'btn gold' : 'btn ghost', t('neutralStart')); b.style.marginTop = '10px';
+    b.onclick = () => { neutralOpen = true; neutralEnd = Date.now() + 7 * 60000; haptic(10); renderNeutral(state.science); };
+    body.append(b);
+  } else {
+    const clock = el('div', 'neutral-clock', '7:00');
+    body.append(clock);
+    Q.forEach((q, i) => {
+      const ta = el('textarea', 'field'); ta.id = 'neutralA' + i; ta.maxLength = 1200; ta.value = keep[i];
+      body.append(el('div', 'neutral-q', `${i + 1}. ${q}`), ta);
+    });
+    const save = el('button', 'btn gold', t('neutralSave')); save.style.marginTop = '12px';
+    save.onclick = async () => {
+      const a = [0, 1, 2].map((i) => $('neutralA' + i).value);
+      if (!a.some((x) => x.trim())) { $('neutralA0').focus(); return; }
+      save.disabled = true;
+      try { state = await api('/api/neutral', 'POST', { a }); neutralOpen = false; clearInterval(neutralTimer); renderScience(); toast(t('neutralSaved')); haptic([20, 30, 20]); }
+      catch (e) { toast(errText(e)); save.disabled = false; }
+    };
+    body.append(save);
+    clearInterval(neutralTimer);
+    const tick = () => {
+      const left = Math.max(0, neutralEnd - Date.now()), sec = Math.ceil(left / 1000);
+      clock.textContent = left ? `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}` : t('neutralTimeUp');
+      if (!left) { clearInterval(neutralTimer); clock.style.fontSize = '17px'; haptic([40, 60, 40]); }
+    };
+    tick(); neutralTimer = setInterval(tick, 500);
+  }
+  if (nt.list.length) {
+    const d = el('details', 'story-book neutral-past');
+    d.append(el('summary', null, `🔒 ${t('neutralPast')} (${num(nt.list.length)})`));
+    nt.list.forEach((x) => {
+      const p = el('p'); p.append(el('b', null, fmtDay(x.at)));
+      x.a.forEach((ans, i) => { if (ans) { p.append(el('br'), el('small', null, `${i + 1}. `), document.createTextNode(ans)); } });
+      d.append(p);
+    });
+    body.append(d);
+  }
 }
 async function sciCall(path, body, fx) {
   try { state = await api(path, 'POST', body); renderScience(); renderScore(); if (fx) fx(); return true; }
