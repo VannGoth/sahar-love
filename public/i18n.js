@@ -1234,6 +1234,14 @@
     fa: { liveOnline: '{p} همین الان آنلاین شد 💚', liveC4: '{p} در چهار در یک ردیف حرکت کرد. نوبت توست! 🔴', liveC4New: '{p} یک بازی چهار در یک ردیف شروع کرد 🔴', liveC4Win: '{p} در چهار در یک ردیف برد 🏆', liveWml: '{p} «کدام‌مان بیشتر احتمال دارد…؟» را بازی کرد 🤔', liveStory: '{p} داستان‌تان را ادامه داد 📖', liveNews: '{p} یک خبر خوب دارد 🎉', liveNewsReply: '{p} به خبرت جواب داد 🎉', liveStress: '{p} به حمایتت نیاز دارد 🫂', liveAck: '{p} دارد می‌آید تا کنارت باشد 💪', liveLmap: '{p} به نقشه‌ی عشق جواب داد 🗺️', liveCheckin: '{p} مرور هفتگی را انجام داد 📈', liveChal: '{p} چالش امروز را انجام داد 🔬', liveAron: '{p} به سؤال بعدی رفت 💞', liveTap: 'برای دیدن بزن' },
   };
   for (const l of Object.keys(S)) Object.assign(S[l], LIVE[l] || LIVE.en);
+  // Pestañas nuevas y secciones de Armonía
+  const NAV = {
+    es: { tabGames: 'Juegos', tabAsk: 'Preguntas', secConnect: '💗 Conectar', secPlans: '🌱 Planes y sueños', secConflict: '🕊️ Cuando discutimos' },
+    en: { tabGames: 'Games', tabAsk: 'Questions', secConnect: '💗 Connect', secPlans: '🌱 Plans & dreams', secConflict: '🕊️ When we argue' },
+    de: { tabGames: 'Spiele', tabAsk: 'Fragen', secConnect: '💗 Verbinden', secPlans: '🌱 Pläne & Träume', secConflict: '🕊️ Wenn wir streiten' },
+    fa: { tabGames: 'بازی‌ها', tabAsk: 'پرسش‌ها', secConnect: '💗 نزدیک شدن', secPlans: '🌱 برنامه‌ها و رؤیاها', secConflict: '🕊️ وقتی بحث می‌کنیم' },
+  };
+  for (const l of Object.keys(S)) Object.assign(S[l], NAV[l] || NAV.en);
   const ERR2 = {
     es: { not_your_turn: 'Aún no es tu turno', not_found: 'Eso ya no existe' },
     en: { not_your_turn: "It's not your turn yet", not_found: 'That no longer exists' },
