@@ -13,6 +13,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const I18N = require('./public/i18n.js');
+const BOARDS = require('./public/boards.js');
 
 const PORT = process.env.PORT || 3000;
 const DATA_FILE = process.env.DATA_FILE || path.join(__dirname, 'data.json');
@@ -194,6 +195,55 @@ async function translateOne(text, src, tgt) {
   } catch (_) { return null; } finally { clearTimeout(timer); }
 }
 const onlyEmoji = (t) => !/[\p{L}\p{N}]/u.test(t);
+// Solo hace falta traducir a los idiomas que usan los dos (antes se traducía a los 11
+// y el límite diario gratuito se gastaba enseguida: por eso quedaban textos sin traducir)
+function coupleLangs(couple) { return [...new Set((couple.members || []).map((id) => langOf(db.users[id])))]; }
+// Si alguien escribe en otra escritura que la de su idioma (p. ej. persa con la app en
+// español), se adivina el idioma de origen por las letras.
+const SCRIPT = (l) => (l === 'fa' || l === 'ar' ? 'arab' : l === 'ru' || l === 'uk' ? 'cyr' : 'latin');
+function guessSrc(text, fallback, langs) {
+  const sc = /[؀-ۿ]/.test(text) ? 'arab' : /[Ѐ-ӿ]/.test(text) ? 'cyr' : /\p{Script=Latin}/u.test(text) ? 'latin' : null;
+  if (!sc || SCRIPT(fallback) === sc) return fallback;
+  return langs.find((l) => SCRIPT(l) === sc) || (sc === 'arab' ? 'fa' : sc === 'cyr' ? 'ru' : 'en');
+}
+// Traduce un texto a los idiomas que falten. Si el servicio falla, se reintenta más
+// tarde (cada vez se espera un poco más), en vez de rendirse para siempre.
+async function translateEntry(couple, text, only) {
+  if (!TRANSLATE || !text || /^[@#?]/.test(text) || onlyEmoji(text)) return false;
+  couple.tr = couple.tr || {};
+  const langs = coupleLangs(couple);
+  const entry = couple.tr[text] || (couple.tr[text] = { _tries: 0 });
+  if (!entry._src) entry._src = guessSrc(text, couple.src?.[text] || langOf(db.users[couple.members[0]]), langs);
+  const src = entry._src;
+  entry[src] = text;
+  const missing = (only ? [only] : langs).filter((l) => !entry[l]);
+  if (!missing.length) return false;
+  if (!only && entry._next && Date.now() < entry._next) return false;
+  let ok = true;
+  for (const l of missing) {
+    const out = await translateOne(text, src, l);
+    if (out && out.trim().toLowerCase() !== text.trim().toLowerCase()) entry[l] = out;
+    else if (out) entry[l] = text; // ya estaba en ese idioma
+    else { ok = false; break; }
+  }
+  if (ok) { entry._tries = 0; delete entry._next; } else {
+    entry._tries = (entry._tries || 0) + 1;
+    entry._next = Date.now() + Math.min(24 * 3600e3, 10 * 60e3 * 2 ** Math.min(entry._tries, 8));
+  }
+  save();
+  return true;
+}
+// Traducir ya (para que la notificación llegue traducida), con tiempo máximo
+async function translateFor(couple, text, lang, ms = 4500) {
+  if (!couple || !text) return text;
+  await Promise.race([translateEntry(couple, text, lang).catch(() => {}), new Promise((r) => setTimeout(r, ms))]);
+  return textFor(couple, text, lang);
+}
+function textsToTranslate(couple) {
+  const answers = Object.values(couple.qa || {}).flatMap((d) => Object.values(d.answers || {}));
+  // Lo más reciente primero
+  return [...new Set([...(couple.history || []).slice(-50).map((h) => h.body).reverse(), ...(couple.messages || []), ...answers.reverse(), ...harmonyTexts(couple).reverse()])];
+}
 let translating = false;
 async function translatePending(limit = 6) {
   if (!TRANSLATE || translating) return 0;
@@ -201,28 +251,9 @@ async function translatePending(limit = 6) {
   let done = 0;
   try {
     for (const couple of Object.values(db.couples)) {
-      couple.tr = couple.tr || {};
-      const answers = Object.values(couple.qa || {}).flatMap((d) => Object.values(d.answers || {}));
-      const texts = new Set([...(couple.messages || []), ...(couple.history || []).slice(-50).map((h) => h.body), ...answers, ...harmonyTexts(couple)]);
-      for (const text of texts) {
+      for (const text of textsToTranslate(couple)) {
         if (done >= limit) return done;
-        if (!text || /^[@#?]/.test(text) || onlyEmoji(text)) continue;
-        const entry = couple.tr[text] || (couple.tr[text] = { _src: couple.src?.[text] || null, _tries: 0 });
-        if (entry._tries >= 5) continue;
-        const src = entry._src || langOf(db.users[couple.members[0]]);
-        entry._src = src;
-        entry[src] = text;
-        const missing = LANGS.filter((l) => !entry[l]);
-        if (!missing.length) continue;
-        let any = false;
-        for (const l of missing) {
-          const out = await translateOne(text, src, l);
-          if (out) { entry[l] = out; any = true; }
-          else break; // límite o error: seguir más tarde
-        }
-        if (!any) entry._tries++;
-        done++;
-        save();
+        if (await translateEntry(couple, text)) done++;
       }
     }
   } finally { translating = false; }
@@ -443,7 +474,6 @@ function harmonyTexts(couple) {
     ...(couple.issues || []).slice(-60).flatMap((x) => [x.what, x.need]),
     ...(couple.thanks || []).slice(-40).map((x) => x.text),
     ...(couple.cards || []).map((c) => c.note),
-    ...Object.values(couple.wishes || {}).flatMap((w) => w.items || []),
     ...(couple.chest || []).slice(-60).map((x) => x.text),
     ...Object.values(couple.lmap || {}).flatMap((e) => Object.values(e.ans || {}).flatMap((a) => [a.me, a.guess])),
     ...Object.values(couple.checkins || {}).slice(-4).flatMap((w) => Object.values(w).flatMap((c) => [c.best, c.need])),
@@ -451,6 +481,9 @@ function harmonyTexts(couple) {
     ...Object.values(couple.stress || {}).map((s) => s.note),
     ...(couple.story ? couple.story.lines.map((l) => l.text) : []),
     ...(couple.stories || []).slice(-3).flatMap((s) => s.lines.map((l) => l.text)),
+    ...(couple.stories || []).map((s) => s.title),
+    ...(couple.dates || []).map((d) => d.name),
+    ...(couple.media || []).map((m) => m.title),
   ].filter(Boolean);
 }
 
@@ -619,6 +652,7 @@ app.post('/api/lang', auth, (req, res) => {
   req.user.lang = req.body.lang;
   save();
   res.json(stateFor(req.user));
+  translatePending(8).catch(() => {}); // lo escrito antes, ahora también en el idioma nuevo
 });
 
 // Fecha en que empezaron (YYYY-MM-DD) o null para borrarla
@@ -661,7 +695,7 @@ app.post('/api/messages', auth, (req, res) => {
   couple.messages.push(text);
   couple.src = couple.src || {};
   couple.src[text] = langOf(req.user);
-  if (couple.tr && couple.tr[text]) couple.tr[text]._tries = 0;
+  if (couple.tr && couple.tr[text]) { couple.tr[text]._tries = 0; delete couple.tr[text]._next; }
   save();
   res.json(stateFor(req.user));
   translatePending(3).catch(() => {});
@@ -735,7 +769,9 @@ app.post('/api/send', auth, async (req, res) => {
 
   const emoji = req.body.ask ? '💭' : custom ? '💌' : TOUCH_TYPES[type];
   const title = sync ? `${user.name} · ${I18N.t(lang, 'syncTitle')}` : `${user.name} ${emoji.repeat(custom || req.body.ask ? 1 : level)}`;
-  const delivered = await pushTo(partner, { title, body: textFor(couple, body, lang) + icon, subtitle });
+  // Lo escrito a mano se traduce antes de avisar, para que la notificación llegue en su idioma
+  const shown = custom ? await translateFor(couple, custom, lang) : textFor(couple, body, lang);
+  const delivered = await pushTo(partner, { title, body: shown + icon, subtitle });
   if (!delivered) {
     couple.days = JSON.parse(prevDays); // si no llegó, no cuenta para la racha
     couple.bestStreak = prevBest;
@@ -944,7 +980,7 @@ const N_ISS_CATS = I18N.ISS_CAT_EMOJI.length;
 const N_FEELS = I18N.FEEL_EMOJI.length;
 const N_WISHES = 7;
 const clean = (v, max) => String(v || '').trim().slice(0, max);
-const remember = (couple, text, user) => { if (!text) return; couple.src = couple.src || {}; couple.src[text] = langOf(user); if (couple.tr && couple.tr[text]) couple.tr[text]._tries = 0; };
+const remember = (couple, text, user) => { if (!text) return; couple.src = couple.src || {}; couple.src[text] = langOf(user); if (couple.tr && couple.tr[text]) { couple.tr[text]._tries = 0; delete couple.tr[text]._next; } };
 const DAY_MS = 86400000;
 const ONLINE_MS = 50000; // visto hace menos de 50 s = con la app abierta
 const recentCount = (list, uid, ms) => (list || []).filter((x) => x.by === uid && Date.now() - x.at < ms).length;
@@ -1003,8 +1039,11 @@ app.post('/api/thanks', auth, async (req, res) => {
   remember(couple, text, user);
   save();
   res.json(stateFor(user));
+  if (canReceive(partner)) {
+    const pl = langOf(partner);
+    pushTo(partner, { title: 'Sahar 🫙', body: I18N.t(pl, 'gratPush', { p: user.name, m: await translateFor(couple, text, pl) }) }).catch(() => {});
+  }
   translatePending(2).catch(() => {});
-  if (canReceive(partner)) pushTo(partner, { title: 'Sahar 🫙', body: I18N.t(langOf(partner), 'gratPush', { p: user.name, m: text }) }).catch(() => {});
 });
 
 // Regalar un vale (para compensar, para mimar o porque sí)
@@ -1026,7 +1065,7 @@ app.post('/api/gift', auth, async (req, res) => {
   save();
   res.json(stateFor(user));
   translatePending(1).catch(() => {});
-  if (canReceive(partner)) pushTo(partner, { title: 'Sahar 🎁', body: I18N.t(langOf(partner), 'giftPush', { p: user.name, c: cardName(langOf(partner), card) }) + (note ? `\n«${note}»` : '') }).catch(() => {});
+  if (canReceive(partner)) pushTo(partner, { title: 'Sahar 🎁', body: I18N.t(langOf(partner), 'giftPush', { p: user.name, c: cardName(langOf(partner), card) }) + (note ? `\n«${await translateFor(couple, note, langOf(partner))}»` : '') }).catch(() => {});
 });
 
 // 7 deseos para la próxima versión de la app
@@ -1435,8 +1474,10 @@ app.post('/api/photo/title', auth, (req, res) => {
   const m = couple && (couple.media || []).find((x) => x.id === req.body.id && x.kind === 'photo');
   if (!m) return fail(res, 400, 'invalid_media');
   m.title = clean(req.body.title, 40);
+  remember(couple, m.title, req.user);
   save();
   res.json(stateFor(req.user));
+  translatePending(1).catch(() => {});
 });
 
 // ---------------------------------------------------------------------------
@@ -1740,7 +1781,7 @@ function duo(req, res) {
 // que cómo responde a las malas. La respuesta «activa y constructiva»
 // (entusiasmo + preguntas) es la que une; la pasiva o la que cambia de tema, no.
 const N_NEWS_REPLY = I18N.NEWS_REPLIES.es.length;
-app.post('/api/news', auth, (req, res) => {
+app.post('/api/news', auth, async (req, res) => {
   const d = duo(req, res); if (!d) return;
   const text = clean(req.body.text, 220);
   if (!text) return fail(res, 400, 'invalid_message');
@@ -1749,10 +1790,10 @@ app.post('/api/news', auth, (req, res) => {
   remember(d.couple, text, d.user);
   save();
   res.json(stateFor(d.user));
+  pushPartner(d.partner, 'Sahar 🎉', 'newsPush', { p: d.user.name, t: (await translateFor(d.couple, text, langOf(d.partner))).slice(0, 80) });
   translatePending(1).catch(() => {});
-  pushPartner(d.partner, 'Sahar 🎉', 'newsPush', { p: d.user.name, t: text.slice(0, 80) });
 });
-app.post('/api/news/reply', auth, (req, res) => {
+app.post('/api/news/reply', auth, async (req, res) => {
   const d = duo(req, res); if (!d) return;
   const n = (d.couple.news || []).find((x) => x.id === req.body.id);
   if (!n || n.by === d.user.id) return fail(res, 404, 'not_found');
@@ -1768,7 +1809,7 @@ app.post('/api/news/reply', auth, (req, res) => {
   res.json(stateFor(d.user));
   if (text) translatePending(1).catch(() => {});
   const pl = langOf(d.partner);
-  if (canReceive(d.partner)) pushTo(d.partner, { title: `${d.user.name} 🎉`, body: i != null ? (I18N.NEWS_REPLIES[I18N.pick(pl)] || I18N.NEWS_REPLIES.en)[i] : text }).catch(() => {});
+  if (canReceive(d.partner)) pushTo(d.partner, { title: `${d.user.name} 🎉`, body: i != null ? (I18N.NEWS_REPLIES[I18N.pick(pl)] || I18N.NEWS_REPLIES.en)[i] : await translateFor(d.couple, text, pl) }).catch(() => {});
 });
 function newsState(couple, user) {
   return (couple.news || []).slice(-8).reverse().map((n) => ({ id: n.id, mine: n.by === user.id, text: n.text, at: n.at, reply: n.reply }));
@@ -1918,6 +1959,81 @@ function c4State(couple, user, partner) {
   };
 }
 
+// ---- Juegos de tablero por turnos: ajedrez, damas y reversi --------------
+// Las reglas están en public/boards.js (las mismas en el servidor y en la app).
+const BOARD_EMOJI = { chess: '♟️', checkers: '⚪', reversi: '⚫' };
+const BOARD_KINDS = Object.keys(BOARDS.GAMES);
+function pushBoard(partner, kind, key, vars) {
+  if (!partner || !canReceive(partner)) return;
+  const pl = langOf(partner);
+  pushTo(partner, { title: `Sahar ${BOARD_EMOJI[kind]}`, body: I18N.t(pl, key, { ...vars, g: I18N.t(pl, kind + 'Title') }), tag: `sahar-${kind}` }).catch(() => {});
+}
+function boardWin(couple, g, uid, kind) {
+  couple.boardWins = couple.boardWins || {};
+  const w = couple.boardWins[kind] || (couple.boardWins[kind] = {});
+  w[uid] = (w[uid] || 0) + 1;
+  addPoints(couple, uid, BOARDS.GAMES[kind].points);
+}
+app.post('/api/board', auth, (req, res) => {
+  const d = duo(req, res); if (!d) return;
+  const { user, couple, partner } = d;
+  const kind = String(req.body.game || '');
+  const G = BOARDS.GAMES[kind];
+  if (!G) return fail(res, 400, 'invalid_message');
+  couple.boards = couple.boards || {};
+  const g = couple.boards[kind];
+  const act = req.body.act;
+  if (act === 'new') {
+    if (g && g.status === 'live' && g.moves > 0) return fail(res, 400, 'invalid_message');
+    // Empieza quien perdió la anterior (o quien la pide)
+    const first = g && g.winner && g.winner !== 'draw' ? (g.winner === user.id ? partner.id : user.id) : user.id;
+    const second = first === user.id ? partner.id : user.id;
+    couple.boards[kind] = { id: newId(), st: G.init(), colors: { [first]: G.first, [second]: BOARDS.other(G.first) }, status: 'live', moves: 0, last: null, winner: null, reason: null, at: Date.now() };
+    save();
+    res.json(stateFor(user));
+    pushBoard(partner, kind, 'boardNewPush', { p: user.name });
+  } else if (act === 'move') {
+    if (!g || g.status !== 'live' || g.colors[user.id] !== g.st.turn) return fail(res, 400, 'not_your_turn');
+    const m = req.body.move || {};
+    const want = { from: m.from == null ? null : Number(m.from), to: Number(m.to), promo: m.promo || null };
+    const legal = G.moves(g.st).find((x) => BOARDS.sameMove(x, want));
+    if (!legal) return fail(res, 400, 'invalid_message');
+    g.st = G.apply(g.st, legal);
+    g.moves++; g.at = Date.now();
+    g.last = { from: legal.from ?? null, to: legal.to, cap: legal.cap ?? null };
+    const r = G.result(g.st);
+    if (r) {
+      g.status = 'done'; g.reason = r.reason;
+      g.winner = r.winner === 'draw' ? 'draw' : Object.keys(g.colors).find((id) => g.colors[id] === r.winner);
+      if (g.winner !== 'draw') boardWin(couple, g, g.winner, kind);
+    }
+    save();
+    res.json(stateFor(user));
+    // En damas, si sigue saltando con la misma ficha, todavía no le toca a la pareja
+    if (g.status === 'done') pushBoard(partner, kind, g.winner === 'draw' ? 'boardDrawPush' : g.winner === user.id ? 'boardWinPush' : 'boardLosePush', { p: user.name });
+    else if (g.colors[partner.id] === g.st.turn) pushBoard(partner, kind, 'boardTurnPush', { p: user.name });
+  } else if (act === 'resign') {
+    if (!g || g.status !== 'live') return fail(res, 400, 'invalid_message');
+    g.status = 'done'; g.winner = partner.id; g.reason = 'resign'; g.at = Date.now();
+    if (g.moves > 1) boardWin(couple, g, partner.id, kind); // rendirse al empezar no regala puntos
+    save();
+    res.json(stateFor(user));
+    pushBoard(partner, kind, 'boardResignPush', { p: user.name });
+  } else fail(res, 400, 'invalid_message');
+});
+function boardState(couple, user, partner, kind) {
+  const g = (couple.boards || {})[kind];
+  const who = (id) => (id == null ? null : id === 'draw' ? 'draw' : id === user.id ? 'me' : 'p');
+  const w = (couple.boardWins || {})[kind] || {};
+  let game = null;
+  if (g) {
+    const { seen, ...st } = g.st; // el historial de posiciones no hace falta en la app
+    const mine = g.colors[user.id];
+    game = { id: g.id, st, mine, turn: g.st.turn === mine ? 'me' : 'p', status: g.status, winner: who(g.winner), reason: g.reason, moves: g.moves, last: g.last };
+  }
+  return { game, wins: { me: w[user.id] || 0, p: partner ? w[partner.id] || 0 : 0 } };
+}
+
 // ---- ¿Quién es más probable…? ---------------------------------------------
 // Cada día 5 frases; cada uno elige «yo» o «tú». Si coinciden, punto para los dos.
 const WML_N = 5;
@@ -1989,6 +2105,8 @@ app.post('/api/story', auth, (req, res) => {
     const b = (couple.stories || []).find((x) => x.id === req.body.id);
     if (!b) return fail(res, 404, 'not_found');
     b.title = clean(req.body.title, 60);
+    remember(couple, b.title, user);
+    translatePending(1).catch(() => {});
   } else return fail(res, 400, 'invalid_message');
   save();
   res.json(stateFor(user));
@@ -2007,7 +2125,8 @@ function storyState(couple, user) {
 }
 
 function playState(couple, user, partner) {
-  return { c4: c4State(couple, user, partner), wml: wmlState(couple, user, partner), story: storyState(couple, user) };
+  const boards = Object.fromEntries(BOARD_KINDS.map((k) => [k, boardState(couple, user, partner, k)]));
+  return { c4: c4State(couple, user, partner), wml: wmlState(couple, user, partner), story: storyState(couple, user), boards };
 }
 
 function wishState(couple, user, partner) {
@@ -2174,8 +2293,10 @@ app.post('/api/dates', auth, (req, res) => {
   if (couple.dates.length >= 100) return fail(res, 400, 'invalid_date');
   const time = /^([01]\d|2[0-3]):[0-5]\d$/.test(req.body.time || '') ? req.body.time : null;
   couple.dates.push({ id: crypto.randomBytes(6).toString('hex'), name, date, type, yearly: req.body.yearly !== false, by: req.user.id, ...(time ? { time } : {}) });
+  remember(couple, name, req.user);
   save();
   res.json(stateFor(req.user));
+  translatePending(1).catch(() => {});
 });
 app.post('/api/persian', auth, (req, res) => {
   const couple = db.couples[req.user.code];
@@ -2257,7 +2378,7 @@ async function runReminders(now = new Date()) {
       for (const id of couple.members) {
         const u = db.users[id];
         if (!u || !canReceive(u)) continue;
-        const name = d.persian ? I18N.t(langOf(u), d.persian) : d.name;
+        const name = d.persian ? I18N.t(langOf(u), d.persian) : textFor(couple, d.name, langOf(u));
         sent += await pushTo(u, { title: 'Sahar 📅', body: I18N.t(langOf(u), textKey, { name }) });
       }
       save();
@@ -2362,4 +2483,4 @@ if (require.main === module) {
     setInterval(() => translatePending(6).catch(() => {}), 20 * 60 * 1000);
   }).catch((e) => { console.error('No se pudieron cargar los datos:', e.message); process.exit(1); });
 }
-module.exports = { settleShields, rescueInfo, SHIELD, DICE, missionPicks, persianHolidays, upcomingPersian, questionIndex, MOODS, app, ready, streakInfo, recordDay, dayKey, prevDay, localize, runReminders, flush, translatePending, nextOccurrence, totPairs, weekKey, settleWeek, settleTotBonus, races, RACE, db: () => db };
+module.exports = { guessSrc, settleShields, rescueInfo, SHIELD, DICE, missionPicks, persianHolidays, upcomingPersian, questionIndex, MOODS, app, ready, streakInfo, recordDay, dayKey, prevDay, localize, runReminders, flush, translatePending, nextOccurrence, totPairs, weekKey, settleWeek, settleTotBonus, races, RACE, db: () => db };

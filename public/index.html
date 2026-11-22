@@ -626,6 +626,41 @@
   @keyframes c4win { 50% { transform:scale(1.12); } }
   .c4-score { display:flex; justify-content:center; gap:14px; margin-top:10px; color:var(--muted); font-size:14px; }
   .c4-score i { display:inline-block; width:12px; height:12px; border-radius:50%; vertical-align:-1px; margin-inline-end:5px; }
+  /* ---------- Juegos de mesa: ajedrez, damas y reversi ---------- */
+  .bd-status { text-align:center; font-weight:700; color:var(--gold-1); margin:4px 0 4px; min-height:22px; }
+  .bd-status.mine { animation:fade 1.6s infinite; }
+  .bd-sub { text-align:center; color:var(--muted-2); font-size:12.5px; margin-bottom:8px; min-height:16px; }
+  .bd-board { display:grid; grid-template-columns:repeat(8,1fr); width:100%; max-width:380px; margin:0 auto; aspect-ratio:1; border-radius:14px; overflow:hidden;
+    border:2px solid rgba(var(--glowg),.45); box-shadow:0 10px 30px rgba(0,0,0,.45), 0 0 0 5px rgba(0,0,0,.2); touch-action:manipulation; }
+  .bd-sq { position:relative; border:0; padding:0; margin:0; display:grid; place-items:center; background:rgba(var(--glowg),.62); font:inherit; color:inherit; aspect-ratio:1; }
+  .bd-sq.dk { background:rgba(var(--glow),.55); }
+  .bd-board.rv .bd-sq, .bd-board.rv .bd-sq.dk { background:#1f6f4a; box-shadow:inset 0 0 0 .5px rgba(0,0,0,.45); }
+  .bd-sq.last::before { content:""; position:absolute; inset:0; background:rgba(255,235,120,.38); }
+  .bd-sq.sel::before { content:""; position:absolute; inset:0; background:rgba(255,255,255,.4); }
+  .bd-sq.chk::before { content:""; position:absolute; inset:0; background:radial-gradient(circle,rgba(255,30,60,.85),rgba(255,30,60,0) 72%); }
+  .bd-sq.can::after { content:""; position:absolute; width:30%; height:30%; border-radius:50%; background:rgba(20,10,10,.38); }
+  .bd-sq.can.hit::after { width:86%; height:86%; background:none; border:4px solid rgba(20,10,10,.38); box-sizing:border-box; }
+  .bd-sq .crd { position:absolute; font-size:8px; line-height:1; color:rgba(0,0,0,.45); pointer-events:none; }
+  .bd-sq .crd.f { bottom:2px; inset-inline-end:3px; }
+  .bd-sq .crd.r { top:2px; inset-inline-start:3px; }
+  .pc { position:relative; z-index:1; font-size:min(8.4vw,38px); line-height:1; font-family:"Segoe UI Symbol","Apple Symbols","DejaVu Sans",serif; pointer-events:none; }
+  .pc.w { color:#fffaf0; text-shadow:0 0 1px #000,0 0 1px #000,0 1px 2px rgba(0,0,0,.6),0 0 1px #000; }
+  .pc.b { color:#22070f; text-shadow:0 0 1px #fff6,0 1px 1px rgba(255,255,255,.35); }
+  .pc.mv { animation:pcin .35s ease-out; }
+  @keyframes pcin { from { transform:scale(.6); opacity:.3; } }
+  .dsk { position:relative; z-index:1; width:78%; height:78%; border-radius:50%; display:grid; place-items:center; font-size:min(4vw,17px); pointer-events:none;
+    box-shadow:inset 0 -3px 6px rgba(0,0,0,.35), 0 2px 4px rgba(0,0,0,.45); }
+  .dsk.me { background:radial-gradient(circle at 35% 30%,#ffc2d4,#ff4f8b 45%,#9d0b3c); }
+  .dsk.p { background:radial-gradient(circle at 35% 30%,#fff6d8,#f5c84b 45%,#9a6a06); }
+  .dsk.w { background:radial-gradient(circle at 35% 30%,#ffffff,#e9e2d8 55%,#a9a097); }
+  .dsk.b { background:radial-gradient(circle at 35% 30%,#5b5563,#1d1a22 60%,#050407); }
+  .dsk.mv { animation:pcin .35s ease-out; }
+  .dsk.flip { animation:rvflip .5s ease-in-out; }
+  @keyframes rvflip { 0% { transform:rotateY(0); } 50% { transform:rotateY(90deg) scale(1.1); } 100% { transform:rotateY(0); } }
+  .bd-acts { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:12px; }
+  .bd-acts .btn { margin:0; }
+  .bd-promo { display:flex; justify-content:center; gap:8px; margin-top:10px; align-items:center; flex-wrap:wrap; color:var(--muted); font-size:13.5px; }
+  .bd-promo button { font-size:30px; width:52px; height:52px; border-radius:14px; border:1px solid var(--card-line); background:rgba(var(--glowg),.15); color:var(--gold-1); }
   /* ---- ¿Quién es más probable…? ---- */
   .wml-head { color:var(--muted); font-size:14px; margin-bottom:6px; }
   .wml-row { padding:10px 12px; border-radius:14px; background:rgba(255,255,255,.04); border:1px solid rgba(var(--glowg),.14); margin-bottom:8px; animation:rise .35s both; }
@@ -696,12 +731,6 @@
   .gift-for { margin:10px 0 0; padding:8px 12px; border-radius:12px; background:rgba(var(--glowg),.1); border:1px dashed var(--gold-3); color:var(--gold-1); font-size:13.5px; display:flex; justify-content:space-between; gap:8px; align-items:center; }
   .gift-for button { background:none; border:0; color:var(--muted-2); font-size:18px; }
   .voucher .vnote { font-size:13px; font-style:italic; opacity:.92; overflow-wrap:anywhere; }
-  .wish-q { color:var(--gold-2); font-size:13.5px; font-weight:600; margin:10px 0 4px; }
-  .wish-list { margin:0; padding-inline-start:20px; display:flex; flex-direction:column; gap:8px; }
-  .wish-list li { line-height:1.4; overflow-wrap:anywhere; }
-  .wish-list li small { display:block; color:var(--muted-2); font-size:12px; }
-  .wish-acts { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
-  .wish-acts .chip-btn { font-size:13.5px; }
   .race-card .wins, .hcard .wins { color:var(--muted-2); font-size:13px; text-align:center; margin-top:8px; }
   /* Tira y afloja (pantalla del juego en vivo) */
   .race { position:fixed; inset:0; z-index:64; display:flex; flex-direction:column; align-items:center; gap:10px; padding:calc(env(safe-area-inset-top) + 18px) 20px calc(env(safe-area-inset-bottom) + 18px);
@@ -743,6 +772,19 @@
     background:radial-gradient(circle at 12px calc(100% - 6px),#ff4d4d 4px,transparent 5px) 0 0/48px 100%,radial-gradient(circle at 36px calc(100% - 6px),#4ade80 4px,transparent 5px) 0 0/48px 100%,radial-gradient(circle at 24px calc(100% - 10px),#fde68a 3px,transparent 4px) 0 0/48px 100%;
     animation:twinkle 1.6s ease-in-out infinite; }
   @keyframes twinkle { 0%,100%{opacity:.75} 50%{opacity:1; filter:brightness(1.4)} }
+  /* ---------- Shab-e Yalda: la noche más larga (granadas, sandía, velas y luna) ---------- */
+  html[data-theme="yalda"] { --bg-1:#0c0618; --bg-2:#3b0b2e; --bg-3:#1a0a2c; --red:#d61f45; --red-2:#9f1239; --red-3:#4c0d2e; --rose:#ff8fa8;
+    --gold-1:#fff6e0; --gold-2:#f6cf7c; --gold-3:#e2a93b; --gold-4:#9a6a16; --card:rgba(46,10,44,.62); --card-line:rgba(246,207,124,.3);
+    --muted:#ecd3df; --muted-2:#b08aa2; --glow:214,31,69; --glowg:246,207,124; --orb-hi:#ff9fb3; --orb-lo:#33061c; --bar:rgba(12,6,24,.84); --paper-1:#4a0f34; --paper-2:#160822; }
+  html[data-theme="yalda"] body::before { content:""; position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.17;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg transform='translate(36 40)'%3E%3Ccircle r='15' fill='%23c0143c'/%3E%3Cpath d='M-5-14l2-6 3 4 3-4 2 6z' fill='%238a0f2c'/%3E%3Ccircle cx='-5' cy='-5' r='4' fill='%23ff8aa3' opacity='.45'/%3E%3C/g%3E%3Cg transform='translate(112 46)'%3E%3Cpath d='M-20 0a20 20 0 0 0 40 0z' fill='%232f8f4e'/%3E%3Cpath d='M-17 0a17 17 0 0 0 34 0z' fill='%23e8f3c8'/%3E%3Cpath d='M-15 0a15 15 0 0 0 30 0z' fill='%23e8364f'/%3E%3Cg fill='%231a0a0a'%3E%3Cellipse cx='-7' cy='5' rx='1.2' ry='2'/%3E%3Cellipse cx='0' cy='9' rx='1.2' ry='2'/%3E%3Cellipse cx='7' cy='5' rx='1.2' ry='2'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(78 118)'%3E%3Crect x='-4' y='-6' width='8' height='22' rx='2' fill='%23f3d27a'/%3E%3Cpath d='M0-18c4 5 4 8 0 11c-4-3-4-6 0-11z' fill='%23ffb347'/%3E%3Ccircle cy='-12' r='9' fill='%23ffcf7a' opacity='.25'/%3E%3C/g%3E%3Cg fill='%23c0143c'%3E%3Ccircle cx='130' cy='120' r='2.6'/%3E%3Ccircle cx='136' cy='126' r='2.4'/%3E%3Ccircle cx='127' cy='128' r='2.2'/%3E%3Ccircle cx='22' cy='122' r='2.4'/%3E%3Ccircle cx='28' cy='116' r='2.2'/%3E%3C/g%3E%3Cg fill='%23fff6d6'%3E%3Ccircle cx='70' cy='18' r='1.3'/%3E%3Ccircle cx='150' cy='90' r='1'/%3E%3Ccircle cx='10' cy='80' r='1.2'/%3E%3Ccircle cx='100' cy='150' r='1'/%3E%3Cpath d='M60 70l1.5 4 4 1.5-4 1.5-1.5 4-1.5-4-4-1.5 4-1.5z'/%3E%3C/g%3E%3C/svg%3E"); background-size:160px 160px; }
+  /* Luna grande y cielo estrellado de la noche más larga */
+  html[data-theme="yalda"] body::after { content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:radial-gradient(circle at 50% 2%,rgba(255,244,214,.28) 0 22px,rgba(255,236,190,.1) 24px,rgba(255,214,150,.05) 60px,transparent 120px),
+      radial-gradient(1.2px 1.2px at 20% 14%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 46% 6%,#fff 50%,transparent 51%),radial-gradient(1.4px 1.4px at 66% 22%,#ffe9b0 50%,transparent 51%),
+      radial-gradient(1px 1px at 10% 34%,#fff 50%,transparent 51%),radial-gradient(1.2px 1.2px at 92% 40%,#fff 50%,transparent 51%),
+      linear-gradient(to top,rgba(214,31,69,.16),transparent 35%);
+    animation:twinkle 4s ease-in-out infinite; }
   /* ---------- Neón Tokio ---------- */
   html[data-theme="neo"] { --bg-1:#05010f; --bg-2:#2a0a4a; --bg-3:#001a2a; --red:#ff2bd6; --red-2:#7c3aed; --red-3:#0891b2; --rose:#7df9ff;
     --gold-1:#f0fdff; --gold-2:#7df9ff; --gold-3:#22d3ee; --gold-4:#0e7490; --card:rgba(20,8,48,.6); --card-line:rgba(125,249,255,.3);
@@ -1148,11 +1190,6 @@
       <p class="intro" data-i18n="giftIntro"></p>
       <div id="giftBody"></div>
     </div>
-    <div class="card hcard" id="wishCard">
-      <h3>💫 <span data-i18n="wishTitle"></span></h3>
-      <p class="intro" data-i18n="wishIntro"></p>
-      <div id="wishBody"></div>
-    </div>
   </section>
 
   <!-- Fechas especiales -->
@@ -1201,6 +1238,21 @@
       <h3>💞 <span data-i18n="aronTitle"></span></h3>
       <p class="intro" data-i18n="aronIntro"></p>
       <div id="aronBody"></div>
+    </div>
+    <div class="card hcard" id="chessCard">
+      <h3>♟️ <span data-i18n="chessTitle"></span></h3>
+      <p class="intro" data-i18n="chessIntro"></p>
+      <div id="chessBody"></div>
+    </div>
+    <div class="card hcard" id="checkersCard">
+      <h3>⚪ <span data-i18n="checkersTitle"></span></h3>
+      <p class="intro" data-i18n="checkersIntro"></p>
+      <div id="checkersBody"></div>
+    </div>
+    <div class="card hcard" id="reversiCard">
+      <h3>⚫ <span data-i18n="reversiTitle"></span></h3>
+      <p class="intro" data-i18n="reversiIntro"></p>
+      <div id="reversiBody"></div>
     </div>
     <div class="card hcard" id="c4Card">
       <h3>🔴 <span data-i18n="c4Title"></span></h3>
@@ -1350,8 +1402,9 @@
 </div>
 <label id="hapticLbl" aria-hidden="true"><input type="checkbox" switch tabindex="-1"></label>
 <script src="/i18n.js"></script>
+<script src="/boards.js"></script>
 <script>
-const APP_VERSION = '2026-11-18-3';
+const APP_VERSION = '2026-11-22-1';
 let currentTheme = 'aurora';
 try {
   // Estreno del color nuevo: pasar una vez a «Aurora»; después se respeta lo que elijan
@@ -1438,10 +1491,17 @@ const TAB_VIEW = { home: 'homeView', together: 'togetherView', ask: 'askView', u
 // Las tarjetas se mueven a su pestaña al arrancar. Cada pestaña lleva arriba
 // un índice para saltar directo a cada juego o herramienta.
 const LAYOUT = {
-  togetherView: [[null, ['c4Card', 'wmlCard', 'totCard', 'diceCard', 'memoCard', 'collCard', 'raceCard', 'storyCard']]],
-  askView: [[null, ['qCard', 'lmapCard', 'aronCard']]],
+  togetherView: [
+    ['secBoard', ['chessCard', 'checkersCard', 'reversiCard', 'c4Card']],
+    ['secFun', ['diceCard', 'memoCard', 'collCard', 'raceCard', 'storyCard']],
+  ],
+  // Todas las preguntas juntas, en un solo sitio
+  askView: [
+    ['secKnow', ['qCard', 'lmapCard', 'aronCard']],
+    ['secQuiz', ['totCard', 'wmlCard']],
+  ],
   usView: [
-    ['secConnect', ['ciCard', 'stressCard', 'newsCard', 'turnCard', 'gratCard', 'giftCard', 'wishCard']],
+    ['secConnect', ['ciCard', 'stressCard', 'newsCard', 'turnCard', 'gratCard', 'giftCard']],
     ['secPlans', ['weekCard', 'missCard', 'dreamCard']],
     ['secConflict', ['pauseCard', 'repairCard', 'neutralCard', 'issCard', 'issTopCard', 'ratioCard']],
   ],
@@ -1543,7 +1603,15 @@ function liveDiff(a, b) {
   const ga = pa.c4 && pa.c4.game, gb = pb.c4 && pb.c4.game;
   if (gb && (!ga || ga.id !== gb.id) && gb.moves === 0 && gb.turn === 'me') add('liveC4New', 'together', 'c4Card');
   else if (gb && ga && ga.id === gb.id && gb.moves > ga.moves && gb.board[gb.last] === 'p') add(gb.winner === 'p' ? 'liveC4Win' : 'liveC4', 'together', 'c4Card');
-  if (pa.wml && pb.wml && pa.wml.day === pb.wml.day && !pa.wml.partnerDone && pb.wml.partnerDone) add('liveWml', 'together', 'wmlCard');
+  if (pa.wml && pb.wml && pa.wml.day === pb.wml.day && !pa.wml.partnerDone && pb.wml.partnerDone) add('liveWml', 'ask', 'wmlCard');
+  for (const k of ['chess', 'checkers', 'reversi']) {
+    const x = pa.boards && pa.boards[k] && pa.boards[k].game, y = pb.boards && pb.boards[k] && pb.boards[k].game;
+    if (!y) continue;
+    const g = t(k + 'Title'), card = k + 'Card';
+    if ((!x || x.id !== y.id) && y.moves === 0 && y.turn === 'me') ev.push({ key: 'liveBoardNew', tab: 'together', card, vars: { g } });
+    else if (x && x.id === y.id && y.moves > x.moves && y.status === 'done' && x.status === 'live') ev.push({ key: 'liveBoardEnd', tab: 'together', card, vars: { g } });
+    else if (x && x.id === y.id && y.moves > x.moves && y.turn === 'me' && x.turn === 'p') ev.push({ key: 'liveBoard', tab: 'together', card, vars: { g } });
+  }
   const la = pa.story && pa.story.cur, lb = pb.story && pb.story.cur;
   if (lb && lb.lines.length && (!la || la.id !== lb.id || lb.lines.length > la.lines.length) && !lb.lines[lb.lines.length - 1].mine) add('liveStory', 'together', 'storyCard');
   const sa = a.science || {}, sb = b.science || {};
@@ -1573,7 +1641,7 @@ function liveNext() {
   if (!bar) { bar = el('button', 'live-bar'); bar.id = 'liveBar'; bar.type = 'button'; document.body.append(bar); }
   bar.innerHTML = '';
   const av = el('span', 'live-av', (pName() || '?').slice(0, 1).toUpperCase());
-  const tx = el('span', 'live-tx'); tx.append(el('b', null, t(e.key, { p: pName() })), el('small', null, t('liveTap')));
+  const tx = el('span', 'live-tx'); tx.append(el('b', null, t(e.key, { p: pName(), ...(e.vars || {}) })), el('small', null, t('liveTap')));
   bar.append(av, tx);
   bar.classList.toggle('urgent', !!e.urgent);
   bar.classList.remove('show'); void bar.offsetWidth; bar.classList.add('show');
@@ -1593,7 +1661,8 @@ function liveMode() {
   if (!state || !state.partnerOnline) return false;
   const p = state.play || {}, s = state.science || {};
   const g = p.c4 && p.c4.game;
-  return !!((g && g.status === 'live' && g.turn === 'p') || (p.story && p.story.cur && !p.story.myTurn)
+  const bw = Object.values(p.boards || {}).some((x) => x.game && x.game.status === 'live' && x.game.turn === 'p');
+  return !!(bw || (g && g.status === 'live' && g.turn === 'p') || (p.story && p.story.cur && !p.story.myTurn)
     || (p.wml && p.wml.mine && !p.wml.partnerDone) || (s.aron && s.aron.i > 0 && s.aron.i <= s.aron.n)
     || (state.dice && state.dice.status === 'live') || (s.stress && (s.stress.mine && !s.stress.mine.ack)));
 }
@@ -1996,7 +2065,7 @@ function renderDates() {
     const row = document.createElement('div'); row.className = 'date-item';
     const ic = document.createElement('div'); ic.className = 'date-ico'; ic.textContent = d.persian ? PERSIAN_ICONS[d.persian] : (DATE_ICONS[d.type] || '⭐');
     const main = document.createElement('div'); main.className = 'date-main';
-    const b = document.createElement('b'); b.textContent = d.name;
+    const b = document.createElement('b'); b.textContent = showMsg(d.name);
     const sm = document.createElement('small');
     let ds; try { ds = new Intl.DateTimeFormat(I.LOCALES[lang], { day: 'numeric', month: 'long', ...(d.yearly ? {} : { year: 'numeric' }) }).format(new Date(d.occ + 'T12:00:00')); } catch (_) { ds = d.occ; }
     sm.textContent = d.persian ? `${ds} · ${jalali(d.occ)}` : `${t(DATE_LABEL[d.type] || 'dtOther')} · ${ds}${d.time ? ' · ' + d.time : ''}${d.yearly ? ' · 🔁' : ''} · ${jalali(d.occ)}`;
@@ -2059,8 +2128,8 @@ function renderTypes() {
 }
 
 /* ----- Temas de color ----- */
-const THEMES = { aurora: 'themeAurora', xmas: 'themeXmas', neo: 'themeNeo', red: 'themeRed', rose: 'themeRose', sakura: 'themeSakura', lavender: 'themeLavender', night: 'themeNight', ocean: 'themeOcean', sunset: 'themeSunset', peach: 'themePeach', isfahan: 'themeIsfahan', emerald: 'themeEmerald', ruby: 'themeRuby', gold: 'themeGold', galaxy: 'themeGalaxy' };
-const THEME_BG = { aurora: '#120720', xmas: '#160307', neo: '#05010f', red: '#14040a', rose: '#1f0b16', sakura: '#1e0d16', lavender: '#120f22', night: '#070b1d', ocean: '#03121f', sunset: '#1c0a14', peach: '#1c0e0a', isfahan: '#04161c', emerald: '#04140d', ruby: '#16030a', gold: '#120c03', galaxy: '#03020c' };
+const THEMES = { aurora: 'themeAurora', yalda: 'themeYalda', xmas: 'themeXmas', neo: 'themeNeo', red: 'themeRed', rose: 'themeRose', sakura: 'themeSakura', lavender: 'themeLavender', night: 'themeNight', ocean: 'themeOcean', sunset: 'themeSunset', peach: 'themePeach', isfahan: 'themeIsfahan', emerald: 'themeEmerald', ruby: 'themeRuby', gold: 'themeGold', galaxy: 'themeGalaxy' };
+const THEME_BG = { aurora: '#120720', yalda: '#0c0618', xmas: '#160307', neo: '#05010f', red: '#14040a', rose: '#1f0b16', sakura: '#1e0d16', lavender: '#120f22', night: '#070b1d', ocean: '#03121f', sunset: '#1c0a14', peach: '#1c0e0a', isfahan: '#04161c', emerald: '#04140d', ruby: '#16030a', gold: '#120c03', galaxy: '#03020c' };
 // Temas que se ganan con la racha (mejor racha de los dos)
 const THEME_UNLOCK = { gold: 7, galaxy: 30 };
 const bestOf = () => Math.max((state && state.bestStreak) || 0, (state && state.streak) || 0);
@@ -2421,7 +2490,7 @@ const centerOf = (node) => { const r = node.getBoundingClientRect(); return [r.l
 function renderHarmony() {
   const h = state && state.harmony;
   if (!h) return;
-  renderRatio(h); renderIssForm(); renderIssues(h); renderGrat(h); renderGift(); renderWishes(h);
+  renderRatio(h); renderIssForm(); renderIssues(h); renderGrat(h); renderGift();
   // Aviso en la pestaña si hay algo nuevo de la pareja
   const seen = Number(store.get('sahar_us_seen') || 0);
   const fresh = h.issues.some((x) => !x.mine && x.at > seen) || h.thanks.some((x) => !x.mine && x.at > seen);
@@ -2612,61 +2681,6 @@ function renderGift() {
 $('toGiftBtn').onclick = () => openGift(null);
 
 /* ----- 7 deseos para Sahar ----- */
-let wishEditing = false, wishSig = '';
-function wishText(name, items) { return `${name}:\n` + items.map((a, k) => `${k + 1}. ${t('wishQs.' + k)}\n   → ${a || '—'}`).join('\n'); }
-function renderWishes(h) {
-  const w = h.wishes, body = $('wishBody');
-  const sig = [lang, JSON.stringify(w), wishEditing, JSON.stringify(state.trans || {}).length].join('|');
-  if (sig === wishSig && body.childElementCount) return;
-  wishSig = sig;
-  body.innerHTML = '';
-  const p = state.partnerName || '';
-  const showList = (items) => {
-    const ol = el('ol', 'wish-list');
-    items.forEach((a, k) => { const li = el('li'); li.append(el('small', null, t('wishQs.' + k)), document.createTextNode(a ? showMsg(a) : '—')); ol.append(li); });
-    return ol;
-  };
-  if (!w.mine || wishEditing) {
-    const tas = [];
-    for (let k = 0; k < 7; k++) {
-      body.append(el('div', 'wish-q', `${num(k + 1)}. ${t('wishQs.' + k)}`));
-      const ta = el('textarea', 'field'); ta.maxLength = 400; ta.rows = 2; ta.style.minHeight = '54px';
-      ta.value = w.mine && wishEditing ? w.mine[k] : (store.get('sahar_wish_' + k) || '');
-      ta.oninput = () => store.set('sahar_wish_' + k, ta.value);
-      tas.push(ta); body.append(ta);
-    }
-    const btn = el('button', 'btn gold', t('wishSave'));
-    btn.onclick = async () => {
-      const items = tas.map((x) => x.value.trim());
-      if (!items.some(Boolean)) return tas[0].focus();
-      btn.disabled = true;
-      try {
-        state = await api('/api/wishes', 'POST', { items });
-        for (let k = 0; k < 7; k++) store.set('sahar_wish_' + k, '');
-        wishEditing = false; wishSig = '';
-        toast(t('wishSaved')); FX.shower(2200, { colors: ['#fde68a', '#a5f3fc', '#f9a8d4'], emoji: '💫' });
-        renderHarmony();
-      } catch (e) { btn.disabled = false; toast(errText(e)); }
-    };
-    body.append(btn);
-    if (wishEditing) { const c = el('button', 'btn ghost', t('cancel')); c.onclick = () => { wishEditing = false; renderWishes(state.harmony); }; body.append(c); }
-  } else {
-    body.append(el('div', 'lbl', t('wishMine')), showList(w.mine));
-  }
-  body.append(el('div', 'lbl', t('wishOf', { p })));
-  if (w.partner) body.append(showList(w.partner)); else body.append(el('p', 'score-note', t('wishWaiting', { p })));
-  const acts = el('div', 'wish-acts');
-  if (w.mine && !wishEditing) { const e = el('button', 'chip-btn', `✏️ ${t('wishEdit')}`); e.onclick = () => { wishEditing = true; renderWishes(state.harmony); }; acts.append(e); }
-  if (w.mine || w.partner) {
-    const c = el('button', 'chip-btn', `📋 ${t('wishCopy')}`);
-    c.onclick = async () => {
-      const txt = [w.mine && wishText(state.name || t('you'), w.mine), w.partner && wishText(p, w.partner)].filter(Boolean).join('\n\n');
-      try { await navigator.clipboard.writeText(txt); toast(t('wishCopied')); } catch (_) { toast('📋 ✗'); }
-    };
-    acts.append(c);
-  }
-  body.append(acts);
-}
 
 /* =================== Tira y afloja (en vivo) =================== */
 let raceSt = null, raceOpen = false, raceN = 0, raceNId = null, raceDismissed = null, raceTimer = null, racePolling = false, raceCelebrated = null, raceActsSig = '';
@@ -2845,7 +2859,9 @@ function renderShield() {
 
 /* ----- Temas de temporada: Navidad en diciembre y el mes de cumpleaños ----- */
 function seasonNow() {
-  const now = new Date(), m = now.getMonth() + 1, y = now.getFullYear();
+  const now = new Date(), m = now.getMonth() + 1, y = now.getFullYear(), day = now.getDate();
+  // Shab-e Yalda (noche del 20 al 21 de diciembre): la semana antes y el día siguiente
+  if (m === 12 && day >= 14 && day <= 22) return { key: `yalda-${y}`, theme: 'yalda', banner: t('yaldaBanner') };
   const b = state && state.birth;
   if (b) for (const [who, x] of [['me', b.me], ['partner', b.partner]]) {
     if (x && x.month === m && x.theme && THEMES[x.theme]) return { key: `bday-${who}-${y}-${m}`, theme: x.theme, banner: t('birthBanner', { p: who === 'me' ? (state.name || t('you')) : (state.partnerName || '') }) };
@@ -2860,7 +2876,7 @@ function renderSeason() {
     // Al empezar la temporada se pone su tema (si luego eligen otro, se respeta)
     if (!cur) store.set('sahar_theme_prev', currentTheme);
     applyTheme(s.theme); store.set('sahar_theme', currentTheme); store.set('sahar_season', s.key);
-    FX.shower(2200, s.theme === 'xmas' ? { colors: ['#e3262f', '#22c55e', '#fde68a'], emoji: '🎄' } : { emoji: '🎂' });
+    FX.shower(2200, s.theme === 'xmas' ? { colors: ['#e3262f', '#22c55e', '#fde68a'], emoji: '🎄' } : s.theme === 'yalda' ? { colors: ['#d61f45', '#f6cf7c', '#2f8f4e'], emoji: '🍉' } : { emoji: '🎂' });
   } else if (!s && cur) {
     applyTheme(store.get('sahar_theme_prev') || 'aurora'); store.set('sahar_theme', currentTheme); store.set('sahar_season', '');
   }
@@ -3272,7 +3288,7 @@ function renderColl() {
     const f = el('div', 'f');
     const im = el('img'); im.alt = '📷'; im.loading = 'lazy'; f.append(im);
     fetchMedia(ph.id).then((u) => { im.src = u; }).catch(() => {});
-    f.append(el('div', 'ttl', ph.title || fmtDay(ph.at)), el('span', 'rar', `${'★'.repeat(info.rarity + 1)} ${rarNames[info.rarity]}`));
+    f.append(el('div', 'ttl', ph.title ? showMsg(ph.title) : fmtDay(ph.at)), el('span', 'rar', `${'★'.repeat(info.rarity + 1)} ${rarNames[info.rarity]}`));
     const bk = el('div', 'b');
     bk.append(el('span', 'rar', `${'★'.repeat(info.rarity + 1)} ${rarNames[info.rarity]}`));
     info.stats.forEach((s, k) => { const sb = el('div', 'stat-bar'); const bar = el('i'); bar.style.width = s + '%'; sb.append(el('span', null, `${['💗', '😂', '✨', '🧭'][k]} ${t('collStats.' + k)} ${num(s)}`), bar); bk.append(sb); });
@@ -3556,7 +3572,7 @@ const FX = (() => {
     for (let i = 0; i < 4; i++) { ctx.rotate(Math.PI / 2); ctx.moveTo(0, 0); ctx.quadraticCurveTo(s * 0.15, s * 0.15, 0, s); ctx.quadraticCurveTo(-s * 0.15, s * 0.15, 0, 0); }
     ctx.fill(); ctx.restore();
   }
-  const SEASON_EMOJI = { xmas: ['❄️', '❄️', '❄️', '⭐', '🎄'], neo: ['✦', '◇'] };
+  const SEASON_EMOJI = { yalda: ['🍉', '🕯️', '✨', '🌙', '🍇', '✨'], xmas: ['❄️', '❄️', '❄️', '⭐', '🎄'], neo: ['✦', '◇'] };
   function spawnAmbient(initial) {
     const isHeart = Math.random() < 0.55;
     const se = SEASON_EMOJI[document.documentElement.dataset.theme];
@@ -3661,9 +3677,132 @@ function renderScience() {
   renderChallenge(s); renderLmap(s); renderAron(s); renderCheckin(s); renderTurn(s); renderPause(s); renderRepair();
   if (s.news) renderNews(s); if (s.stress) renderStress(s); if (s.neutral) renderNeutral(s);
   const p = state.play;
-  if (p) { renderC4(p); renderWml(p); renderStory(p); }
+  if (p) { renderC4(p); renderWml(p); renderStory(p); if (p.boards) BOARD_KINDS.forEach((k) => renderBoard(k, p.boards[k])); }
 }
 const myName = () => (state && state.name) || t('wmlMe');
+
+/* ----- Juegos de mesa: ajedrez, damas y reversi ----- */
+// Las reglas vienen de boards.js (las mismas que usa el servidor), así la app
+// marca las jugadas posibles al instante y el servidor las comprueba.
+const BG = window.SaharBoards;
+const BOARD_KINDS = ['chess', 'checkers', 'reversi'];
+const CHESS_GLYPH = { K: '♚', Q: '♛', R: '♜', B: '♝', N: '♞', P: '♟' };
+const bd = Object.fromEntries(BOARD_KINDS.map((k) => [k, { sig: '', seen: '', sel: null, promo: null, busy: false, resign: false }]));
+function boardMove(kind, move) {
+  const b = bd[kind];
+  if (b.busy) return;
+  b.busy = true; b.sel = null; b.promo = null; haptic(8);
+  api('/api/board', 'POST', { game: kind, act: 'move', move })
+    .then((st) => { state = st; renderScience(); renderScore(); })
+    .catch((e) => { toast(errText(e)); b.sig = ''; renderBoard(kind, state.play.boards[kind]); })
+    .finally(() => { b.busy = false; });
+}
+function renderBoard(kind, data) {
+  const body = $(kind + 'Body'); if (!body || !data) return;
+  const b = bd[kind], g = data.game;
+  const sig = [lang, JSON.stringify(data), pName(), b.sel, b.promo && JSON.stringify(b.promo), b.resign, b.busy].join('|');
+  if (sig === b.sig) return; b.sig = sig;
+  body.innerHTML = '';
+  const G = BG.GAMES[kind];
+  const live = g && g.status === 'live', myTurn = live && g.turn === 'me' && !b.busy;
+  const legal = myTurn ? G.moves(g.st) : [];
+  if (myTurn && kind === 'checkers' && g.st.chain != null) b.sel = g.st.chain; // sigue saltando con la misma
+  if (!myTurn && !b.busy) b.sel = null;
+  // Estado arriba
+  const st = el('div', 'bd-status' + (myTurn ? ' mine' : ''));
+  const sub = el('div', 'bd-sub');
+  if (g) {
+    if (live) st.textContent = g.turn === 'me' ? (g.st.chain != null ? t('boardChain') : t('boardMyTurn')) : t('boardTheir', { p: pName() });
+    else st.textContent = g.winner === 'me' ? t('boardWon') : g.winner === 'p' ? t('boardLost', { p: pName() }) : t('boardDraw');
+    const bits = [];
+    if (kind === 'reversi') { const n = BG.rvCount(g.st.board), op = BG.other(g.mine); bits.push(t('boardCount', { a: num(n[g.mine]), b: num(n[op]), p: pName() })); }
+    else if (live) bits.push(t(g.mine === 'w' ? 'boardColorW' : 'boardColorB'));
+    if (live && kind === 'chess' && BG.inCheck(g.st)) bits.push(t('boardCheck'));
+    if (live && kind === 'reversi' && g.st.passed && g.turn === 'me') bits.push(t('boardPass', { p: pName() }));
+    if (!live && g.reason) bits.push(t('rsn.' + g.reason));
+    sub.textContent = bits.join(' · ');
+  }
+  body.append(st, sub);
+  // Tablero (cada uno ve sus piezas abajo)
+  const flip = g && g.mine === 'b' && kind !== 'reversi';
+  const board = el('div', 'bd-board' + (kind === 'reversi' ? ' rv' : ''));
+  const cells = g ? g.st.board : G.init().board;
+  const key = g ? g.id + ':' + g.moves : '';
+  const fresh = g && g.last && key !== b.seen && b.seen !== '';
+  const targets = b.sel != null ? legal.filter((m) => m.from === b.sel) : kind === 'reversi' ? legal : [];
+  const chk = g && kind === 'chess' && BG.inCheck(g.st) ? BG.kingAt(g.st.board, g.st.turn) : -1;
+  for (let d = 0; d < 64; d++) {
+    const i = flip ? 63 - d : d, r = i >> 3, c = i & 7;
+    const sq = el('button', 'bd-sq' + ((r + c) % 2 ? ' dk' : '')); sq.type = 'button';
+    if (g && g.last && (g.last.to === i || g.last.from === i)) sq.classList.add('last');
+    if (b.sel === i) sq.classList.add('sel');
+    if (i === chk) sq.classList.add('chk');
+    const tg = targets.find((m) => m.to === i);
+    if (tg) { sq.classList.add('can'); if (cells[i] || tg.cap != null || tg.ep) sq.classList.add('hit'); }
+    const v = cells[i];
+    if (v) {
+      let pc;
+      if (kind === 'chess') pc = el('span', 'pc ' + v[0], CHESS_GLYPH[v[1]] + '︎');
+      else {
+        const col = v.toLowerCase(), who = g ? (col === g.mine ? 'me' : 'p') : col;
+        pc = el('span', 'dsk ' + who, v !== col ? '👑' : '');
+      }
+      if (fresh && g.last.to === i) pc.classList.add('mv');
+      if (fresh && kind === 'reversi' && (g.st.flipped || []).includes(i)) pc.classList.add('flip');
+      sq.append(pc);
+    }
+    if (kind === 'chess') {
+      if (d % 8 === 0) sq.append(el('span', 'crd r', String(8 - r)));
+      if (d >= 56) sq.append(el('span', 'crd f', 'abcdefgh'[c]));
+    }
+    sq.onclick = () => {
+      if (!myTurn) { if (live) haptic([10, 30, 10]); return; }
+      if (tg) {
+        const opts = legal.filter((m) => m.from === tg.from && m.to === i);
+        if (opts.length > 1) { b.promo = { from: tg.from, to: i }; b.sig = ''; renderBoard(kind, data); return; }
+        return boardMove(kind, { from: tg.from, to: i, promo: tg.promo || null });
+      }
+      if (kind === 'reversi') return;
+      const mineHere = v && (kind === 'chess' ? v[0] : v.toLowerCase()) === g.mine;
+      if (mineHere && legal.some((m) => m.from === i)) { b.sel = b.sel === i ? null : i; b.promo = null; haptic(5); }
+      else { b.sel = null; if (mineHere) haptic([10, 30, 10]); }
+      b.sig = ''; renderBoard(kind, data);
+    };
+    board.append(sq);
+  }
+  body.append(board);
+  if (fresh) { dropSound(); if (g.status === 'done' && g.winner === 'me') setTimeout(() => { FX.fireworks(4); FX.shower(2200, { colors: ['#ff4f8b', '#fde68a'], emoji: '🏆' }); haptic([60, 40, 80, 40, 120]); }, 400); }
+  b.seen = key || '-';
+  // Elegir pieza al coronar el peón
+  if (b.promo) {
+    const pr = el('div', 'bd-promo'); pr.append(el('span', null, t('boardPromo')));
+    for (const q of ['Q', 'R', 'B', 'N']) {
+      const btn = el('button', null, CHESS_GLYPH[q] + '︎'); btn.type = 'button';
+      btn.onclick = () => boardMove(kind, { ...b.promo, promo: q });
+      pr.append(btn);
+    }
+    body.append(pr);
+  }
+  const acts = el('div', 'bd-acts');
+  if (live && g.moves > 0) {
+    const rb = el('button', 'btn ghost', b.resign ? t('boardResignSure') : t('boardResign'));
+    rb.onclick = async () => {
+      if (!b.resign) { b.resign = true; b.sig = ''; renderBoard(kind, data); setTimeout(() => { b.resign = false; b.sig = ''; if (state.play) renderBoard(kind, state.play.boards[kind]); }, 3500); return; }
+      b.resign = false; rb.disabled = true;
+      try { state = await api('/api/board', 'POST', { game: kind, act: 'resign' }); renderScience(); renderScore(); } catch (e) { toast(errText(e)); }
+    };
+    acts.append(rb);
+  } else if (!live) {
+    const nb = el('button', 'btn gold', g ? t('c4Revenge') : t('boardNew'));
+    nb.onclick = async () => { nb.disabled = true; try { b.seen = '-'; b.sel = null; state = await api('/api/board', 'POST', { game: kind, act: 'new' }); renderScience(); haptic(12); } catch (e) { toast(errText(e)); nb.disabled = false; } };
+    acts.append(nb);
+  }
+  body.append(acts);
+  const sc = el('div', 'c4-score');
+  const a1 = el('span'); a1.append(el('i')); a1.firstChild.style.background = '#ff4f8b'; a1.append(`${t('wmlMe')} ${num(data.wins.me)}`);
+  const a2 = el('span'); a2.append(el('i')); a2.firstChild.style.background = '#f5c84b'; a2.append(`${pName()} ${num(data.wins.p)}`);
+  sc.append(a1, a2); body.append(sc);
+}
 
 /* ----- 4 en raya de corazones ----- */
 let c4Sig = '', c4Seen = '', c4Busy = false;
@@ -3826,7 +3965,7 @@ function renderStory(p) {
     body.append(el('div', 'lbl', `📚 ${t('storyLib')}`));
     s.books.forEach((b) => {
       const d = el('details', 'story-book');
-      d.append(el('summary', null, `${b.title || t('storyUntitled')} · ${t('storyLines', { n: num(b.lines.length) })} · ${fmtDay(b.done || b.at)}`));
+      d.append(el('summary', null, `${b.title ? showMsg(b.title) : t('storyUntitled')} · ${t('storyLines', { n: num(b.lines.length) })} · ${fmtDay(b.done || b.at)}`));
       d.append(el('p', null, [S0[b.start], ...b.lines.map((l) => showMsg(l.text))].join(' ')));
       if (!b.title) {
         const row = el('div', 'row-in');

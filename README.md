@@ -42,6 +42,12 @@ Un toque en el corazón y a tu pareja le llega una notificación con un mensaje 
 - **Nuestro cofre** 💫: recuerdos que se dejan, lecciones aprendidas y planes de futuro. En Inicio aparece uno cada día.
 - **Temas de temporada**: en diciembre la app se pone **Navidad** (rojo, nieve y guirnalda de luces). En el **mes de cumpleaños** de cada uno se pone el tema que esa persona eligió en Mensajes → Ajustes. Hay también un tema nuevo, **Neón Tokio**.
 
+### Versión «Noche de Yalda» 🍉
+- **Traducción automática arreglada**: lo que escriben ustedes se traduce solo a los idiomas de los dos (antes se gastaba el cupo diario traduciendo a 11 idiomas y muchos textos se quedaban sin traducir). Los mensajes escritos llegan **ya traducidos en la notificación**, se reintenta solo si el traductor falla, se detecta el idioma por las letras (p. ej. persa con la app en español) y ahora también se traducen nombres de fechas, títulos de fotos e historias.
+- **Juegos de mesa** ♟️, por turnos y con aviso: **Ajedrez** (+5), **Damas** españolas (+3) y **Reversi** (+3). Marcan las jugadas posibles, se puede rendir y empieza la revancha quien perdió.
+- **Pestañas ordenadas**: *Juegos* (juegos de mesa y más juegos) y *Preguntas* con todas las preguntas juntas (pregunta del día, mapas del amor, 36 preguntas, esto o aquello y ¿quién es más probable?). Se quitó «7 deseos para Sahar».
+- **Fondo de Shab-e Yalda** 🍉: granadas, sandía, velas, estrellas y luna. Se pone solo del 14 al 22 de diciembre y se puede elegir siempre en Ajustes.
+
 ## 1. Publicarla en internet (unos 10 minutos)
 
 En iPhone, las notificaciones solo funcionan si la app está publicada con **HTTPS**. La opción más sencilla es [Render.com](https://render.com):
