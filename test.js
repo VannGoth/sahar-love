@@ -395,7 +395,7 @@ const { app, ready, streakInfo, recordDay, prevDay, runReminders, flush } = requ
     await S.translatePending(10);
     global.fetch = realFetch;
     assert.ok(asked.filter((a) => a.q === 'Eres mi sol').every((a) => a.pair.startsWith('es|')), 'traduce desde el idioma de quien lo escribió');
-    assert.ok(asked.filter((a) => a.q === 'Más colores').every((a) => a.pair.startsWith('fa-IR|')), 'los deseos de Mina se traducen desde su idioma');
+    assert.ok(asked.length && asked.every((a) => /^(es|fa-IR)\|(es|fa-IR)$/.test(a.pair)), 'solo a los idiomas de la pareja: ' + asked.map((a) => a.pair).join());
     const stFa = (await c2('GET', '/api/state?userId=p2')).json;
     assert.strictEqual(stFa.trans['Eres mi sol'], '[fa-IR] Eres mi sol');
     const stEs = (await c2('GET', '/api/state?userId=p1')).json;
@@ -407,6 +407,21 @@ const { app, ready, streakInfo, recordDay, prevDay, runReminders, flush } = requ
     await S.translatePending(10);
     global.fetch = realFetch;
     assert.strictEqual((await c2('GET', '/api/state?userId=p1')).json.trans['دوستت دارم عزیزم'], undefined);
+    // Lo escrito a mano llega ya traducido en la notificación
+    global.fetch = async (url, opts) => {
+      if (String(url).startsWith('https://api.mymemory.translated.net/')) {
+        const u = new URL(url), tgt = u.searchParams.get('langpair').split('|')[1];
+        return new Response(JSON.stringify({ responseStatus: 200, responseData: { translatedText: `[${tgt}] ${u.searchParams.get('q')}` } }), { status: 200 });
+      }
+      return realFetch(url, opts);
+    };
+    const pbT = pushes.length;
+    await c2('POST', '/api/send', { userId: 'p1', text: 'Buenas noches, cielo' });
+    global.fetch = realFetch;
+    assert.ok(pushes.slice(pbT).some((x) => x.payload.body === '[fa-IR] Buenas noches, cielo'), 'notificación traducida');
+    // Escrito en persa con la app en español: se detecta el idioma por las letras
+    assert.strictEqual(S.guessSrc('سلام عزیزم', 'es', ['es', 'fa']), 'fa');
+    assert.strictEqual(S.guessSrc('Hola', 'es', ['es', 'fa']), 'es');
     console.log('✓ traducción automática');
 
     // Tipos de toque
@@ -728,6 +743,61 @@ const { app, ready, streakInfo, recordDay, prevDay, runReminders, flush } = requ
       sy = (await hdr('POST', '/api/story', 'p2', { act: 'title', id: sy.books[0].id, title: 'El billete secreto' })).json.play.story;
       assert.strictEqual(sy.books[0].title, 'El billete secreto');
       console.log('✓ juegos 2: 4 en raya, ¿quién es más probable?, nuestra historia');
+      // Juegos de mesa: ajedrez, damas y reversi
+      const BD = require('./public/boards.js');
+      let chs = (await hdr('POST', '/api/board', 'p1', { game: 'chess', act: 'new' })).json.play.boards.chess;
+      assert.ok(chs.game.turn === 'me' && chs.game.mine === 'w' && chs.game.st.board.length === 64);
+      assert.strictEqual((await hdr('POST', '/api/board', 'p2', { game: 'chess', act: 'move', move: { from: 12, to: 28 } })).status, 400, 'no es su turno');
+      assert.strictEqual((await hdr('POST', '/api/board', 'p1', { game: 'chess', act: 'move', move: { from: 52, to: 28 } })).status, 400, 'jugada ilegal');
+      const chPts = (await hdr('GET', '/api/state', 'p1')).json.score.me;
+      // Mate del pastor
+      for (const [who, f, t2] of [['p1', 52, 36], ['p2', 12, 28], ['p1', 61, 34], ['p2', 1, 18], ['p1', 59, 31], ['p2', 6, 21]]) {
+        assert.strictEqual((await hdr('POST', '/api/board', who, { game: 'chess', act: 'move', move: { from: f, to: t2 } })).status, 200, `${f}-${t2}`);
+      }
+      chs = (await hdr('POST', '/api/board', 'p1', { game: 'chess', act: 'move', move: { from: 31, to: 13 } })).json.play.boards.chess;
+      assert.ok(chs.game.status === 'done' && chs.game.winner === 'me' && chs.game.reason === 'mate' && chs.wins.me === 1);
+      assert.strictEqual((await hdr('GET', '/api/state', 'p1')).json.score.me, chPts + 5);
+      assert.strictEqual((await hdr('GET', '/api/state', 'p2')).json.play.boards.chess.game.winner, 'p');
+      chs = (await hdr('POST', '/api/board', 'p1', { game: 'chess', act: 'new' })).json.play.boards.chess;
+      assert.ok(chs.game.turn === 'p' && chs.game.mine === 'b', 'empieza (con blancas) quien perdió');
+      // Coronación
+      const CG = BD.GAMES.chess;
+      let ps = { board: Array(64).fill(null), turn: 'w', castle: '', ep: null, half: 0, seen: {} };
+      ps.board[8] = 'wP'; ps.board[60] = 'wK'; ps.board[7] = 'bK';
+      assert.strictEqual(CG.moves(ps).filter((m) => m.from === 8).length, 4, 'cuatro opciones al coronar');
+      ps = CG.apply(ps, CG.moves(ps).find((m) => m.promo === 'Q'));
+      assert.strictEqual(ps.board[0], 'wQ');
+      // Damas: capturar es obligatorio y los saltos se encadenan
+      const KG = BD.GAMES.checkers;
+      let ks = KG.init();
+      assert.ok(KG.moves(ks).length === 7 && KG.moves(ks).every((m) => m.cap == null));
+      ks = { board: Array(64).fill(null), turn: 'w', chain: null, quiet: 0 };
+      ks.board[56] = 'w'; ks.board[49] = 'b'; ks.board[33] = 'b'; ks.board[62] = 'w';
+      assert.ok(KG.moves(ks).every((m) => m.cap != null), 'si se puede comer, hay que comer');
+      ks = KG.apply(ks, KG.moves(ks)[0]);
+      assert.ok(ks.chain === 42 && ks.turn === 'w', 'sigue saltando');
+      ks = KG.apply(ks, KG.moves(ks)[0]);
+      assert.ok(ks.board[24] === 'w' && ks.turn === 'b' && KG.result(ks).winner === 'w');
+      let ck = (await hdr('POST', '/api/board', 'p2', { game: 'checkers', act: 'new' })).json.play.boards.checkers;
+      assert.ok(ck.game.mine === 'w' && ck.game.turn === 'me');
+      const ckm = KG.moves(ck.game.st)[0];
+      ck = (await hdr('POST', '/api/board', 'p2', { game: 'checkers', act: 'move', move: ckm })).json.play.boards.checkers;
+      assert.ok(ck.game.turn === 'p' && ck.game.moves === 1);
+      // Rendirse
+      ck = (await hdr('POST', '/api/board', 'p1', { game: 'checkers', act: 'resign' })).json.play.boards.checkers;
+      assert.ok(ck.game.status === 'done' && ck.game.winner === 'p' && ck.game.reason === 'resign' && ck.wins.p === 0, 'rendirse pronto no regala puntos');
+      // Reversi: empiezan las negras y se dan la vuelta las fichas
+      const RG = BD.GAMES.reversi;
+      let rs = RG.init();
+      assert.strictEqual(RG.moves(rs).length, 4);
+      rs = RG.apply(rs, { from: null, to: 19 });
+      assert.deepStrictEqual(BD.rvCount(rs.board), { w: 1, b: 4 });
+      let rv = (await hdr('POST', '/api/board', 'p1', { game: 'reversi', act: 'new' })).json.play.boards.reversi;
+      assert.ok(rv.game.mine === 'b' && rv.game.turn === 'me');
+      rv = (await hdr('POST', '/api/board', 'p1', { game: 'reversi', act: 'move', move: { to: 19 } })).json.play.boards.reversi;
+      assert.ok(rv.game.turn === 'p' && rv.game.st.board[27] === 'b');
+      assert.strictEqual((await hdr('POST', '/api/board', 'p1', { game: 'go', act: 'new' })).status, 400);
+      console.log('✓ juegos de mesa: ajedrez, damas y reversi');
     }
 
     // Desvincular: el último en salir borra la pareja
